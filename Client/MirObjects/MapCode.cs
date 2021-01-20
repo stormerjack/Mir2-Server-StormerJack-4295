@@ -670,10 +670,10 @@ namespace Client.MirObjects
         private short FixIndex(short index)
         {
             int newindex = index;
-            if (index > 110 && index <= 120)
+            if (index >= 110 && index < 120)
                 newindex = index + 190;
 
-            if (index > 120 && index < 190)
+            if (index >= 120 && index < 190)
                 newindex = index + 380;
 
             if (index == 190)
