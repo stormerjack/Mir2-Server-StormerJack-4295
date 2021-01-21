@@ -622,7 +622,8 @@ namespace Client.MirObjects
             try 
             { 
                 int offset = 4;
-                if ((Bytes[0]!= 1) || (Bytes[1] != 0)) return;//only support version 1 atm
+                byte version = Bytes[0];
+                if (version > 2 || (Bytes[1] != 0)) return;//only support version 1 atm
                 Width = BitConverter.ToInt16(Bytes, offset);
                 offset += 2;
                 Height = BitConverter.ToInt16(Bytes, offset);
@@ -632,15 +633,15 @@ namespace Client.MirObjects
                     for (int y = 0; y < Height; y++)
                     {
                         MapCells[x, y] = new CellInfo();
-                        MapCells[x, y].BackIndex = FixIndex((short)BitConverter.ToInt16(Bytes, offset));
+                        MapCells[x, y].BackIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].BackImage = (int)BitConverter.ToInt32(Bytes, offset);
                         offset += 4;
-                        MapCells[x, y].MiddleIndex = FixIndex((short)BitConverter.ToInt16(Bytes, offset));
+                        MapCells[x, y].MiddleIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].MiddleImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        MapCells[x, y].FrontIndex = FixIndex((short)BitConverter.ToInt16(Bytes, offset));
+                        MapCells[x, y].FrontIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].FrontImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
@@ -667,8 +668,11 @@ namespace Client.MirObjects
             }
         }
 
-        private short FixIndex(short index)
+        private short FixIndex(byte version, short index)
         {
+            if (version > 1)
+                return index;
+
             int newindex = index;
             if (index >= 110 && index < 120)
                 newindex = index + 190;
