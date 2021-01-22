@@ -486,6 +486,7 @@ namespace Client.MirGraphics
         private int[] _indexList;
         private int _count;
         private bool _initialized;
+        private int currentVersion;
 
         private BinaryReader _reader;
         private FileStream _fStream;
@@ -511,7 +512,7 @@ namespace Client.MirGraphics
             {
                 _fStream = new FileStream(_fileName, FileMode.Open, FileAccess.Read);
                 _reader = new BinaryReader(_fStream);
-                int currentVersion = _reader.ReadInt32();
+                currentVersion = _reader.ReadInt32();
                 if (currentVersion < 2)
                 {
                     System.Windows.Forms.MessageBox.Show("Wrong version, expecting lib version: " + LibVersion.ToString() + " found version: " + currentVersion.ToString() + ".", _fileName, System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error, System.Windows.Forms.MessageBoxDefaultButton.Button1);
@@ -520,8 +521,22 @@ namespace Client.MirGraphics
                 }
                 _count = _reader.ReadInt32();
 
+                if (currentVersion >= 4)
+                {
+                    var frameCount = _reader.ReadInt32();
+
+                    if (frameCount > 0)
+                    {
+                        _frames = new FrameSet();
+                        for (int i = 0; i < frameCount; i++)
+                        {
+                            _frames.Add((MirAction)_reader.ReadByte(), new Frame(_reader));
+                        }
+                    }
+                }
+
                 int frameSeek = 0;
-                if (currentVersion >= 3)
+                if (currentVersion == 3)
                 {
                     frameSeek = _reader.ReadInt32();
                 }
@@ -532,7 +547,7 @@ namespace Client.MirGraphics
                 for (int i = 0; i < _count; i++)
                     _indexList[i] = _reader.ReadInt32();
 
-                if (currentVersion >= 3)
+                if (currentVersion == 3)
                 {
                     _fStream.Seek(frameSeek, SeekOrigin.Begin);
 
@@ -566,7 +581,7 @@ namespace Client.MirGraphics
             if (_images[index] == null)
             {
                 _fStream.Position = _indexList[index];
-                _images[index] = new MImage(_reader);
+                _images[index] = new MImage(_reader, currentVersion);
             }
             MImage mi = _images[index];
             if (!mi.TextureValid)
@@ -590,7 +605,7 @@ namespace Client.MirGraphics
             if (_images[index] == null)
             {
                 _fStream.Seek(_indexList[index], SeekOrigin.Begin);
-                _images[index] = new MImage(_reader);
+                _images[index] = new MImage(_reader, currentVersion);
             }
 
             return new Point(_images[index].X, _images[index].Y);
@@ -604,7 +619,7 @@ namespace Client.MirGraphics
             if (_images[index] == null)
             {
                 _fStream.Seek(_indexList[index], SeekOrigin.Begin);
-                _images[index] = new MImage(_reader);
+                _images[index] = new MImage(_reader, currentVersion);
             }
 
             return new Size(_images[index].Width, _images[index].Height);
@@ -620,7 +635,7 @@ namespace Client.MirGraphics
             if (_images[index] == null)
             {
                 _fStream.Position = _indexList[index];
-                _images[index] = new MImage(_reader);
+                _images[index] = new MImage(_reader, currentVersion);
             }
             MImage mi = _images[index];
             if (mi.TrueSize.IsEmpty)
@@ -883,17 +898,20 @@ namespace Client.MirGraphics
 
         public unsafe byte* Data;
 
-        public MImage(BinaryReader reader)
+        public MImage(BinaryReader reader, int version)
         {
             //read layer 1
             Width = reader.ReadInt16();
             Height = reader.ReadInt16();
+            if (version >= 4)
+                Length = reader.ReadInt32();
             X = reader.ReadInt16();
             Y = reader.ReadInt16();
             ShadowX = reader.ReadInt16();
             ShadowY = reader.ReadInt16();
             Shadow = reader.ReadByte();
-            Length = reader.ReadInt32();
+            if (version < 4)
+                Length = reader.ReadInt32();
 
             //check if there's a second layer and read it
             HasMask = ((Shadow >> 7) == 1) ? true : false;
