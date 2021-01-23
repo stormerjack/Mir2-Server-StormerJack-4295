@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -90,5 +91,62 @@ public class QuestItemReward
     {
         Item.Save(writer);
         writer.Write(Count);
+    }
+}
+
+public class ClientMovementInfo
+{
+    public int DestinationIndex;
+    public Point Source;
+
+    public ClientMovementInfo() { }
+
+    public ClientMovementInfo(BinaryReader reader)
+    {
+        DestinationIndex = reader.ReadInt32();
+        Source = new Point(reader.ReadInt32(), reader.ReadInt32());
+    }
+
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write(DestinationIndex);
+        writer.Write(Source.X);
+        writer.Write(Source.Y);
+    }
+}
+
+public class ClientMapInfo
+{
+    public int MapIndex;
+    public Size MapSize;
+    public string MapName;
+    public int BigMap;
+    public List<ClientMovementInfo> Movements = new List<ClientMovementInfo>();
+
+    public ClientMapInfo() { }
+
+    public ClientMapInfo(BinaryReader reader)
+    {
+        MapIndex = reader.ReadInt32();
+        MapName = reader.ReadString();
+        BigMap = reader.ReadInt32();
+        MapSize = new Size(reader.ReadInt32(), reader.ReadInt32());
+
+        int count = reader.ReadInt32();
+        for (int i = 0; i < count; i++)
+            Movements.Add(new ClientMovementInfo(reader));
+    }
+
+    public void Save(BinaryWriter writer)
+    {
+        writer.Write(MapIndex);
+        writer.Write(MapName);
+        writer.Write(BigMap);
+        writer.Write(MapSize.Width);
+        writer.Write(MapSize.Height);
+
+        writer.Write(Movements.Count);
+        foreach (ClientMovementInfo movement in Movements)
+            movement.Save(writer);
     }
 }

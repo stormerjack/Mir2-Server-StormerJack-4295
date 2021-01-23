@@ -1967,6 +1967,25 @@ namespace Server.MirObjects
             Connection.SentQuestInfo.Add(info);
         }
 
+        public void CheckMapInfo(MapInfo info)
+        {
+            if (!Connection.SentMapInfo.Contains(info.Index))
+            {
+                Enqueue(new S.NewMapInfo { Info = info.ClientInfo });
+                Connection.SentMapInfo.Add(info.Index);
+            }
+
+            foreach (int i in info.Movements.Where(x => x.Show).Select(e => e.MapIndex).ToList())
+            {
+                Map map = Envir.GetMap(i);
+                if (map == null) continue;
+                if (Connection.SentMapInfo.Contains(map.Info.Index)) continue;
+
+                Enqueue(new S.NewMapInfo { Info = map.Info.ClientInfo });
+                Connection.SentMapInfo.Add(map.Info.Index);
+            }
+        }
+
         public void CheckRecipeInfo(RecipeInfo info)
         {
             if (Connection.SentRecipeInfo.Contains(info)) return;
@@ -2274,6 +2293,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2284,6 +2304,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             GetObjects();
 
@@ -2329,6 +2351,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2339,6 +2362,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             GetObjects();
             Enqueue(new S.Revived());
@@ -2433,6 +2458,7 @@ namespace Server.MirObjects
         {
             Enqueue(new S.MapInformation
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2443,6 +2469,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music,
             });
+
+            CheckMapInfo(CurrentMap.Info);
         }
 
         private void GetQuestInfo()
@@ -9963,6 +9991,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -9973,6 +10002,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             if (RidingMount) RefreshMount();
 
@@ -10016,6 +10047,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -10026,6 +10058,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             if (effects) Enqueue(new S.ObjectTeleportIn { ObjectID = ObjectID, Type = effectnumber });
 
@@ -16702,6 +16736,15 @@ namespace Server.MirObjects
             }
 
             Enqueue(p);
+        }
+
+        public void GetMapInfo(int index)
+        {
+            MapInfo info = Envir.MapInfoList.FirstOrDefault(x => x.Index == index);
+
+            if (info == null) return;
+
+            CheckMapInfo(info);
         }
 
         

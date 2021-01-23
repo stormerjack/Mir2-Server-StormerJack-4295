@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Server.MirEnvir;
 
 namespace Server.MirDatabase
@@ -37,6 +38,8 @@ namespace Server.MirDatabase
         public List<NPCInfo> NPCs = new List<NPCInfo>();
         public List<MineZone> MineZones = new List<MineZone>();
         public List<Point> ActiveCoords = new List<Point>();
+
+        public ClientMapInfo ClientInfo;
 
         public MapInfo()
         {
@@ -170,9 +173,34 @@ namespace Server.MirDatabase
 
             Envir.MapList.Add(map);
 
+            CreateClientMapInfo();
+            ClientInfo.MapSize = new Size(map.Width, map.Height);
+
             for (int i = 0; i < SafeZones.Count; i++)
                 if (SafeZones[i].StartPoint)
                     Envir.StartPoints.Add(SafeZones[i]);
+        }
+
+        private void CreateClientMapInfo()
+        {
+            ClientMapInfo cmi = new ClientMapInfo()
+            {
+                MapIndex = Index,
+                MapName = Title,
+                BigMap = BigMap
+            };
+
+            foreach (MovementInfo mi in Movements.Where(x => x.Show))
+            {
+                ClientMovementInfo cmov = new ClientMovementInfo()
+                {
+                    DestinationIndex = mi.MapIndex,
+                    Source = mi.Source
+                };
+                cmi.Movements.Add(cmov);
+            }
+
+            ClientInfo = cmi;
         }
 
         public void CreateSafeZone()

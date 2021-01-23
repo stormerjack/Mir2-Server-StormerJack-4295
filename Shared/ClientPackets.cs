@@ -1098,6 +1098,23 @@ namespace ClientPackets
         }
     }
 
+    public sealed class GetMapInfo : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.GetMapInfo; } }
+
+        public int MapIndex;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            MapIndex = reader.ReadInt32();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(MapIndex);
+        }
+    }
+
 
     public sealed class TradeReply : Packet
     {

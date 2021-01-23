@@ -401,6 +401,7 @@ namespace Server
                 SourceYTextBox.Text = string.Empty;
                 NeedHoleMCheckBox.Checked = false;
                 NeedMoveMCheckBox.Checked = false;
+                ShowMCheckBox.Checked = false;
                 DestMapComboBox.SelectedItem = null;
                 ConquestComboBox.SelectedIndex = 0;
                 DestXTextBox.Text = string.Empty;
@@ -416,11 +417,13 @@ namespace Server
             SourceYTextBox.Text = info.Source.Y.ToString();
             NeedHoleMCheckBox.Checked = info.NeedHole;
             NeedMoveMCheckBox.Checked = info.NeedMove;
+            ShowMCheckBox.Checked = info.Show;
             DestMapComboBox.SelectedItem = Envir.MapInfoList.FirstOrDefault(x => x.Index == info.MapIndex);
             DestXTextBox.Text = info.Destination.X.ToString();
             DestYTextBox.Text = info.Destination.Y.ToString();
 
             ConquestComboBox.SelectedItem = Envir.ConquestInfos.FirstOrDefault(x => x.Index == info.ConquestIndex);
+
             if (ConquestComboBox.SelectedItem == null) ConquestComboBox.SelectedIndex = 0;
 
             for (int i = 1; i < _selectedMovementInfos.Count; i++)
@@ -1708,6 +1711,14 @@ namespace Server
             if (ActiveControl != sender) return;
             for (int i = 0; i < _selectedMapInfos.Count; i++)
                 _selectedMapInfos[i].NoReincarnation = NoReincarnation.Checked;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            for (int i = 0; i < _selectedMovementInfos.Count; i++)
+                _selectedMovementInfos[i].Show = ShowMCheckBox.Checked;
         }
     }
 }

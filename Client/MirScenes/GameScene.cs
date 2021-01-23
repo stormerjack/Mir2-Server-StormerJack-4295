@@ -124,6 +124,7 @@ namespace Client.MirScenes
         public static List<ClientQuestInfo> QuestInfoList = new List<ClientQuestInfo>();
         public static List<GameShopItem> GameShopInfoList = new List<GameShopItem>();
         public static List<ClientRecipeInfo> RecipeInfoList = new List<ClientRecipeInfo>();
+        public static List<ClientMapInfo> MapInfoList = new List<ClientMapInfo>();
 
         public List<Buff> Buffs = new List<Buff>();
 
@@ -1734,7 +1735,7 @@ namespace Client.MirScenes
         {
             if (MapControl != null && !MapControl.IsDisposed)
                 MapControl.Dispose();
-            MapControl = new MapControl { FileName = Path.Combine(Settings.MapPath, p.FileName + ".map"), Title = p.Title, MiniMap = p.MiniMap, BigMap = p.BigMap, Lights = p.Lights, Lightning = p.Lightning, Fire = p.Fire, MapDarkLight = p.MapDarkLight, Music = p.Music };
+            MapControl = new MapControl { MapIndex = p.MapIndex, FileName = Path.Combine(Settings.MapPath, p.FileName + ".map"), Title = p.Title, MiniMap = p.MiniMap, BigMap = p.BigMap, Lights = p.Lights, Lightning = p.Lightning, Fire = p.Fire, MapDarkLight = p.MapDarkLight, Music = p.Music };
             MapControl.LoadMap();
             InsertControl(0, MapControl);
         }
@@ -3240,6 +3241,7 @@ namespace Client.MirScenes
         }
         private void MapChanged(S.MapChanged p)
         {
+            MapControl.MapIndex = p.MapIndex;
             MapControl.FileName = Path.Combine(Settings.MapPath, p.FileName + ".map");
             MapControl.Title = p.Title;
             MapControl.MiniMap = p.MiniMap;
@@ -8652,6 +8654,7 @@ namespace Client.MirScenes
         public List<Door> Doors = new List<Door>();
         public int Width, Height;
 
+        public int MapIndex;
         public string FileName = String.Empty;
         public string Title = String.Empty;
         public ushort MiniMap, BigMap, Music, SetMusic;
