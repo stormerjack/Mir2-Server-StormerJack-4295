@@ -1318,7 +1318,8 @@ public enum ItemType : byte
     Pets = 36,
     Transform = 37,
     Deco = 38,
-    Socket = 39
+    Socket = 39,
+    ShoulderPads = 40,
 }
 
 public enum MirGridType : byte
@@ -1361,7 +1362,8 @@ public enum EquipmentSlot : byte
     Belt = 10,
     Boots = 11,
     Stone = 12,
-    Mount = 13
+    Mount = 13,
+    ShoulderPads = 14,
 }
 
 public enum MountSlot : byte

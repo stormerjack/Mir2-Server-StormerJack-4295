@@ -183,6 +183,7 @@ public class GameLanguage
                          ItemTypeBelt = "Belt",
                          ItemTypeBoots = "Boots",
                          ItemTypeStone = "Stone",
+                         ItemTypeShoulderPads = "ShoulderPads",
                          ItemTypeTorch = "Torch",
                          ItemTypePotion = "Potion",
                          ItemTypeOre = "Ore",
@@ -457,6 +458,7 @@ public class GameLanguage
         GameLanguage.ItemTypeBelt = reader.ReadString("Language", "ItemTypeBelt", GameLanguage.ItemTypeBelt);
         GameLanguage.ItemTypeBoots = reader.ReadString("Language", "ItemTypeBoots", GameLanguage.ItemTypeBoots);
         GameLanguage.ItemTypeStone = reader.ReadString("Language", "ItemTypeStone", GameLanguage.ItemTypeStone);
+        GameLanguage.ItemTypeShoulderPads = reader.ReadString("Language", "ItemTypeShoulderPads", GameLanguage.ItemTypeShoulderPads);
         GameLanguage.ItemTypeTorch = reader.ReadString("Language", "ItemTypeTorch", GameLanguage.ItemTypeTorch);
         GameLanguage.ItemTypePotion = reader.ReadString("Language", "ItemTypePotion", GameLanguage.ItemTypePotion);
         GameLanguage.ItemTypeOre = reader.ReadString("Language", "ItemTypeOre", GameLanguage.ItemTypeOre);
@@ -685,6 +687,7 @@ public class GameLanguage
         reader.Write("Language", "ItemTypeBelt", GameLanguage.ItemTypeBelt);
         reader.Write("Language", "ItemTypeBoots", GameLanguage.ItemTypeBoots);
         reader.Write("Language", "ItemTypeStone", GameLanguage.ItemTypeStone);
+        reader.Write("Language", "ItemTypeShoulderPads", GameLanguage.ItemTypeShoulderPads);
         reader.Write("Language", "ItemTypeTorch", GameLanguage.ItemTypeTorch);
         reader.Write("Language", "ItemTypePotion", GameLanguage.ItemTypePotion);
         reader.Write("Language", "ItemTypeOre", GameLanguage.ItemTypeOre);

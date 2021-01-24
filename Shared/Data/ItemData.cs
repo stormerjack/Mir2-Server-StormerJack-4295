@@ -1249,6 +1249,7 @@ public class RandomItemStat
                 SetWeapon();
                 break;
             case ItemType.Armour:
+            case ItemType.ShoulderPads:
                 SetArmour();
                 break;
             case ItemType.Helmet:

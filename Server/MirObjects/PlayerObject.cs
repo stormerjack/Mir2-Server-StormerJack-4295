@@ -12190,6 +12190,7 @@ namespace Server.MirObjects
                         case ItemType.Helmet:
                         case ItemType.Boots:
                         case ItemType.Belt:
+                        case ItemType.ShoulderPads:
                             if (tempFrom.Info.Shape == 2 || tempFrom.Info.Shape == 6)
                                 canRepair = true;
                             break;
@@ -13402,6 +13403,10 @@ namespace Server.MirObjects
                     break;
                 case EquipmentSlot.Mount:
                     if (item.Info.Type != ItemType.Mount)
+                        return false;
+                    break;
+                case EquipmentSlot.ShoulderPads:
+                    if (item.Info.Type != ItemType.ShoulderPads)
                         return false;
                     break;
                 default:

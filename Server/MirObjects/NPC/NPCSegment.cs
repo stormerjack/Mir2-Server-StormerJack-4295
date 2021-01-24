@@ -1341,6 +1341,10 @@ namespace Server.MirObjects
                     newValue = player.Info.Equipment[(int)EquipmentSlot.Boots] != null ?
                         player.Info.Equipment[(int)EquipmentSlot.Boots].FriendlyName : "No Boots";
                     break;
+                case "SHOULDERPADS":
+                    newValue = player.Info.Equipment[(int)EquipmentSlot.ShoulderPads] != null ?
+                        player.Info.Equipment[(int)EquipmentSlot.ShoulderPads].FriendlyName : "No ShoulderPads";
+                    break;
                 case "HELMET":
                     newValue = player.Info.Equipment[(int)EquipmentSlot.Helmet] != null ?
                         player.Info.Equipment[(int)EquipmentSlot.Helmet].FriendlyName : "No Helmet";

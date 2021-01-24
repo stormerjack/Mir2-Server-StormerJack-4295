@@ -474,6 +474,14 @@ namespace Client.MirControls
                         Locked = true;
                     }
                     break;
+                case ItemType.ShoulderPads:
+                    if (dialog.Grid[(int)EquipmentSlot.ShoulderPads].CanWearItem(Item))
+                    {
+                        Network.Enqueue(new C.EquipItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)EquipmentSlot.ShoulderPads });
+                        dialog.Grid[(int)EquipmentSlot.ShoulderPads].Locked = true;
+                        Locked = true;
+                    }
+                    break;
                 case ItemType.Torch:
                     if (dialog.Grid[(int)EquipmentSlot.Torch].CanWearItem(Item))
                     {
@@ -1736,6 +1744,8 @@ namespace Client.MirControls
                     return type == ItemType.Stone;
                 case EquipmentSlot.Mount:
                     return type == ItemType.Mount;
+                case EquipmentSlot.ShoulderPads:
+                    return type == ItemType.ShoulderPads;
                 default:
                     return false;
             }

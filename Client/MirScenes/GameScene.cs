@@ -5705,6 +5705,9 @@ namespace Client.MirScenes
                 case ItemType.Stone:
                     baseText = GameLanguage.ItemTypeStone;
                     break;
+                case ItemType.ShoulderPads:
+                    baseText = GameLanguage.ItemTypeShoulderPads;
+                    break;
                 case ItemType.Torch:
                     baseText = GameLanguage.ItemTypeTorch;
                     break;

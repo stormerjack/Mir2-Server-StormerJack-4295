@@ -67,6 +67,7 @@ public class IntelligentCreatureItemFilter
     public bool PetPickupBelts = false;
     public bool PetPickupAccessories = false;
     public bool PetPickupOthers = false;
+    public bool PetPickupShoulderPads = false;
 
     public ItemGrade PickupGrade = ItemGrade.None;
 
@@ -88,6 +89,7 @@ public class IntelligentCreatureItemFilter
                 PetPickupBelts = false;
                 PetPickupAccessories = false;
                 PetPickupOthers = false;
+                PetPickupShoulderPads = false;
                 break;
             case 1://gold
                 PetPickupAll = false;
@@ -121,8 +123,12 @@ public class IntelligentCreatureItemFilter
                 PetPickupAll = false;
                 PetPickupOthers = !PetPickupOthers;
                 break;
+            case 9://shoulderpads
+                PetPickupAll = false;
+                PetPickupShoulderPads = !PetPickupShoulderPads;
+                break;
         }
-        if (PetPickupGold && PetPickupWeapons && PetPickupArmours && PetPickupHelmets && PetPickupBoots && PetPickupBelts && PetPickupAccessories && PetPickupOthers)
+        if (PetPickupGold && PetPickupWeapons && PetPickupArmours && PetPickupHelmets && PetPickupBoots && PetPickupBelts && PetPickupAccessories && PetPickupOthers && PetPickupShoulderPads)
         {
             PetPickupAll = true;
             PetPickupGold = false;
@@ -133,15 +139,15 @@ public class IntelligentCreatureItemFilter
             PetPickupBelts = false;
             PetPickupAccessories = false;
             PetPickupOthers = false;
+            PetPickupShoulderPads = false;
         }
-        else
-            if (!PetPickupGold && !PetPickupWeapons && !PetPickupArmours && !PetPickupHelmets && !PetPickupBoots && !PetPickupBelts && !PetPickupAccessories && !PetPickupOthers)
+        else if (!PetPickupGold && !PetPickupWeapons && !PetPickupArmours && !PetPickupHelmets && !PetPickupBoots && !PetPickupBelts && !PetPickupAccessories && !PetPickupOthers && !PetPickupShoulderPads)
         {
             PetPickupAll = true;
         }
     }
 
-    public IntelligentCreatureItemFilter(BinaryReader reader)
+    public IntelligentCreatureItemFilter(BinaryReader reader, int version = int.MaxValue)
     {
         PetPickupAll = reader.ReadBoolean();
         PetPickupGold = reader.ReadBoolean();
@@ -152,6 +158,8 @@ public class IntelligentCreatureItemFilter
         PetPickupBelts = reader.ReadBoolean();
         PetPickupAccessories = reader.ReadBoolean();
         PetPickupOthers = reader.ReadBoolean();
+        if (version > 85)
+            PetPickupShoulderPads = reader.ReadBoolean();
         //PickupGrade = (ItemGrade)reader.ReadByte();
     }
 
@@ -166,6 +174,7 @@ public class IntelligentCreatureItemFilter
         writer.Write(PetPickupBelts);
         writer.Write(PetPickupAccessories);
         writer.Write(PetPickupOthers);
+        writer.Write(PetPickupShoulderPads);
         //writer.Write((byte)PickupGrade);
     }
 }

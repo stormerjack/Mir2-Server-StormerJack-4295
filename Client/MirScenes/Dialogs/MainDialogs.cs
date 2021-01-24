@@ -2584,7 +2584,7 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Boots,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(48, 242),
+                Location = new Point(88, 242),
             };
 
             Grid[(int)EquipmentSlot.Belt] = new MirItemCell
@@ -2592,16 +2592,23 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Belt,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(88, 242),
+                Location = new Point(128, 242),
             };
-
 
             Grid[(int)EquipmentSlot.Stone] = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Stone,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(128, 242),
+                Location = new Point(203, 242),
+            };
+
+            Grid[(int)EquipmentSlot.ShoulderPads] = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.ShoulderPads,
+                GridType = MirGridType.Equipment,
+                Parent = CharacterPage,
+                Location = new Point(8, 134),
             };
 
             Grid[(int)EquipmentSlot.Mount] = new MirItemCell
@@ -3369,7 +3376,8 @@ namespace Client.MirScenes.Dialogs
             BeltCell,
             BootsCell,
             StoneCell,
-            MountCell;
+            MountCell,
+            ShoulderPadsCell;
 
         public InspectDialog()
         {
@@ -3642,14 +3650,15 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Boots,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(48, 242),
+                Location = new Point(88, 242),
             };
+
             BeltCell = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Belt,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(88, 242),
+                Location = new Point(128, 242),
             };
 
             StoneCell = new MirItemCell
@@ -3657,7 +3666,15 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Stone,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(128, 242),
+                Location = new Point(203, 242),
+            };
+
+            ShoulderPadsCell = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.ShoulderPads,
+                GridType = MirGridType.Inspect,
+                Parent = CharacterPage,
+                Location = new Point(8, 134),
             };
 
             MountCell = new MirItemCell

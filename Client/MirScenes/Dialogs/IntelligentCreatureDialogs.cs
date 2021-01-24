@@ -1106,7 +1106,7 @@ namespace Client.MirScenes.Dialogs
     }
     public sealed class IntelligentCreatureOptionsDialog : MirImageControl
     {
-        public readonly string[] OptionNames = { "All Items", "Gold", "Weapons", "Armours", "Helmets", "Boots", "Belts", "Jewelry", "Others" };
+        public readonly string[] OptionNames = { "All Items", "Gold", "Weapons", "Armours", "Helmets", "Boots", "Belts", "Jewelry", "Others", "ShoulderPads" };
         public IntelligentCreatureItemFilter Filter;
         public Point locationOffset = new Point(450, 63);
 
@@ -1122,7 +1122,7 @@ namespace Client.MirScenes.Dialogs
             Location = new Point(GameScene.Scene.IntelligentCreatureDialog.Location.X + locationOffset.X, GameScene.Scene.IntelligentCreatureDialog.Location.Y + locationOffset.Y);
             BeforeDraw += IntelligentCreatureOptionsDialog_BeforeDraw;
 
-            CreatureOptions = new MirCheckBox[9];
+            CreatureOptions = new MirCheckBox[10];
             for (int i = 0; i < CreatureOptions.Length; i++)
             {
                 int offsetY = i * 30;
@@ -1228,6 +1228,9 @@ namespace Client.MirScenes.Dialogs
                         break;
                     case 8://others
                         CreatureOptions[i].Checked = Filter.PetPickupOthers;
+                        break;
+                    case 9://belts
+                        CreatureOptions[i].Checked = Filter.PetPickupShoulderPads;
                         break;
                 }
             }
