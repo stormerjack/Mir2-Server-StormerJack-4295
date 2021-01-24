@@ -2569,7 +2569,6 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(203, 206),
             };
 
-
             Grid[(int)EquipmentSlot.Amulet] = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Amulet,
@@ -2578,6 +2577,13 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(8, 242),
             };
 
+            Grid[(int)EquipmentSlot.Poison] = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.Poison,
+                GridType = MirGridType.Equipment,
+                Parent = CharacterPage,
+                Location = new Point(48, 242),
+            };
 
             Grid[(int)EquipmentSlot.Boots] = new MirItemCell
             {
@@ -3377,7 +3383,8 @@ namespace Client.MirScenes.Dialogs
             BootsCell,
             StoneCell,
             MountCell,
-            ShoulderPadsCell;
+            ShoulderPadsCell,
+            PoisonCell;
 
         public InspectDialog()
         {
@@ -3643,6 +3650,14 @@ namespace Client.MirScenes.Dialogs
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
                 Location = new Point(8, 242),
+            };
+
+            PoisonCell = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.Poison,
+                GridType = MirGridType.Inspect,
+                Parent = CharacterPage,
+                Location = new Point(48, 242),
             };
 
             BootsCell = new MirItemCell

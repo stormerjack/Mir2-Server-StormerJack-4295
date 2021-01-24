@@ -953,7 +953,7 @@ namespace Client.MirObjects
 
             }
 
-            if (item.Info.Type == ItemType.Amulet)
+            if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 0; i < Inventory.Length; i++)
                 {

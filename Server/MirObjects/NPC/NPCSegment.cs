@@ -1353,6 +1353,10 @@ namespace Server.MirObjects
                     newValue = player.Info.Equipment[(int)EquipmentSlot.Amulet] != null ?
                         player.Info.Equipment[(int)EquipmentSlot.Amulet].FriendlyName : "No Amulet";
                     break;
+                case "POISON":
+                    newValue = player.Info.Equipment[(int)EquipmentSlot.Poison] != null ?
+                        player.Info.Equipment[(int)EquipmentSlot.Poison].FriendlyName : "No Poison";
+                    break;
                 case "STONE":
                     newValue = player.Info.Equipment[(int)EquipmentSlot.Stone] != null ?
                         player.Info.Equipment[(int)EquipmentSlot.Stone].FriendlyName : "No Stone";

@@ -180,6 +180,7 @@ public class GameLanguage
                          ItemTypeBracelet = "Bracelet",
                          ItemTypeRing = "Ring",
                          ItemTypeAmulet = "Amulet",
+                         ItemTypePoison = "Poison",
                          ItemTypeBelt = "Belt",
                          ItemTypeBoots = "Boots",
                          ItemTypeStone = "Stone",
@@ -455,6 +456,7 @@ public class GameLanguage
         GameLanguage.ItemTypeBracelet = reader.ReadString("Language", "ItemTypeBracelet", GameLanguage.ItemTypeBracelet);
         GameLanguage.ItemTypeRing = reader.ReadString("Language", "ItemTypeRing", GameLanguage.ItemTypeRing);
         GameLanguage.ItemTypeAmulet = reader.ReadString("Language", "ItemTypeAmulet", GameLanguage.ItemTypeAmulet);
+        GameLanguage.ItemTypePoison = reader.ReadString("Language", "ItemTypePoison", GameLanguage.ItemTypePoison);
         GameLanguage.ItemTypeBelt = reader.ReadString("Language", "ItemTypeBelt", GameLanguage.ItemTypeBelt);
         GameLanguage.ItemTypeBoots = reader.ReadString("Language", "ItemTypeBoots", GameLanguage.ItemTypeBoots);
         GameLanguage.ItemTypeStone = reader.ReadString("Language", "ItemTypeStone", GameLanguage.ItemTypeStone);
@@ -684,6 +686,7 @@ public class GameLanguage
         reader.Write("Language", "ItemTypeBracelet", GameLanguage.ItemTypeBracelet);
         reader.Write("Language", "ItemTypeRing", GameLanguage.ItemTypeRing);
         reader.Write("Language", "ItemTypeAmulet", GameLanguage.ItemTypeAmulet);
+        reader.Write("Language", "ItemTypePoison", GameLanguage.ItemTypePoison);
         reader.Write("Language", "ItemTypeBelt", GameLanguage.ItemTypeBelt);
         reader.Write("Language", "ItemTypeBoots", GameLanguage.ItemTypeBoots);
         reader.Write("Language", "ItemTypeStone", GameLanguage.ItemTypeStone);

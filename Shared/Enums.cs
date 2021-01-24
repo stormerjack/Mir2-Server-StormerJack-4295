@@ -1320,6 +1320,7 @@ public enum ItemType : byte
     Deco = 38,
     Socket = 39,
     ShoulderPads = 40,
+    Poison = 41,
 }
 
 public enum MirGridType : byte
@@ -1364,6 +1365,7 @@ public enum EquipmentSlot : byte
     Stone = 12,
     Mount = 13,
     ShoulderPads = 14,
+    Poison = 15,
 }
 
 public enum MountSlot : byte

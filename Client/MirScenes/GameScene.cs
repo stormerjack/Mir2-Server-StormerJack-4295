@@ -2291,7 +2291,7 @@ namespace Client.MirScenes
                     return;
             }
 
-            if (p.Grid == MirGridType.Inventory && (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || p.Item.Info.Type == ItemType.Amulet || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1)))
+            if (p.Grid == MirGridType.Inventory && (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || p.Item.Info.Type == ItemType.Amulet || p.Item.Info.Type == ItemType.Poison || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1)))
             {
                 if (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1))
                 {
@@ -2303,7 +2303,7 @@ namespace Client.MirScenes
                         return;
                     }
                 }
-                else if (p.Item.Info.Type == ItemType.Amulet)
+                else if (p.Item.Info.Type == ItemType.Amulet || p.Item.Info.Type == ItemType.Poison)
                 {
                     for (int i = 4; i < GameScene.User.BeltIdx; i++)
                     {
@@ -5488,7 +5488,7 @@ namespace Client.MirScenes
                     return;
                 }
             }
-            else if (item.Info.Type == ItemType.Amulet)
+            else if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 4; i < User.BeltIdx; i++)
                 {
@@ -5636,6 +5636,7 @@ namespace Client.MirScenes
                 switch (HoverItem.Info.Type)
                 {
                     case ItemType.Amulet:
+                    case ItemType.Poison:
                         text += string.Format(" Usage {0}/{1}", HoverItem.CurrentDura, HoverItem.MaxDura);
                         break;
                     case ItemType.Ore:
@@ -5695,6 +5696,9 @@ namespace Client.MirScenes
                     break;
                 case ItemType.Amulet:
                     baseText = GameLanguage.ItemTypeAmulet;
+                    break;
+                case ItemType.Poison:
+                    baseText = GameLanguage.ItemTypePoison;
                     break;
                 case ItemType.Belt:
                     baseText = GameLanguage.ItemTypeBelt;

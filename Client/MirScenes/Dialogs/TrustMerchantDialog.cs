@@ -634,7 +634,7 @@ namespace Client.MirScenes.Dialogs
             drapery.SubFilters.Add(new Filter { Index = 203, Title = "Belt", Type = ItemType.Belt });
             drapery.SubFilters.Add(new Filter { Index = 204, Title = "Boots", Type = ItemType.Boots });
             drapery.SubFilters.Add(new Filter { Index = 205, Title = "Stone", Type = ItemType.Stone });
-            //drapery.SubFilters.Add(new Filter { Index = 206, Title = "ShoulderPads", Type = ItemType.ShoulderPads });
+            drapery.SubFilters.Add(new Filter { Index = 206, Title = "ShoulderPads", Type = ItemType.ShoulderPads });
 
             accessory.SubFilters.Add(new Filter { Index = 301, Title = "Necklaces", Type = ItemType.Necklace });
             accessory.SubFilters.Add(new Filter { Index = 302, Title = "Bracelets", Type = ItemType.Bracelet });

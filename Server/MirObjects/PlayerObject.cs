@@ -1870,7 +1870,7 @@ namespace Server.MirObjects
                     return;
                 }
             }
-            else if (item.Info.Type == ItemType.Amulet)
+            else if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 4; i < 6; i++)
                 {
@@ -9758,7 +9758,7 @@ namespace Server.MirObjects
             for (int i = 0; i < Info.Equipment.Length; i++)
             {
                 UserItem item = Info.Equipment[i];
-                if (item != null && item.Info.Type == ItemType.Amulet && item.Count >= count)
+                if (item != null && item.Info.Type == ItemType.Poison && item.Count >= count)
                 {
                     if (shape == 0)
                     {
@@ -11908,7 +11908,7 @@ namespace Server.MirObjects
             Enqueue(p);
             Enqueue(new S.SplitItem { Item = temp, Grid = grid });
 
-            if (grid == MirGridType.Inventory && (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || temp.Info.Type == ItemType.Amulet || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1)))
+            if (grid == MirGridType.Inventory && (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || temp.Info.Type == ItemType.Amulet || temp.Info.Type == ItemType.Poison || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1)))
             {
                 if (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1))
                 {
@@ -11920,7 +11920,7 @@ namespace Server.MirObjects
                         return;
                     }
                 }
-                else if (temp.Info.Type == ItemType.Amulet)
+                else if (temp.Info.Type == ItemType.Amulet || temp.Info.Type == ItemType.Poison)
                 {
                     for (int i = 4; i < 6; i++)
                     {
@@ -12075,7 +12075,7 @@ namespace Server.MirObjects
                 return;
             }
 
-            if (tempTo.Info.Type != ItemType.Amulet && (gridFrom == MirGridType.Equipment || gridTo == MirGridType.Equipment))
+            if ((tempTo.Info.Type != ItemType.Amulet && tempTo.Info.Type != ItemType.Poison) && (gridFrom == MirGridType.Equipment || gridTo == MirGridType.Equipment))
             {
                 Enqueue(p);
                 return;
@@ -12918,7 +12918,7 @@ namespace Server.MirObjects
 
         public bool CanGainItem(UserItem item, bool useWeight = true)
         {
-            if (item.Info.Type == ItemType.Amulet)
+            if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 if (FreeSpace(Info.Inventory) > 0 && (CurrentBagWeight + item.Weight <= MaxBagWeight || !useWeight)) return true;
 
@@ -13377,7 +13377,7 @@ namespace Server.MirObjects
                         return false;
                     break;
                 case EquipmentSlot.BraceletR:
-                    if (item.Info.Type != ItemType.Bracelet && item.Info.Type != ItemType.Amulet)
+                    if (item.Info.Type != ItemType.Bracelet /*&& item.Info.Type != ItemType.Amulet*/)
                         return false;
                     break;
                 case EquipmentSlot.RingL:
@@ -13387,6 +13387,10 @@ namespace Server.MirObjects
                     break;
                 case EquipmentSlot.Amulet:
                     if (item.Info.Type != ItemType.Amulet)// || item.Info.Shape == 0
+                        return false;
+                    break;
+                case EquipmentSlot.Poison:
+                    if (item.Info.Type != ItemType.Poison)// || item.Info.Shape == 0
                         return false;
                     break;
                 case EquipmentSlot.Boots:
@@ -13634,7 +13638,7 @@ namespace Server.MirObjects
         }
         public void DamageItem(UserItem item, int amount, bool isChanged = false)
         {
-            if (item == null || item.CurrentDura == 0 || item.Info.Type == ItemType.Amulet) return;
+            if (item == null || item.CurrentDura == 0 || item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison) return;
             if ((item.WeddingRing == Info.Married) && (Info.Equipment[(int)EquipmentSlot.RingL].UniqueID == item.UniqueID)) return;
             if (item.Info.Strong + item.Strong > 0) amount = Math.Max(1, amount - item.Info.Strong + item.Strong);
             item.CurrentDura = (ushort)Math.Max(ushort.MinValue, item.CurrentDura - amount);
