@@ -31,6 +31,8 @@ namespace Server.MirObjects
         public long ExplosionInflictedTime;
         public int ExplosionInflictedStage;
 
+        protected static int ULTIMATEENHANCERAURARANGE = 10;
+
         private int SpawnThread;
 
         //Position

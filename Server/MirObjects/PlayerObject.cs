@@ -205,6 +205,8 @@ namespace Server.MirObjects
         public byte ElementalBarrierLv;
         public long ElementalBarrierTime;
 
+        public long NextAuraAmulet;
+
         public bool HasElemental;
         public int ElementsLevel;
 
@@ -814,7 +816,7 @@ namespace Server.MirObjects
             }
 
             if (refresh) RefreshStats();
-        }
+        }        
         private void ProcessInfiniteBuffs()
         {
             bool hiding = false;
@@ -842,12 +844,72 @@ namespace Server.MirObjects
                         isGM = true;
                         if (!IsGM) removeBuff = true;
                         break;
+                    case BuffType.UltimateEnhancerAura:   
+                        if (buff.Caster == null)
+                        {
+                            removeBuff = true;
+                            break;
+                        }
+
+                        if (buff.Caster == this)
+                        {
+                            if (Envir.Time > NextAuraAmulet)
+                            {
+                                NextAuraAmulet = Envir.Time + 3600;
+
+                                UserItem item = GetAmulet(5);
+                                if (item == null)
+                                    removeBuff = true;
+                                else
+                                    ConsumeItem(item, 5);
+                            }
+
+                            for (int j = 0; j < CurrentMap.Players.Count; j++)
+                            {
+                                PlayerObject player = CurrentMap.Players[j];
+
+                                if (player == null) continue;
+
+                                if (!player.IsFriendlyTarget(this)) continue;
+
+                                for (int k = 0; k < player.Pets.Count; k++)
+                                {
+                                    MonsterObject monster = player.Pets[k];
+
+                                    if (monster.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
+                                    if (!Functions.InRange(CurrentLocation, monster.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
+
+                                    monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], monster.Level / 7 + 4 } , Infinite = true });
+                                }
+
+                                if (player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
+                                if (!Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
+
+                                player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], player.Level / 7 + 4 }, Infinite = true });
+                            }
+                        }
+                        else
+                        {
+                            PlayerObject player = Envir.GetPlayer(buff.Caster.Name);
+
+                            if (player == null)
+                            {
+                                removeBuff = true;
+                                break;
+                            }
+
+                            if (!player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura) || player.CurrentMap != CurrentMap || !Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE) || !IsFriendlyTarget(player))
+                            {
+                                removeBuff = true;
+                                break;
+                            }
+                        }
+                        break;
                 }
 
                 if (removeBuff)
                 {
-                    Buffs.RemoveAt(i);
-                    Enqueue(new S.RemoveBuff { Type = buff.Type, ObjectID = ObjectID });
+                    RemoveBuff(buff.Type);
 
                     switch (buff.Type)
                     {
@@ -3333,6 +3395,22 @@ namespace Server.MirObjects
                         MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
                         break;
                     case BuffType.UltimateEnhancer:
+                        if (Class == MirClass.Wizard || Class == MirClass.Archer)
+                        {
+                            MaxMC = (ushort)Math.Min(ushort.MaxValue, MaxMC + buff.Values[0]);
+                        }
+                        else if (Class == MirClass.Taoist)
+                        {
+                            MaxSC = (ushort)Math.Min(ushort.MaxValue, MaxSC + buff.Values[0]);
+                        }
+                        else
+                        {
+                            MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
+                        }
+                        break;
+                    case BuffType.UltimateEnhancerAura:
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[1]);
+                        MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + buff.Values[1]);
                         if (Class == MirClass.Wizard || Class == MirClass.Archer)
                         {
                             MaxMC = (ushort)Math.Min(ushort.MaxValue, MaxMC + buff.Values[0]);
@@ -6767,6 +6845,7 @@ namespace Server.MirObjects
                     break;
                 case Spell.Haste:
                 case Spell.LightBody:
+                case Spell.UltimateEnhancerAura:
                     ActionList.Add(new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic));
                     break;
                 case Spell.Fury:
@@ -9121,6 +9200,27 @@ namespace Server.MirObjects
                 case Spell.Haste:
                     AddBuff(new Buff { Type = BuffType.Haste, Caster = this, ExpireTime = Envir.Time + (magic.Level + 1) * 30000, Values = new int[] { (magic.Level + 1) * 2 } });
                     LevelMagic(magic);
+                    break;
+
+                #endregion
+
+                #region UltimateEnhancerAura
+
+                case Spell.UltimateEnhancerAura:
+                    if (Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura))
+                    {
+                        RemoveBuff(BuffType.UltimateEnhancerAura);
+                    }
+                    else
+                    {
+                        item = GetAmulet(1);
+                        if (item == null) return;
+
+                        AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { (magic.Level + 1) * 2, Level / 7 + 4 }, Infinite = true });
+                        LevelMagic(magic);
+
+                        ConsumeItem(item, 1);
+                    }
                     break;
 
                 #endregion

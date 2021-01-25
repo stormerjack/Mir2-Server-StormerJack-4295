@@ -1609,6 +1609,7 @@ public enum Spell : byte
     EnergyShield = 84,
     PetEnhancer = 85,
     HealingCircle = 86,
+    UltimateEnhancerAura = 87,
 
     //Assassin
     FatalSword = 91,
@@ -1727,6 +1728,7 @@ public enum BuffType : byte
     PetEnhancer,
     ImmortalSkin,
     MagicShield,
+    UltimateEnhancerAura,
 
     //special
     GameMaster = 100,

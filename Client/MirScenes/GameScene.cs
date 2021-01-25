@@ -10452,6 +10452,21 @@ namespace Client.MirScenes
                         text = string.Format("Ultimate Enhancer\nIncreases DC by: 0-{0}.\n", Values[0]);
                     }
                     break;
+                case BuffType.UltimateEnhancerAura:
+
+                    if (GameScene.User.Class == MirClass.Wizard || GameScene.User.Class == MirClass.Archer)
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases MC by: {Values[0]}.\n";
+                    }
+                    else if (GameScene.User.Class == MirClass.Taoist)
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases SC by: {Values[0]}.\n";
+                    }
+                    else
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases DC by: {Values[0]}.\n";
+                    }
+                    break;
                 case BuffType.EnergyShield:
                     text = string.Format("Energy Shield\n{0}% chance to gain {1} HP when attacked\n", Math.Round((1 / (decimal)Values[0]) * 100), Values[1]);
                     break;

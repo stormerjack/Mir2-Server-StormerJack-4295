@@ -317,6 +317,24 @@ namespace Client.MirScenes.Dialogs
                         }
                         break;
 
+                    case BuffType.UltimateEnhancerAura:
+                        buffAc += buff.Values[1];
+                        buffMac += buff.Values[1];
+                        switch (GameScene.User.Class)
+                        {                            
+                            case MirClass.Wizard:
+                            case MirClass.Archer:
+                                buffMc += buff.Values[0];
+                                break;
+                            case MirClass.Taoist:
+                                buffSc += buff.Values[0];
+                                break;
+                            default:
+                                buffDc += buff.Values[0];
+                                break;
+                        }
+                        break;
+
                     case BuffType.ProtectionField:
                         buffAc += buff.Values[0];
                         break;
@@ -525,6 +543,8 @@ namespace Client.MirScenes.Dialogs
                 case BuffType.ProtectionField:
                     return 50;
                 case BuffType.UltimateEnhancer:
+                    return 35;
+                case BuffType.UltimateEnhancerAura:
                     return 35;
                 case BuffType.Curse:
                     return 45;
