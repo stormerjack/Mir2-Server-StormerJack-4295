@@ -55,6 +55,8 @@
             this.Res4_pb = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.Res5_pb = new System.Windows.Forms.PictureBox();
+            this.Res6_pb = new System.Windows.Forms.PictureBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Res3_pb)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Res2_pb)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AutoStart_pb)).BeginInit();
@@ -65,6 +67,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Res4_pb)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Res5_pb)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Res6_pb)).BeginInit();
             this.SuspendLayout();
             // 
             // AccountLogin_txt
@@ -378,7 +381,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Calibri", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Gray;
-            this.label1.Location = new System.Drawing.Point(160, 105);
+            this.label1.Location = new System.Drawing.Point(160, 123);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 13);
             this.label1.TabIndex = 27;
@@ -387,12 +390,34 @@
             // Res5_pb
             // 
             this.Res5_pb.Image = global::Client.Properties.Resources.Radio_Unactive;
-            this.Res5_pb.Location = new System.Drawing.Point(142, 105);
+            this.Res5_pb.Location = new System.Drawing.Point(142, 123);
             this.Res5_pb.Name = "Res5_pb";
             this.Res5_pb.Size = new System.Drawing.Size(12, 12);
             this.Res5_pb.TabIndex = 28;
             this.Res5_pb.TabStop = false;
             this.Res5_pb.Click += new System.EventHandler(this.Res5_pb_Click);
+            // 
+            // Res6_pb
+            // 
+            this.Res6_pb.Image = global::Client.Properties.Resources.Radio_Unactive;
+            this.Res6_pb.Location = new System.Drawing.Point(142, 105);
+            this.Res6_pb.Name = "Res6_pb";
+            this.Res6_pb.Size = new System.Drawing.Size(12, 12);
+            this.Res6_pb.TabIndex = 30;
+            this.Res6_pb.TabStop = false;
+            this.Res6_pb.Click += new System.EventHandler(this.Res6_pb_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.BackColor = System.Drawing.Color.Transparent;
+            this.label6.Font = new System.Drawing.Font("Calibri", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.Color.Gray;
+            this.label6.Location = new System.Drawing.Point(160, 105);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(54, 13);
+            this.label6.TabIndex = 29;
+            this.label6.Text = "1600x900";
             // 
             // Config
             // 
@@ -402,6 +427,8 @@
             this.BackgroundImage = global::Client.Properties.Resources.Config_Base1;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(230, 311);
+            this.Controls.Add(this.Res6_pb);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.Res5_pb);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label5);
@@ -452,6 +479,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Res4_pb)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Res5_pb)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Res6_pb)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -486,5 +514,7 @@
         private System.Windows.Forms.PictureBox Res4_pb;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox Res5_pb;
+        private System.Windows.Forms.PictureBox Res6_pb;
+        private System.Windows.Forms.Label label6;
     }
 }
