@@ -98,9 +98,7 @@ namespace Server
 
                 for (int i = 0; i < Envir.ItemInfoList.Count; i++)
                 {
-                    if (ITypeFilterComboBox.SelectedItem == null ||
-                        ITypeFilterComboBox.SelectedIndex == ITypeFilterComboBox.Items.Count - 1 ||
-                        Envir.ItemInfoList[i].Type == (ItemType)ITypeFilterComboBox.SelectedItem)
+                    if ((ITypeFilterComboBox.SelectedItem == null || ITypeFilterComboBox.SelectedIndex == ITypeFilterComboBox.Items.Count - 1 || Envir.ItemInfoList[i].Type == (ItemType)ITypeFilterComboBox.SelectedItem) && Envir.ItemInfoList[i].Name.ToUpper().Contains(SearchTextBox.Text.ToUpper()))
                         ItemInfoListBox.Items.Add(Envir.ItemInfoList[i]);
                 }
             }
@@ -429,7 +427,7 @@ namespace Server
             RefreshUniqueTab();
         }
 
-        private void RefreshItemList()
+        private void RefreshItemList(bool refreshSelected = true)
         {
             ItemInfoListBox.SelectedIndexChanged -= ItemInfoListBox_SelectedIndexChanged;
 
@@ -437,14 +435,18 @@ namespace Server
 
             for (int i = 0; i < ItemInfoListBox.Items.Count; i++) selected.Add(ItemInfoListBox.GetSelected(i));
             ItemInfoListBox.Items.Clear();
+
             for (int i = 0; i < Envir.ItemInfoList.Count; i++)
             {
-                if (ITypeFilterComboBox.SelectedItem == null ||
-                    ITypeFilterComboBox.SelectedIndex == ITypeFilterComboBox.Items.Count - 1 ||
-                    Envir.ItemInfoList[i].Type == (ItemType)ITypeFilterComboBox.SelectedItem)
+                if ((ITypeFilterComboBox.SelectedItem == null || ITypeFilterComboBox.SelectedIndex == ITypeFilterComboBox.Items.Count - 1 || Envir.ItemInfoList[i].Type == (ItemType)ITypeFilterComboBox.SelectedItem) && Envir.ItemInfoList[i].Name.ToUpper().Contains(SearchTextBox.Text.ToUpper()))
                     ItemInfoListBox.Items.Add(Envir.ItemInfoList[i]);
             };
-            for (int i = 0; i < selected.Count; i++) ItemInfoListBox.SetSelected(i, selected[i]);
+
+            if (refreshSelected)
+            {
+                for (int i = 0; i < selected.Count; i++)
+                    ItemInfoListBox.SetSelected(i, selected[i]);
+            }
 
             ItemInfoListBox.SelectedIndexChanged += ItemInfoListBox_SelectedIndexChanged;
         }
@@ -1814,6 +1816,11 @@ namespace Server
 
             for (int i = 0; i < _selectedItemInfos.Count; i++)
                 _selectedItemInfos[i].Slots = temp;
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            RefreshItemList(false);
         }
     }
 }

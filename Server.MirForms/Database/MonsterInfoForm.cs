@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Server.MirDatabase;
 using Server.MirEnvir;
+using System.Linq;
 
 namespace Server
 {
@@ -45,7 +46,7 @@ namespace Server
 
         private void UpdateInterface()
         {
-            if (MonsterInfoListBox.Items.Count != Envir.MonsterInfoList.Count)
+            if (MonsterInfoListBox.Items.Count != Envir.MonsterInfoList.Count(x => x.Name.ToUpper().Contains(SearchTextBox.Text.ToUpper())))
             {
                 MonsterInfoListBox.Items.Clear();
 
@@ -180,16 +181,26 @@ namespace Server
             }
 
         }
-        private void RefreshMonsterList()
+        private void RefreshMonsterList(bool refreshSelected = true)
         {
             MonsterInfoListBox.SelectedIndexChanged -= MonsterInfoListBox_SelectedIndexChanged;
 
             List<bool> selected = new List<bool>();
 
-            for (int i = 0; i < MonsterInfoListBox.Items.Count; i++) selected.Add(MonsterInfoListBox.GetSelected(i));
+            for (int i = 0; i < MonsterInfoListBox.Items.Count; i++)
+                selected.Add(MonsterInfoListBox.GetSelected(i));
+
             MonsterInfoListBox.Items.Clear();
-            for (int i = 0; i < Envir.MonsterInfoList.Count; i++) MonsterInfoListBox.Items.Add(Envir.MonsterInfoList[i]);
-            for (int i = 0; i < selected.Count; i++) MonsterInfoListBox.SetSelected(i, selected[i]);
+
+            for (int i = 0; i < Envir.MonsterInfoList.Count; i++)
+                if (Envir.MonsterInfoList[i].Name.ToUpper().Contains(SearchTextBox.Text.ToUpper()))
+                MonsterInfoListBox.Items.Add(Envir.MonsterInfoList[i]);
+
+            if (refreshSelected)
+            {
+                for (int i = 0; i < selected.Count; i++)
+                    MonsterInfoListBox.SetSelected(i, selected[i]);
+            }
 
             MonsterInfoListBox.SelectedIndexChanged += MonsterInfoListBox_SelectedIndexChanged;
         }
@@ -704,6 +715,11 @@ namespace Server
             MirForms.DropBuilder.DropGenForm GenForm = new MirForms.DropBuilder.DropGenForm();
 
             GenForm.ShowDialog();
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            RefreshMonsterList(false);
         }
     }
 }
