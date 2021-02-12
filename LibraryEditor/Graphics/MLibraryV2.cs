@@ -115,7 +115,7 @@ namespace LibraryEditor
             Count = Images.Count;
             IndexList.Clear();
 
-            int offSet = (4 + 4 + 4) + (Count * 4) + (Frames.Keys.Count * 84);
+            int offSet = (4 + 4 + 4) + (Count * 4) + (Frames.Keys.Count * 35);
             for (int i = 0; i < Count; i++)
             {
                 IndexList.Add((int)stream.Length + offSet);
