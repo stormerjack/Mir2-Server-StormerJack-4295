@@ -242,6 +242,8 @@ public abstract class Packet
                 return new C.AllowMentor();
             case (short)ClientPacketIds.CancelMentor:
                 return new C.CancelMentor();
+            case (short)ClientPacketIds.GetMapInfo:
+                return new C.GetMapInfo();
             case (short)ClientPacketIds.TradeRequest:
                 return new C.TradeRequest();
             case (short)ClientPacketIds.TradeReply:
@@ -693,6 +695,8 @@ public abstract class Packet
                 return new S.EquipSlotItem();
             case (short)ServerPacketIds.FishingUpdate:
                 return new S.FishingUpdate();
+            case (short)ServerPacketIds.NewMapInfo:
+                return new S.NewMapInfo();
             case (short)ServerPacketIds.ChangeQuest:
                 return new S.ChangeQuest();
             case (short)ServerPacketIds.CompleteQuest:

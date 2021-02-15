@@ -1863,6 +1863,15 @@ namespace Client.MirObjects
 
                             #endregion
 
+                            #region UltimateEnchancerAura
+
+                            case Spell.UltimateEnhancerAura:
+                                Effects.Add(new Effect(Libraries.Magic2, 160, 15, 1000, this));
+                                SoundManager.PlaySound(20000 + (ushort)Spell * 10);
+                                break;
+
+                            #endregion
+
                             #region FrostCrunch
 
                             case Spell.FrostCrunch:

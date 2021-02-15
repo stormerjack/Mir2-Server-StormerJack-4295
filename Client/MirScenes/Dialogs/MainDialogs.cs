@@ -2569,7 +2569,6 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(203, 206),
             };
 
-
             Grid[(int)EquipmentSlot.Amulet] = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Amulet,
@@ -2578,13 +2577,20 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(8, 242),
             };
 
+            Grid[(int)EquipmentSlot.Poison] = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.Poison,
+                GridType = MirGridType.Equipment,
+                Parent = CharacterPage,
+                Location = new Point(48, 242),
+            };
 
             Grid[(int)EquipmentSlot.Boots] = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Boots,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(48, 242),
+                Location = new Point(88, 242),
             };
 
             Grid[(int)EquipmentSlot.Belt] = new MirItemCell
@@ -2592,16 +2598,23 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Belt,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(88, 242),
+                Location = new Point(128, 242),
             };
-
 
             Grid[(int)EquipmentSlot.Stone] = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Stone,
                 GridType = MirGridType.Equipment,
                 Parent = CharacterPage,
-                Location = new Point(128, 242),
+                Location = new Point(203, 242),
+            };
+
+            Grid[(int)EquipmentSlot.ShoulderPads] = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.ShoulderPads,
+                GridType = MirGridType.Equipment,
+                Parent = CharacterPage,
+                Location = new Point(8, 134),
             };
 
             Grid[(int)EquipmentSlot.Mount] = new MirItemCell
@@ -3369,7 +3382,9 @@ namespace Client.MirScenes.Dialogs
             BeltCell,
             BootsCell,
             StoneCell,
-            MountCell;
+            MountCell,
+            ShoulderPadsCell,
+            PoisonCell;
 
         public InspectDialog()
         {
@@ -3637,19 +3652,28 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(8, 242),
             };
 
+            PoisonCell = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.Poison,
+                GridType = MirGridType.Inspect,
+                Parent = CharacterPage,
+                Location = new Point(48, 242),
+            };
+
             BootsCell = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Boots,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(48, 242),
+                Location = new Point(88, 242),
             };
+
             BeltCell = new MirItemCell
             {
                 ItemSlot = (int)EquipmentSlot.Belt,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(88, 242),
+                Location = new Point(128, 242),
             };
 
             StoneCell = new MirItemCell
@@ -3657,7 +3681,15 @@ namespace Client.MirScenes.Dialogs
                 ItemSlot = (int)EquipmentSlot.Stone,
                 GridType = MirGridType.Inspect,
                 Parent = CharacterPage,
-                Location = new Point(128, 242),
+                Location = new Point(203, 242),
+            };
+
+            ShoulderPadsCell = new MirItemCell
+            {
+                ItemSlot = (int)EquipmentSlot.ShoulderPads,
+                GridType = MirGridType.Inspect,
+                Parent = CharacterPage,
+                Location = new Point(8, 134),
             };
 
             MountCell = new MirItemCell
@@ -4839,11 +4871,14 @@ namespace Client.MirScenes.Dialogs
     }
     public sealed class BigMapDialog : MirControl
     {
-	float ScaleX;
+        float ScaleX;
         float ScaleY;
-	
+        ClientMapInfo CurrentInfo;
+        List<MirImageControl> Movements = new List<MirImageControl>();
+        bool ButtonsDone;
+
         int BigMap_MouseCoordsProcessing_OffsetX, BigMap_MouseCoordsProcessing_OffsetY;
-            
+
         public BigMapDialog()
         {
             NotControl = false;
@@ -4852,15 +4887,15 @@ namespace Client.MirScenes.Dialogs
             //BorderColour = Color.Lime;
             BeforeDraw += (o, e) => OnBeforeDraw();
             Sort = true;
-	    
+
             MouseMove += UpdateBigMapCoordinates;
         }
 
-	private void UpdateBigMapCoordinates(object sender, MouseEventArgs e)
+        private void UpdateBigMapCoordinates(object sender, MouseEventArgs e)
         {
             int MouseCoordsOnBigMap_MapValue_X = (int)((e.Location.X - BigMap_MouseCoordsProcessing_OffsetX) / ScaleX);
             int MouseCoordsOnBigMap_MapValue_Y = (int)((e.Location.Y - BigMap_MouseCoordsProcessing_OffsetY) / ScaleY);
-	    
+
             this.Hint = string.Format("{0},{1}", MouseCoordsOnBigMap_MapValue_X, MouseCoordsOnBigMap_MapValue_Y);
         }
 
@@ -4870,7 +4905,7 @@ namespace Client.MirScenes.Dialogs
             if (map == null || !Visible) return;
 
             //int index = map.BigMap <= 0 ? map.MiniMap : map.BigMap;
-            int index = map.BigMap;
+            int index = CurrentInfo.BigMap;
 
             if (index <= 0)
             {
@@ -4896,14 +4931,14 @@ namespace Client.MirScenes.Dialogs
             viewRect.X = (Settings.ScreenWidth - viewRect.Width) / 2;
             viewRect.Y = (Settings.ScreenHeight - 120 - viewRect.Height) / 2;
 
-	    BigMap_MouseCoordsProcessing_OffsetX = viewRect.X;
+            BigMap_MouseCoordsProcessing_OffsetX = viewRect.X;
             BigMap_MouseCoordsProcessing_OffsetY = viewRect.Y;
 
             Location = viewRect.Location;
             Size = viewRect.Size;
 
-            ScaleX = Size.Width / (float)map.Width;
-            ScaleY = Size.Height / (float)map.Height;
+            ScaleX = Size.Width / (float)CurrentInfo.MapSize.Width;
+            ScaleY = Size.Height / (float)CurrentInfo.MapSize.Height;
 
             viewRect.Location = new Point(
                 (int)(ScaleX * MapObject.User.CurrentLocation.X) - viewRect.Width / 2,
@@ -4922,28 +4957,68 @@ namespace Client.MirScenes.Dialogs
             int startPointX = (int)(viewRect.X / ScaleX);
             int startPointY = (int)(viewRect.Y / ScaleY);
 
-            for (int i = MapControl.Objects.Count - 1; i >= 0; i--)
+            if (CurrentInfo.MapIndex == GameScene.Scene.MapControl.MapIndex)
             {
-                MapObject ob = MapControl.Objects[i];
+                for (int i = MapControl.Objects.Count - 1; i >= 0; i--)
+                {
+                    MapObject ob = MapControl.Objects[i];
 
 
-                if (ob.Race == ObjectType.Item || ob.Dead || ob.Race == ObjectType.Spell) continue; // || (ob.ObjectID != MapObject.User.ObjectID)
-                float x = ((ob.CurrentLocation.X - startPointX) * ScaleX) + Location.X;
-                float y = ((ob.CurrentLocation.Y - startPointY) * ScaleY) + Location.Y;
+                    if (ob.Race == ObjectType.Item || ob.Dead || ob.Race == ObjectType.Spell) continue; // || (ob.ObjectID != MapObject.User.ObjectID)
+                    float x = ((ob.CurrentLocation.X - startPointX) * ScaleX) + Location.X;
+                    float y = ((ob.CurrentLocation.Y - startPointY) * ScaleY) + Location.Y;
 
-                Color colour;
+                    Color colour;
 
-                if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
-                    colour = Color.FromArgb(0, 0, 255);
-                else
-                    if (ob is PlayerObject)
-                    colour = Color.FromArgb(255, 255, 255);
-                else if (ob is NPCObject || ob.AI == 6)
-                    colour = Color.FromArgb(0, 255, 50);
-                else
-                    colour = Color.FromArgb(255, 0, 0);
+                    if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
+                        colour = Color.FromArgb(0, 0, 255);
+                    else
+                        if (ob is PlayerObject)
+                        colour = Color.FromArgb(255, 255, 255);
+                    else if (ob is NPCObject || ob.AI == 6)
+                        colour = Color.FromArgb(0, 255, 50);
+                    else
+                        colour = Color.FromArgb(255, 0, 0);
 
-                DXManager.Sprite.Draw(DXManager.RadarTexture, new Rectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F), colour);
+                    DXManager.Sprite.Draw(DXManager.RadarTexture, new Rectangle(0, 0, 2, 2), Vector3.Zero, new Vector3((float)(x - 0.5), (float)(y - 0.5), 0.0F), colour);
+                }
+            }
+
+            if (!ButtonsDone)
+            {
+                foreach (ClientMovementInfo cmi in CurrentInfo.Movements)
+                {
+                    if (!GameScene.MapInfoList.Any(x => x.MapIndex == cmi.DestinationIndex))
+                        return;
+                }
+
+                ButtonsDone = true;
+                foreach (ClientMovementInfo cmi in CurrentInfo.Movements)
+                {
+                    float x = ((cmi.Source.X - startPointX) * ScaleX);// + Location.X;
+                    float y = ((cmi.Source.Y - startPointY) * ScaleY);//+ Location.Y;
+
+                    Size s = Libraries.Prguse.GetSize(2447);
+
+                    MirImageControl button = new MirButton()
+                    {
+                        Index = 2447,
+                        Library = Libraries.Prguse,
+                        Parent = this,
+                        Size = new Size(40, 40),
+                        Location = new Point((int)x - s.Width / 2, (int)y - s.Height / 2),
+                        Sound = SoundList.ButtonA,
+                        Hint = GameScene.MapInfoList.First(xx => xx.MapIndex == cmi.DestinationIndex).MapName,
+                    };
+
+                    button.Click += (o, e) =>
+                    {
+                        ChangeMap(GameScene.MapInfoList.First(xx => xx.MapIndex == cmi.DestinationIndex));
+                        Network.Enqueue(new C.GetMapInfo() { MapIndex = cmi.DestinationIndex });
+                    };
+
+                    Movements.Add(button);
+                }
             }
         }
 
@@ -4952,7 +5027,24 @@ namespace Client.MirScenes.Dialogs
         {
             Visible = !Visible;
 
+            ChangeMap(GameScene.MapInfoList.First(x => x.MapIndex == GameScene.Scene.MapControl.MapIndex));
+
             Redraw();
+        }
+
+        public void ChangeMap(ClientMapInfo cmi)
+        {
+            for (int i = 0; i < Movements.Count; i++)
+            {
+                MirImageControl button = Movements[i];
+                if (button == null || button.IsDisposed) continue;
+
+                button.Dispose();
+            }
+            Movements.Clear();
+
+            CurrentInfo = cmi;
+            ButtonsDone = false;
         }
     }
     public sealed class DuraStatusDialog : MirImageControl

@@ -205,6 +205,8 @@ namespace Server.MirObjects
         public byte ElementalBarrierLv;
         public long ElementalBarrierTime;
 
+        public long NextAuraAmulet;
+
         public bool HasElemental;
         public int ElementsLevel;
 
@@ -814,7 +816,7 @@ namespace Server.MirObjects
             }
 
             if (refresh) RefreshStats();
-        }
+        }        
         private void ProcessInfiniteBuffs()
         {
             bool hiding = false;
@@ -842,12 +844,72 @@ namespace Server.MirObjects
                         isGM = true;
                         if (!IsGM) removeBuff = true;
                         break;
+                    case BuffType.UltimateEnhancerAura:   
+                        if (buff.Caster == null)
+                        {
+                            removeBuff = true;
+                            break;
+                        }
+
+                        if (buff.Caster == this)
+                        {
+                            if (Envir.Time > NextAuraAmulet)
+                            {
+                                NextAuraAmulet = Envir.Time + 3600;
+
+                                UserItem item = GetAmulet(5);
+                                if (item == null)
+                                    removeBuff = true;
+                                else
+                                    ConsumeItem(item, 5);
+                            }
+
+                            for (int j = 0; j < CurrentMap.Players.Count; j++)
+                            {
+                                PlayerObject player = CurrentMap.Players[j];
+
+                                if (player == null) continue;
+
+                                if (!player.IsFriendlyTarget(this)) continue;
+
+                                for (int k = 0; k < player.Pets.Count; k++)
+                                {
+                                    MonsterObject monster = player.Pets[k];
+
+                                    if (monster.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
+                                    if (!Functions.InRange(CurrentLocation, monster.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
+
+                                    monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], monster.Level / 7 + 4 } , Infinite = true });
+                                }
+
+                                if (player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
+                                if (!Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
+
+                                player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], player.Level / 7 + 4 }, Infinite = true });
+                            }
+                        }
+                        else
+                        {
+                            PlayerObject player = Envir.GetPlayer(buff.Caster.Name);
+
+                            if (player == null)
+                            {
+                                removeBuff = true;
+                                break;
+                            }
+
+                            if (!player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura) || player.CurrentMap != CurrentMap || !Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE) || !IsFriendlyTarget(player))
+                            {
+                                removeBuff = true;
+                                break;
+                            }
+                        }
+                        break;
                 }
 
                 if (removeBuff)
                 {
-                    Buffs.RemoveAt(i);
-                    Enqueue(new S.RemoveBuff { Type = buff.Type, ObjectID = ObjectID });
+                    RemoveBuff(buff.Type);
 
                     switch (buff.Type)
                     {
@@ -1870,7 +1932,7 @@ namespace Server.MirObjects
                     return;
                 }
             }
-            else if (item.Info.Type == ItemType.Amulet)
+            else if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 4; i < 6; i++)
                 {
@@ -1965,6 +2027,25 @@ namespace Server.MirObjects
             if (Connection.SentQuestInfo.Contains(info)) return;
             Enqueue(new S.NewQuestInfo { Info = info.CreateClientQuestInfo() });
             Connection.SentQuestInfo.Add(info);
+        }
+
+        public void CheckMapInfo(MapInfo info)
+        {
+            if (!Connection.SentMapInfo.Contains(info.Index))
+            {
+                Enqueue(new S.NewMapInfo { Info = info.ClientInfo });
+                Connection.SentMapInfo.Add(info.Index);
+            }
+
+            foreach (int i in info.Movements.Where(x => x.Show).Select(e => e.MapIndex).ToList())
+            {
+                Map map = Envir.GetMap(i);
+                if (map == null) continue;
+                if (Connection.SentMapInfo.Contains(map.Info.Index)) continue;
+
+                Enqueue(new S.NewMapInfo { Info = map.Info.ClientInfo });
+                Connection.SentMapInfo.Add(map.Info.Index);
+            }
         }
 
         public void CheckRecipeInfo(RecipeInfo info)
@@ -2274,6 +2355,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2284,6 +2366,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             GetObjects();
 
@@ -2329,6 +2413,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2339,6 +2424,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             GetObjects();
             Enqueue(new S.Revived());
@@ -2433,6 +2520,7 @@ namespace Server.MirObjects
         {
             Enqueue(new S.MapInformation
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -2443,6 +2531,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music,
             });
+
+            CheckMapInfo(CurrentMap.Info);
         }
 
         private void GetQuestInfo()
@@ -3305,6 +3395,22 @@ namespace Server.MirObjects
                         MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
                         break;
                     case BuffType.UltimateEnhancer:
+                        if (Class == MirClass.Wizard || Class == MirClass.Archer)
+                        {
+                            MaxMC = (ushort)Math.Min(ushort.MaxValue, MaxMC + buff.Values[0]);
+                        }
+                        else if (Class == MirClass.Taoist)
+                        {
+                            MaxSC = (ushort)Math.Min(ushort.MaxValue, MaxSC + buff.Values[0]);
+                        }
+                        else
+                        {
+                            MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
+                        }
+                        break;
+                    case BuffType.UltimateEnhancerAura:
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[1]);
+                        MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + buff.Values[1]);
                         if (Class == MirClass.Wizard || Class == MirClass.Archer)
                         {
                             MaxMC = (ushort)Math.Min(ushort.MaxValue, MaxMC + buff.Values[0]);
@@ -6739,6 +6845,7 @@ namespace Server.MirObjects
                     break;
                 case Spell.Haste:
                 case Spell.LightBody:
+                case Spell.UltimateEnhancerAura:
                     ActionList.Add(new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic));
                     break;
                 case Spell.Fury:
@@ -9097,6 +9204,27 @@ namespace Server.MirObjects
 
                 #endregion
 
+                #region UltimateEnhancerAura
+
+                case Spell.UltimateEnhancerAura:
+                    if (Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura))
+                    {
+                        RemoveBuff(BuffType.UltimateEnhancerAura);
+                    }
+                    else
+                    {
+                        item = GetAmulet(1);
+                        if (item == null) return;
+
+                        AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { (magic.Level + 1) * 2, Level / 7 + 4 }, Infinite = true });
+                        LevelMagic(magic);
+
+                        ConsumeItem(item, 1);
+                    }
+                    break;
+
+                #endregion
+
                 #region Fury
 
                 case Spell.Fury:
@@ -9730,7 +9858,7 @@ namespace Server.MirObjects
             for (int i = 0; i < Info.Equipment.Length; i++)
             {
                 UserItem item = Info.Equipment[i];
-                if (item != null && item.Info.Type == ItemType.Amulet && item.Count >= count)
+                if (item != null && item.Info.Type == ItemType.Poison && item.Count >= count)
                 {
                     if (shape == 0)
                     {
@@ -9963,6 +10091,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -9973,6 +10102,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             if (RidingMount) RefreshMount();
 
@@ -10016,6 +10147,7 @@ namespace Server.MirObjects
 
             Enqueue(new S.MapChanged
             {
+                MapIndex = CurrentMap.Info.Index,
                 FileName = CurrentMap.Info.FileName,
                 Title = CurrentMap.Info.Title,
                 MiniMap = CurrentMap.Info.MiniMap,
@@ -10026,6 +10158,8 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
+
+            CheckMapInfo(CurrentMap.Info);
 
             if (effects) Enqueue(new S.ObjectTeleportIn { ObjectID = ObjectID, Type = effectnumber });
 
@@ -11874,7 +12008,7 @@ namespace Server.MirObjects
             Enqueue(p);
             Enqueue(new S.SplitItem { Item = temp, Grid = grid });
 
-            if (grid == MirGridType.Inventory && (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || temp.Info.Type == ItemType.Amulet || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1)))
+            if (grid == MirGridType.Inventory && (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || temp.Info.Type == ItemType.Amulet || temp.Info.Type == ItemType.Poison || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1)))
             {
                 if (temp.Info.Type == ItemType.Potion || temp.Info.Type == ItemType.Scroll || (temp.Info.Type == ItemType.Script && temp.Info.Effect == 1))
                 {
@@ -11886,7 +12020,7 @@ namespace Server.MirObjects
                         return;
                     }
                 }
-                else if (temp.Info.Type == ItemType.Amulet)
+                else if (temp.Info.Type == ItemType.Amulet || temp.Info.Type == ItemType.Poison)
                 {
                     for (int i = 4; i < 6; i++)
                     {
@@ -12041,7 +12175,7 @@ namespace Server.MirObjects
                 return;
             }
 
-            if (tempTo.Info.Type != ItemType.Amulet && (gridFrom == MirGridType.Equipment || gridTo == MirGridType.Equipment))
+            if ((tempTo.Info.Type != ItemType.Amulet && tempTo.Info.Type != ItemType.Poison) && (gridFrom == MirGridType.Equipment || gridTo == MirGridType.Equipment))
             {
                 Enqueue(p);
                 return;
@@ -12156,6 +12290,7 @@ namespace Server.MirObjects
                         case ItemType.Helmet:
                         case ItemType.Boots:
                         case ItemType.Belt:
+                        case ItemType.ShoulderPads:
                             if (tempFrom.Info.Shape == 2 || tempFrom.Info.Shape == 6)
                                 canRepair = true;
                             break;
@@ -12883,7 +13018,7 @@ namespace Server.MirObjects
 
         public bool CanGainItem(UserItem item, bool useWeight = true)
         {
-            if (item.Info.Type == ItemType.Amulet)
+            if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 if (FreeSpace(Info.Inventory) > 0 && (CurrentBagWeight + item.Weight <= MaxBagWeight || !useWeight)) return true;
 
@@ -13342,7 +13477,7 @@ namespace Server.MirObjects
                         return false;
                     break;
                 case EquipmentSlot.BraceletR:
-                    if (item.Info.Type != ItemType.Bracelet && item.Info.Type != ItemType.Amulet)
+                    if (item.Info.Type != ItemType.Bracelet /*&& item.Info.Type != ItemType.Amulet*/)
                         return false;
                     break;
                 case EquipmentSlot.RingL:
@@ -13352,6 +13487,10 @@ namespace Server.MirObjects
                     break;
                 case EquipmentSlot.Amulet:
                     if (item.Info.Type != ItemType.Amulet)// || item.Info.Shape == 0
+                        return false;
+                    break;
+                case EquipmentSlot.Poison:
+                    if (item.Info.Type != ItemType.Poison)// || item.Info.Shape == 0
                         return false;
                     break;
                 case EquipmentSlot.Boots:
@@ -13368,6 +13507,10 @@ namespace Server.MirObjects
                     break;
                 case EquipmentSlot.Mount:
                     if (item.Info.Type != ItemType.Mount)
+                        return false;
+                    break;
+                case EquipmentSlot.ShoulderPads:
+                    if (item.Info.Type != ItemType.ShoulderPads)
                         return false;
                     break;
                 default:
@@ -13595,7 +13738,7 @@ namespace Server.MirObjects
         }
         public void DamageItem(UserItem item, int amount, bool isChanged = false)
         {
-            if (item == null || item.CurrentDura == 0 || item.Info.Type == ItemType.Amulet) return;
+            if (item == null || item.CurrentDura == 0 || item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison) return;
             if ((item.WeddingRing == Info.Married) && (Info.Equipment[(int)EquipmentSlot.RingL].UniqueID == item.UniqueID)) return;
             if (item.Info.Strong + item.Strong > 0) amount = Math.Max(1, amount - item.Info.Strong + item.Strong);
             item.CurrentDura = (ushort)Math.Max(ushort.MinValue, item.CurrentDura - amount);
@@ -16702,6 +16845,15 @@ namespace Server.MirObjects
             }
 
             Enqueue(p);
+        }
+
+        public void GetMapInfo(int index)
+        {
+            MapInfo info = Envir.MapInfoList.FirstOrDefault(x => x.Index == index);
+
+            if (info == null) return;
+
+            CheckMapInfo(info);
         }
 
         

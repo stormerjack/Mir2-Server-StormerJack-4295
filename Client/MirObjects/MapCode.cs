@@ -342,10 +342,10 @@ namespace Client.MirObjects
                         MapCells[x, y].DoorOffset = Bytes[offset++];
                         MapCells[x, y].FrontAnimationFrame = Bytes[offset++];
                         MapCells[x, y].FrontAnimationTick = Bytes[offset++];
-                        MapCells[x, y].FrontIndex = (short)(Bytes[offset++] + 120);
+                        MapCells[x, y].FrontIndex = (short)(Bytes[offset++] + 500);
                         MapCells[x, y].Light = Bytes[offset++];
                         MapCells[x, y].BackIndex = (short)(Bytes[offset++] + 100);
-                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset++] + 110);
+                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset++] + 300);
                         if ((MapCells[x, y].BackImage & 0x8000) != 0)
                             MapCells[x, y].BackImage = (MapCells[x, y].BackImage & 0x7FFF) | 0x20000000;
 
@@ -384,10 +384,10 @@ namespace Client.MirObjects
                         MapCells[x, y].DoorOffset = Bytes[offset++];
                         MapCells[x, y].FrontAnimationFrame = Bytes[offset++];
                         MapCells[x, y].FrontAnimationTick = Bytes[offset++];
-                        MapCells[x, y].FrontIndex = (short)(Bytes[offset++] + 120);
+                        MapCells[x, y].FrontIndex = (short)(Bytes[offset++] + 500);
                         MapCells[x, y].Light = Bytes[offset++];
                         MapCells[x, y].BackIndex = (short)(Bytes[offset++] + 100);
-                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset++] + 110);
+                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset++] + 300);
                         MapCells[x, y].TileAnimationImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 7;//2bytes from tileanimframe, 2 bytes always blank?, 2bytes potentialy 'backtiles index', 1byte fileindex for the backtiles?
                         MapCells[x, y].TileAnimationFrames = Bytes[offset++];
@@ -474,7 +474,7 @@ namespace Client.MirObjects
                     {
                         for (int i = 0; i < 4; i++)
                         {
-                            MapCells[(x * 2) + (i % 2), (y * 2) + (i / 2)].BackIndex = (short)(Bytes[offset] != 255? Bytes[offset]+200 : -1);
+                            MapCells[(x * 2) + (i % 2), (y * 2) + (i / 2)].BackIndex = (short)(Bytes[offset] != 255? Bytes[offset]+800 : -1);
                             MapCells[(x*2) + (i % 2), (y*2) + (i / 2)].BackImage = (int)(BitConverter.ToUInt16(Bytes, offset + 1)+1);
                         }
                         offset += 3;
@@ -493,14 +493,14 @@ namespace Client.MirObjects
                         offset++;
                         MapCells[x, y].MiddleAnimationTick = 0;
                         MapCells[x, y].FrontAnimationTick = 0;
-                        MapCells[x,y].FrontIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 200 : -1);
+                        MapCells[x,y].FrontIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 800 : -1);
                         offset++;
-                        MapCells[x,y].MiddleIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 200 : -1);
+                        MapCells[x,y].MiddleIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 800 : -1);
                         offset++;
                         MapCells[x,y].MiddleImage = (ushort)(BitConverter.ToUInt16(Bytes,offset)+1);
                         offset += 2;
                         MapCells[x, y].FrontImage = (ushort)(BitConverter.ToUInt16(Bytes, offset)+1);
-                        if ((MapCells[x, y].FrontImage == 1) && (MapCells[x, y].FrontIndex == 200))
+                        if ((MapCells[x, y].FrontImage == 1) && (MapCells[x, y].FrontIndex == 800))
                             MapCells[x, y].FrontIndex = -1;
                         offset += 2;
                         offset += 3;//mir3 maps dont have doors so dont bother reading the info
@@ -537,11 +537,11 @@ namespace Client.MirObjects
                     {
                         MapCells[x, y] = new CellInfo();
                         flag = Bytes[offset++];
-                        MapCells[x,y].BackIndex = (short)(Bytes[offset] != 255 ? Bytes[offset]+ 300 : -1);
+                        MapCells[x,y].BackIndex = (short)(Bytes[offset] != 255 ? Bytes[offset]+ 900 : -1);
                         offset++;
-                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 300 : -1);
+                        MapCells[x, y].MiddleIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 900 : -1);
                         offset++;
-                        MapCells[x, y].FrontIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 300 : -1);
+                        MapCells[x, y].FrontIndex = (short)(Bytes[offset] != 255 ? Bytes[offset] + 900 : -1);
                         offset++;
                         MapCells[x, y].BackImage = (short)(BitConverter.ToInt16(Bytes, offset) + 1);
                         offset += 2;
@@ -549,7 +549,7 @@ namespace Client.MirObjects
                         offset += 2;
                         MapCells[x, y].FrontImage = (short)(BitConverter.ToInt16(Bytes, offset) + 1);
                         offset += 2;
-                        if ((MapCells[x, y].FrontImage == 1) && (MapCells[x, y].FrontIndex == 200))
+                        if ((MapCells[x, y].FrontImage == 1) && (MapCells[x, y].FrontIndex == 900))
                             MapCells[x, y].FrontIndex = -1;
                         MapCells[x, y].MiddleAnimationFrame = Bytes[offset++];
                         MapCells[x, y].FrontAnimationFrame = Bytes[offset] == 255 ? (byte)0 : Bytes[offset];
@@ -622,7 +622,8 @@ namespace Client.MirObjects
             try 
             { 
                 int offset = 4;
-                if ((Bytes[0]!= 1) || (Bytes[1] != 0)) return;//only support version 1 atm
+                byte version = Bytes[0];
+                if (version > 2 || (Bytes[1] != 0)) return;//only support version 1 atm
                 Width = BitConverter.ToInt16(Bytes, offset);
                 offset += 2;
                 Height = BitConverter.ToInt16(Bytes, offset);
@@ -632,15 +633,15 @@ namespace Client.MirObjects
                     for (int y = 0; y < Height; y++)
                     {
                         MapCells[x, y] = new CellInfo();
-                        MapCells[x, y].BackIndex = (short)BitConverter.ToInt16(Bytes, offset);
+                        MapCells[x, y].BackIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].BackImage = (int)BitConverter.ToInt32(Bytes, offset);
                         offset += 4;
-                        MapCells[x, y].MiddleIndex = (short)BitConverter.ToInt16(Bytes, offset);
+                        MapCells[x, y].MiddleIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].MiddleImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
-                        MapCells[x, y].FrontIndex = (short)BitConverter.ToInt16(Bytes, offset);
+                        MapCells[x, y].FrontIndex = FixIndex(version, (short)BitConverter.ToInt16(Bytes, offset));
                         offset += 2;
                         MapCells[x, y].FrontImage = (short)BitConverter.ToInt16(Bytes, offset);
                         offset += 2;
@@ -665,6 +666,30 @@ namespace Client.MirObjects
             {
                 if (Settings.LogErrors) CMain.SaveError(ex.ToString());
             }
+        }
+
+        private short FixIndex(byte version, short index)
+        {
+            if (version > 1)
+                return index;
+
+            int newindex = index;
+            if (index >= 110 && index < 120)
+                newindex = index + 190;
+
+            if (index >= 120 && index < 190)
+                newindex = index + 380;
+
+            if (index == 190)
+                newindex = 790;
+
+            if (index >= 200 && index < 300)
+                newindex = index + 600;
+
+            if (index >= 300 && index < 400)
+                newindex = index + 600;
+
+            return (short)newindex;
         }
 
     }

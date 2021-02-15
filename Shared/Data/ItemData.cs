@@ -425,7 +425,7 @@ public class UserItem
 
     public uint Weight
     {
-        get { return Info.Type == ItemType.Amulet ? Info.Weight : Info.Weight * Count; }
+        get { return (Info.Type == ItemType.Amulet || Info.Type == ItemType.Poison) ? Info.Weight : Info.Weight * Count; }
     }
 
     public string FriendlyName
@@ -726,6 +726,14 @@ public class UserItem
                                 if (Count >= 200) return 3661;
                                 if (Count >= 100) return 3660;
                                 return 3660;
+                        }
+                    }
+                    break;
+                case ItemType.Poison:
+                    if (Info.StackSize > 0)
+                    {
+                        switch (Info.Shape)
+                        {
                             case 1: //Grey Poison
                                 if (Count >= 150) return 3675;
                                 if (Count >= 100) return 2960;
@@ -1249,6 +1257,7 @@ public class RandomItemStat
                 SetWeapon();
                 break;
             case ItemType.Armour:
+            case ItemType.ShoulderPads:
                 SetArmour();
                 break;
             case ItemType.Helmet:

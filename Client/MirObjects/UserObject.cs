@@ -795,6 +795,22 @@ namespace Client.MirObjects
                             MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
                         }
                         break;
+                    case BuffType.UltimateEnhancerAura:
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[1]);
+                        MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + buff.Values[1]);
+                        if (Class == MirClass.Wizard || Class == MirClass.Archer)
+                        {
+                            MaxMC = (ushort)Math.Min(ushort.MaxValue, MaxMC + buff.Values[0]);
+                        }
+                        else if (Class == MirClass.Taoist)
+                        {
+                            MaxSC = (ushort)Math.Min(ushort.MaxValue, MaxSC + buff.Values[0]);
+                        }
+                        else
+                        {
+                            MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
+                        }
+                        break;
                     case BuffType.ProtectionField:
                         MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
                         break;
@@ -953,7 +969,7 @@ namespace Client.MirObjects
 
             }
 
-            if (item.Info.Type == ItemType.Amulet)
+            if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 0; i < Inventory.Length; i++)
                 {

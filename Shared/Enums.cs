@@ -1318,7 +1318,9 @@ public enum ItemType : byte
     Pets = 36,
     Transform = 37,
     Deco = 38,
-    Socket = 39
+    Socket = 39,
+    ShoulderPads = 40,
+    Poison = 41,
 }
 
 public enum MirGridType : byte
@@ -1361,7 +1363,9 @@ public enum EquipmentSlot : byte
     Belt = 10,
     Boots = 11,
     Stone = 12,
-    Mount = 13
+    Mount = 13,
+    ShoulderPads = 14,
+    Poison = 15,
 }
 
 public enum MountSlot : byte
@@ -1605,6 +1609,7 @@ public enum Spell : byte
     EnergyShield = 84,
     PetEnhancer = 85,
     HealingCircle = 86,
+    UltimateEnhancerAura = 87,
 
     //Assassin
     FatalSword = 91,
@@ -1723,6 +1728,7 @@ public enum BuffType : byte
     PetEnhancer,
     ImmortalSkin,
     MagicShield,
+    UltimateEnhancerAura,
 
     //special
     GameMaster = 100,
@@ -1939,6 +1945,7 @@ public enum ServerPacketIds : short
     CompleteQuest,
     ShareQuest,
     NewQuestInfo,
+    NewMapInfo,
     GainedQuestItem,
     DeleteQuestItem,
     CancelReincarnation,
@@ -2093,6 +2100,7 @@ public enum ClientPacketIds : short
     MentorReply,
     AllowMentor,
     CancelMentor,
+    GetMapInfo,
     TradeRequest,
     TradeReply,
     TradeGold,

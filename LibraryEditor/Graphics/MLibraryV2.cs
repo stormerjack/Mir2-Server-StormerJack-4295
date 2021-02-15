@@ -18,7 +18,8 @@ namespace LibraryEditor
     /// </summary>
     public sealed class MLibraryV2
     {
-        public const int LibVersion = 3;
+        public const int LibVersion = 4;
+        public int CurrentVersion;
 
         public static bool Load = true;
         public string FileName;
@@ -41,8 +42,7 @@ namespace LibraryEditor
         }
 
         public void Initialize()
-        {
-            int CurrentVersion;
+        {            
             _initialized = true;
 
             if (!File.Exists(FileName))
@@ -64,9 +64,18 @@ namespace LibraryEditor
             IndexList = new List<int>();
 
             int frameSeek = 0;
-            if (CurrentVersion >= 3)
+            if (CurrentVersion == 3)
             {
                 frameSeek = _reader.ReadInt32();
+            }
+
+            if (CurrentVersion >= 4)
+            {
+                var frameCount = _reader.ReadInt32();
+                for (int i = 0; i < frameCount; i++)
+                {
+                    Frames.Add((MirAction)_reader.ReadByte(), new Frame(_reader));
+                }
             }
 
             for (int i = 0; i < Count; i++)
@@ -78,7 +87,7 @@ namespace LibraryEditor
             for (int i = 0; i < Count; i++)
                 CheckImage(i);
 
-            if (CurrentVersion >= 3)
+            if (CurrentVersion == 3)
             {
                 _stream.Seek(frameSeek, SeekOrigin.Begin);
 
@@ -106,14 +115,12 @@ namespace LibraryEditor
             Count = Images.Count;
             IndexList.Clear();
 
-            int offSet = (4 + 4 + 4) + (Count * 4);
+            int offSet = (4 + 4 + 4) + (Count * 4) + (Frames.Keys.Count * 35);
             for (int i = 0; i < Count; i++)
             {
                 IndexList.Add((int)stream.Length + offSet);
                 Images[i].Save(writer);
             }
-
-            var frameSeek = (int)stream.Length + offSet;
 
             writer.Flush();
             byte[] fBytes = stream.ToArray();
@@ -125,19 +132,19 @@ namespace LibraryEditor
 
             writer.Write(Count);
 
-            writer.Write(frameSeek);
-
-            for (int i = 0; i < Count; i++)
-                writer.Write(IndexList[i]);
-
-            writer.Write(fBytes);
-
             writer.Write(Frames.Keys.Count);
             foreach (var action in Frames.Keys)
             {
                 writer.Write((byte)action);
                 Frames[action].Save(writer);
             }
+
+            for (int i = 0; i < Count; i++)
+                writer.Write(IndexList[i]);
+
+            writer.Write(fBytes);
+
+            
 
             writer.Flush();
             writer.Close();
@@ -156,7 +163,7 @@ namespace LibraryEditor
             if (Images[index] == null)
             {
                 _stream.Position = IndexList[index];
-                Images[index] = new MImage(_reader);
+                Images[index] = new MImage(_reader, CurrentVersion);
             }
 
             if (!Load) return;
@@ -180,7 +187,7 @@ namespace LibraryEditor
             if (Images[index] == null)
             {
                 _stream.Seek(IndexList[index], SeekOrigin.Begin);
-                Images[index] = new MImage(_reader);
+                Images[index] = new MImage(_reader, CurrentVersion);
             }
 
             return new Point(Images[index].X, Images[index].Y);
@@ -196,7 +203,7 @@ namespace LibraryEditor
             if (Images[index] == null)
             {
                 _stream.Seek(IndexList[index], SeekOrigin.Begin);
-                Images[index] = new MImage(_reader);
+                Images[index] = new MImage(_reader, CurrentVersion);
             }
 
             return new Size(Images[index].Width, Images[index].Height);
@@ -312,17 +319,20 @@ namespace LibraryEditor
             public Bitmap MaskImage;
             public Boolean HasMask;
 
-            public MImage(BinaryReader reader)
+            public MImage(BinaryReader reader, int version)
             {
                 //read layer 1
                 Width = reader.ReadInt16();
                 Height = reader.ReadInt16();
+                if (version >= 4)
+                    Length = reader.ReadInt32();
                 X = reader.ReadInt16();
                 Y = reader.ReadInt16();
                 ShadowX = reader.ReadInt16();
                 ShadowY = reader.ReadInt16();
                 Shadow = reader.ReadByte();
-                Length = reader.ReadInt32();
+                if (version < 4)
+                    Length = reader.ReadInt32();
                 FBytes = reader.ReadBytes(Length);
                 //check if there's a second layer and read it
                 HasMask = ((Shadow >> 7) == 1) ? true : false;
@@ -486,12 +496,12 @@ namespace LibraryEditor
             {
                 writer.Write(Width);
                 writer.Write(Height);
+                writer.Write(FBytes.Length);
                 writer.Write(X);
                 writer.Write(Y);
                 writer.Write(ShadowX);
                 writer.Write(ShadowY);
-                writer.Write(HasMask ? (byte)(Shadow | 0x80) : (byte)Shadow);
-                writer.Write(FBytes.Length);
+                writer.Write(HasMask ? (byte)(Shadow | 0x80) : (byte)Shadow);                
                 writer.Write(FBytes);
                 if (HasMask)
                 {

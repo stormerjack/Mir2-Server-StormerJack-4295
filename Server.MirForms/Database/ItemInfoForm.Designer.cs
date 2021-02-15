@@ -31,6 +31,8 @@
             this.ItemInfoPanel = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label57 = new System.Windows.Forms.Label();
+            this.SlotsTextBox = new System.Windows.Forms.TextBox();
             this.globalDropNotify_CheckBox = new System.Windows.Forms.CheckBox();
             this.CanAwaken = new System.Windows.Forms.CheckBox();
             this.label56 = new System.Windows.Forms.Label();
@@ -193,8 +195,7 @@
             this.ExportSelectedButton = new System.Windows.Forms.Button();
             this.ImportButton = new System.Windows.Forms.Button();
             this.Gameshop_button = new System.Windows.Forms.Button();
-            this.SlotsTextBox = new System.Windows.Forms.TextBox();
-            this.label57 = new System.Windows.Forms.Label();
+            this.SearchTextBox = new System.Windows.Forms.TextBox();
             this.ItemInfoPanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -287,6 +288,23 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Location = new System.Drawing.Point(522, 102);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(33, 13);
+            this.label57.TabIndex = 126;
+            this.label57.Text = "Slots:";
+            // 
+            // SlotsTextBox
+            // 
+            this.SlotsTextBox.Location = new System.Drawing.Point(561, 99);
+            this.SlotsTextBox.Name = "SlotsTextBox";
+            this.SlotsTextBox.Size = new System.Drawing.Size(30, 20);
+            this.SlotsTextBox.TabIndex = 125;
+            this.SlotsTextBox.TextChanged += new System.EventHandler(this.SlotsTextBox_TextChanged);
             // 
             // globalDropNotify_CheckBox
             // 
@@ -1858,10 +1876,10 @@
             this.ItemInfoListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.ItemInfoListBox.FormattingEnabled = true;
-            this.ItemInfoListBox.Location = new System.Drawing.Point(12, 40);
+            this.ItemInfoListBox.Location = new System.Drawing.Point(12, 66);
             this.ItemInfoListBox.Name = "ItemInfoListBox";
             this.ItemInfoListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.ItemInfoListBox.Size = new System.Drawing.Size(156, 420);
+            this.ItemInfoListBox.Size = new System.Drawing.Size(156, 394);
             this.ItemInfoListBox.TabIndex = 10;
             this.ItemInfoListBox.SelectedIndexChanged += new System.EventHandler(this.ItemInfoListBox_SelectedIndexChanged);
             // 
@@ -1889,7 +1907,7 @@
             // 
             this.ITypeFilterComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ITypeFilterComboBox.FormattingEnabled = true;
-            this.ITypeFilterComboBox.Location = new System.Drawing.Point(14, 14);
+            this.ITypeFilterComboBox.Location = new System.Drawing.Point(12, 14);
             this.ITypeFilterComboBox.Name = "ITypeFilterComboBox";
             this.ITypeFilterComboBox.Size = new System.Drawing.Size(121, 21);
             this.ITypeFilterComboBox.TabIndex = 25;
@@ -1935,28 +1953,20 @@
             this.Gameshop_button.UseVisualStyleBackColor = true;
             this.Gameshop_button.Click += new System.EventHandler(this.Gameshop_button_Click);
             // 
-            // SlotsTextBox
+            // SearchTextBox
             // 
-            this.SlotsTextBox.Location = new System.Drawing.Point(561, 99);
-            this.SlotsTextBox.Name = "SlotsTextBox";
-            this.SlotsTextBox.Size = new System.Drawing.Size(30, 20);
-            this.SlotsTextBox.TabIndex = 125;
-            this.SlotsTextBox.TextChanged += new System.EventHandler(this.SlotsTextBox_TextChanged);
-            // 
-            // label57
-            // 
-            this.label57.AutoSize = true;
-            this.label57.Location = new System.Drawing.Point(522, 102);
-            this.label57.Name = "label57";
-            this.label57.Size = new System.Drawing.Size(33, 13);
-            this.label57.TabIndex = 126;
-            this.label57.Text = "Slots:";
+            this.SearchTextBox.Location = new System.Drawing.Point(12, 40);
+            this.SearchTextBox.Name = "SearchTextBox";
+            this.SearchTextBox.Size = new System.Drawing.Size(155, 20);
+            this.SearchTextBox.TabIndex = 30;
+            this.SearchTextBox.TextChanged += new System.EventHandler(this.SearchTextBox_TextChanged);
             // 
             // ItemInfoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(812, 479);
+            this.Controls.Add(this.SearchTextBox);
             this.Controls.Add(this.Gameshop_button);
             this.Controls.Add(this.ImportButton);
             this.Controls.Add(this.ExportSelectedButton);
@@ -1985,6 +1995,7 @@
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -2157,5 +2168,6 @@
         private System.Windows.Forms.CheckBox noMailBox;
         private System.Windows.Forms.TextBox SlotsTextBox;
         private System.Windows.Forms.Label label57;
+        private System.Windows.Forms.TextBox SearchTextBox;
     }
 }

@@ -397,7 +397,7 @@ namespace Server.MirEnvir
         private void LoadMapCellsV100(byte[] Bytes)
         {
             int offset = 4;
-            if ((Bytes[0] != 1) || (Bytes[1] != 0)) return;//only support version 1 atm
+            if ((Bytes[0] > 2) || (Bytes[1] != 0)) return;//only support version 1 atm
             Width = BitConverter.ToInt16(Bytes, offset);
             offset += 2;
             Height = BitConverter.ToInt16(Bytes, offset);

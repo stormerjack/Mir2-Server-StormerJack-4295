@@ -124,6 +124,7 @@ namespace Client.MirScenes
         public static List<ClientQuestInfo> QuestInfoList = new List<ClientQuestInfo>();
         public static List<GameShopItem> GameShopInfoList = new List<GameShopItem>();
         public static List<ClientRecipeInfo> RecipeInfoList = new List<ClientRecipeInfo>();
+        public static List<ClientMapInfo> MapInfoList = new List<ClientMapInfo>();
 
         public List<Buff> Buffs = new List<Buff>();
 
@@ -1734,7 +1735,7 @@ namespace Client.MirScenes
         {
             if (MapControl != null && !MapControl.IsDisposed)
                 MapControl.Dispose();
-            MapControl = new MapControl { FileName = Path.Combine(Settings.MapPath, p.FileName + ".map"), Title = p.Title, MiniMap = p.MiniMap, BigMap = p.BigMap, Lights = p.Lights, Lightning = p.Lightning, Fire = p.Fire, MapDarkLight = p.MapDarkLight, Music = p.Music };
+            MapControl = new MapControl { MapIndex = p.MapIndex, FileName = Path.Combine(Settings.MapPath, p.FileName + ".map"), Title = p.Title, MiniMap = p.MiniMap, BigMap = p.BigMap, Lights = p.Lights, Lightning = p.Lightning, Fire = p.Fire, MapDarkLight = p.MapDarkLight, Music = p.Music };
             MapControl.LoadMap();
             InsertControl(0, MapControl);
         }
@@ -2290,7 +2291,7 @@ namespace Client.MirScenes
                     return;
             }
 
-            if (p.Grid == MirGridType.Inventory && (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || p.Item.Info.Type == ItemType.Amulet || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1)))
+            if (p.Grid == MirGridType.Inventory && (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || p.Item.Info.Type == ItemType.Amulet || p.Item.Info.Type == ItemType.Poison || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1)))
             {
                 if (p.Item.Info.Type == ItemType.Potion || p.Item.Info.Type == ItemType.Scroll || (p.Item.Info.Type == ItemType.Script && p.Item.Info.Effect == 1))
                 {
@@ -2302,7 +2303,7 @@ namespace Client.MirScenes
                         return;
                     }
                 }
-                else if (p.Item.Info.Type == ItemType.Amulet)
+                else if (p.Item.Info.Type == ItemType.Amulet || p.Item.Info.Type == ItemType.Poison)
                 {
                     for (int i = 4; i < GameScene.User.BeltIdx; i++)
                     {
@@ -3240,6 +3241,7 @@ namespace Client.MirScenes
         }
         private void MapChanged(S.MapChanged p)
         {
+            MapControl.MapIndex = p.MapIndex;
             MapControl.FileName = Path.Combine(Settings.MapPath, p.FileName + ".map");
             MapControl.Title = p.Title;
             MapControl.MiniMap = p.MiniMap;
@@ -5486,7 +5488,7 @@ namespace Client.MirScenes
                     return;
                 }
             }
-            else if (item.Info.Type == ItemType.Amulet)
+            else if (item.Info.Type == ItemType.Amulet || item.Info.Type == ItemType.Poison)
             {
                 for (int i = 4; i < User.BeltIdx; i++)
                 {
@@ -5634,6 +5636,7 @@ namespace Client.MirScenes
                 switch (HoverItem.Info.Type)
                 {
                     case ItemType.Amulet:
+                    case ItemType.Poison:
                         text += string.Format(" Usage {0}/{1}", HoverItem.CurrentDura, HoverItem.MaxDura);
                         break;
                     case ItemType.Ore:
@@ -5694,6 +5697,9 @@ namespace Client.MirScenes
                 case ItemType.Amulet:
                     baseText = GameLanguage.ItemTypeAmulet;
                     break;
+                case ItemType.Poison:
+                    baseText = GameLanguage.ItemTypePoison;
+                    break;
                 case ItemType.Belt:
                     baseText = GameLanguage.ItemTypeBelt;
                     break;
@@ -5702,6 +5708,9 @@ namespace Client.MirScenes
                     break;
                 case ItemType.Stone:
                     baseText = GameLanguage.ItemTypeStone;
+                    break;
+                case ItemType.ShoulderPads:
+                    baseText = GameLanguage.ItemTypeShoulderPads;
                     break;
                 case ItemType.Torch:
                     baseText = GameLanguage.ItemTypeTorch;
@@ -8652,6 +8661,7 @@ namespace Client.MirScenes
         public List<Door> Doors = new List<Door>();
         public int Width, Height;
 
+        public int MapIndex;
         public string FileName = String.Empty;
         public string Title = String.Empty;
         public ushort MiniMap, BigMap, Music, SetMusic;
@@ -8986,7 +8996,7 @@ namespace Client.MirScenes
                     {//mir3 mid layer is same level as front layer not real middle + it cant draw index -1 so 2 birds in one stone :p
                         Size s = Libraries.MapLibs[M2CellInfo[x, y].MiddleIndex].GetSize(index);
 
-                        if (s.Width != CellWidth || s.Height != CellHeight) continue;
+                        //if (s.Width != CellWidth || s.Height != CellHeight) continue;
                     }
                     Libraries.MapLibs[M2CellInfo[x, y].MiddleIndex].Draw(index, drawX, drawY);
                 }
@@ -10440,6 +10450,21 @@ namespace Client.MirScenes
                     else
                     {
                         text = string.Format("Ultimate Enhancer\nIncreases DC by: 0-{0}.\n", Values[0]);
+                    }
+                    break;
+                case BuffType.UltimateEnhancerAura:
+
+                    if (GameScene.User.Class == MirClass.Wizard || GameScene.User.Class == MirClass.Archer)
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases MC by: {Values[0]}.\n";
+                    }
+                    else if (GameScene.User.Class == MirClass.Taoist)
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases SC by: {Values[0]}.\n";
+                    }
+                    else
+                    {
+                        text = $"Ultimate Enhancer\nIncreases AC by: {Values[1]}.\nIncreases MAC by: {Values[1]}.\nIncreases DC by: {Values[0]}.\n";
                     }
                     break;
                 case BuffType.EnergyShield:

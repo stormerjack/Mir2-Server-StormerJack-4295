@@ -59,6 +59,7 @@ namespace Server.MirNetwork
         public List<QuestInfo> SentQuestInfo = new List<QuestInfo>();
         public List<RecipeInfo> SentRecipeInfo = new List<RecipeInfo>();
         public List<UserItem> SentChatItem = new List<UserItem>(); //TODO - Add Expiry time
+        public List<int> SentMapInfo = new List<int>();
 
         public bool StorageSent;
 
@@ -469,6 +470,9 @@ namespace Server.MirNetwork
                     return;
                 case (short)ClientPacketIds.CancelMentor:
                     CancelMentor((C.CancelMentor)p);
+                    return;
+                case (short)ClientPacketIds.GetMapInfo:
+                    GetMapInfo((C.GetMapInfo)p);
                     return;
                 case (short)ClientPacketIds.TradeRequest:
                     TradeRequest((C.TradeRequest)p);
@@ -1407,6 +1411,13 @@ namespace Server.MirNetwork
             if (Stage != GameStage.Game) return;
 
             Player.MentorBreak(true);
+        }
+
+        private void GetMapInfo(C.GetMapInfo p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.GetMapInfo(p.MapIndex);
         }
 
         private void TradeRequest(C.TradeRequest p)

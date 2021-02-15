@@ -31,6 +31,8 @@ namespace Server.MirObjects
         public long ExplosionInflictedTime;
         public int ExplosionInflictedStage;
 
+        protected static int ULTIMATEENHANCERAURARANGE = 10;
+
         private int SpawnThread;
 
         //Position
@@ -548,10 +550,24 @@ namespace Server.MirObjects
                     break;
             }
 
+            bool stack = false;
+
+            switch (b.Type)
+            {
+                case BuffType.Impact:
+                case BuffType.Magic:
+                case BuffType.Taoist:
+                    stack = true;
+                    break;
+            }
+
 
             for (int i = 0; i < Buffs.Count; i++)
             {
                 if (Buffs[i].Type != b.Type) continue;
+
+                if (stack && b.Values.Sum() == Buffs[i].Values.Sum())
+                    b.ExpireTime += Buffs[i].Paused ? Buffs[i].ExpireTime : Buffs[i].ExpireTime - Envir.Time;
 
                 Buffs[i] = b;
                 Buffs[i].Paused = false;

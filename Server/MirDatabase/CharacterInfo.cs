@@ -74,7 +74,7 @@ namespace Server.MirDatabase
         public byte MentalState;
         public byte MentalStateLvl;
 
-        public UserItem[] Inventory = new UserItem[46], Equipment = new UserItem[14], Trade = new UserItem[10], QuestInventory = new UserItem[40], Refine = new UserItem[16];
+        public UserItem[] Inventory = new UserItem[46], Equipment = new UserItem[16], Trade = new UserItem[10], QuestInventory = new UserItem[40], Refine = new UserItem[16];
         public List<ItemRentalInformation> RentedItems = new List<ItemRentalInformation>();
         public List<ItemRentalInformation> RentedItemsToRemove = new List<ItemRentalInformation>();
         public bool HasRentedItem;
@@ -769,7 +769,7 @@ namespace Server.MirDatabase
 
             petMode = (IntelligentCreaturePickupMode)reader.ReadByte();
 
-            Filter = new IntelligentCreatureItemFilter(reader);
+            Filter = new IntelligentCreatureItemFilter(reader, Envir.LoadVersion);
             if (Envir.LoadVersion > 48)
             {
                 Filter.PickupGrade = (ItemGrade)reader.ReadByte();

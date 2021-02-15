@@ -631,6 +631,8 @@ namespace Server.MirObjects
                 case ItemType.Bracelet:
                 case ItemType.Ring:
                     return ItemFilter.PetPickupAccessories;
+                case ItemType.ShoulderPads:
+                    return ItemFilter.PetPickupShoulderPads;
                 default:
                     return ItemFilter.PetPickupOthers;
             }

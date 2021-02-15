@@ -402,7 +402,7 @@ namespace Client.MirControls
                     }
                     break;
                 case ItemType.Bracelet:
-                    if ((dialog.Grid[(int)EquipmentSlot.BraceletR].Item == null || dialog.Grid[(int)EquipmentSlot.BraceletR].Item.Info.Type == ItemType.Amulet) && dialog.Grid[(int)EquipmentSlot.BraceletR].CanWearItem(Item))
+                    if ((dialog.Grid[(int)EquipmentSlot.BraceletR].Item == null /*|| dialog.Grid[(int)EquipmentSlot.BraceletR].Item.Info.Type == ItemType.Amulet*/) && dialog.Grid[(int)EquipmentSlot.BraceletR].CanWearItem(Item))
                     {
                         Network.Enqueue(new C.EquipItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)EquipmentSlot.BraceletR });
                         dialog.Grid[(int)EquipmentSlot.BraceletR].Locked = true;
@@ -450,6 +450,27 @@ namespace Client.MirControls
                         Locked = true;
                     }
                     break;
+                case ItemType.Poison:
+                    //if (Item.Info.Shape == 0) return;
+
+                    if (dialog.Grid[(int)EquipmentSlot.Poison].Item != null && Item.Info.Type == ItemType.Poison)
+                    {
+                        if (dialog.Grid[(int)EquipmentSlot.Poison].Item.Info == Item.Info && dialog.Grid[(int)EquipmentSlot.Poison].Item.Count < dialog.Grid[(int)EquipmentSlot.Poison].Item.Info.StackSize)
+                        {
+                            Network.Enqueue(new C.MergeItem { GridFrom = GridType, GridTo = MirGridType.Equipment, IDFrom = Item.UniqueID, IDTo = dialog.Grid[(int)EquipmentSlot.Poison].Item.UniqueID });
+
+                            Locked = true;
+                            return;
+                        }
+                    }
+
+                    if (dialog.Grid[(int)EquipmentSlot.Poison].CanWearItem(Item))
+                    {
+                        Network.Enqueue(new C.EquipItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)EquipmentSlot.Poison });
+                        dialog.Grid[(int)EquipmentSlot.Poison].Locked = true;
+                        Locked = true;
+                    }
+                    break;
                 case ItemType.Belt:
                     if (dialog.Grid[(int)EquipmentSlot.Belt].CanWearItem(Item))
                     {
@@ -471,6 +492,14 @@ namespace Client.MirControls
                     {
                         Network.Enqueue(new C.EquipItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)EquipmentSlot.Stone });
                         dialog.Grid[(int)EquipmentSlot.Stone].Locked = true;
+                        Locked = true;
+                    }
+                    break;
+                case ItemType.ShoulderPads:
+                    if (dialog.Grid[(int)EquipmentSlot.ShoulderPads].CanWearItem(Item))
+                    {
+                        Network.Enqueue(new C.EquipItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)EquipmentSlot.ShoulderPads });
+                        dialog.Grid[(int)EquipmentSlot.ShoulderPads].Locked = true;
                         Locked = true;
                     }
                     break;
@@ -735,7 +764,7 @@ namespace Client.MirControls
             {
                 MirItemCell itemCell;
 
-                if (Item.Info.Type == ItemType.Amulet)
+                if (Item.Info.Type == ItemType.Amulet || Item.Info.Type == ItemType.Poison)
                 {
                     itemCell = i < GameScene.User.BeltIdx ? GameScene.Scene.BeltDialog.Grid[i] : GameScene.Scene.InventoryDialog.Grid[i - GameScene.User.BeltIdx];
                 }
@@ -843,7 +872,7 @@ namespace Client.MirControls
                             #endregion
                             #region From Equipment
                             case MirGridType.Equipment: //From Equipment
-                                if (Item != null && GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet)
+                                if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
                                 {
                                     if (GameScene.SelectedCell.Item.Info == Item.Info && Item.Count < Item.Info.StackSize)
                                     {
@@ -887,7 +916,7 @@ namespace Client.MirControls
                             #endregion
                             #region From Storage
                             case MirGridType.Storage: //From Storage
-                                if (Item != null && GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet)
+                                if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
                                 {
                                     if (GameScene.SelectedCell.Item.Info == Item.Info && Item.Count < Item.Info.StackSize)
                                     {
@@ -965,7 +994,7 @@ namespace Client.MirControls
                             #endregion
                             #region From Trade
                             case MirGridType.Trade: //From Trade
-                                if (Item != null && GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet)
+                                if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
                                 {
                                     if (GameScene.SelectedCell.Item.Info == Item.Info && Item.Count < Item.Info.StackSize)
                                     {
@@ -1038,7 +1067,7 @@ namespace Client.MirControls
 
                             #region From Refine
                             case MirGridType.Refine: //From AwakenItem
-                                if (Item != null && GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet)
+                                if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
                                 {
                                     if (GameScene.SelectedCell.Item.Info == Item.Info && Item.Count < Item.Info.StackSize)
                                     {
@@ -1135,7 +1164,7 @@ namespace Client.MirControls
                         if (GameScene.SelectedCell.GridType != MirGridType.Inventory && GameScene.SelectedCell.GridType != MirGridType.Storage) return;
 
 
-                        if (Item != null && GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet)
+                        if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
                         {
                             if (GameScene.SelectedCell.Item.Info == Item.Info && Item.Count < Item.Info.StackSize)
                             {
@@ -1722,12 +1751,14 @@ namespace Client.MirControls
                 case EquipmentSlot.BraceletL:
                     return i.Info.Type == ItemType.Bracelet;
                 case EquipmentSlot.BraceletR:
-                    return i.Info.Type == ItemType.Bracelet || i.Info.Type == ItemType.Amulet;
+                    return i.Info.Type == ItemType.Bracelet /*|| i.Info.Type == ItemType.Amulet*/;
                 case EquipmentSlot.RingL:
                 case EquipmentSlot.RingR:
                     return type == ItemType.Ring;
                 case EquipmentSlot.Amulet:
                     return type == ItemType.Amulet;// && i.Info.Shape > 0;
+                case EquipmentSlot.Poison:
+                    return type == ItemType.Poison;
                 case EquipmentSlot.Boots:
                     return type == ItemType.Boots;
                 case EquipmentSlot.Belt:
@@ -1736,6 +1767,8 @@ namespace Client.MirControls
                     return type == ItemType.Stone;
                 case EquipmentSlot.Mount:
                     return type == ItemType.Mount;
+                case EquipmentSlot.ShoulderPads:
+                    return type == ItemType.ShoulderPads;
                 default:
                     return false;
             }

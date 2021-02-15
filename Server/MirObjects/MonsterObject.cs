@@ -498,6 +498,11 @@ namespace Server.MirObjects
                     case BuffType.UltimateEnhancer:
                         MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
                         break;
+                    case BuffType.UltimateEnhancerAura:
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[1]);
+                        MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + buff.Values[1]);
+                        MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
+                        break;
                     case BuffType.Curse:
                         ushort rMaxDC = (ushort)(((int)MaxDC / 100) * buff.Values[0]);
                         ushort rMaxMC = (ushort)(((int)MaxMC / 100) * buff.Values[0]);
@@ -877,6 +882,7 @@ namespace Server.MirObjects
             ProcessAI();
 
             ProcessBuffs();
+            ProcessInfiniteBuffs();
             ProcessRegen();
             ProcessPoison();
 
@@ -1215,7 +1221,7 @@ namespace Server.MirObjects
             {
                 Buff buff = Buffs[i];
 
-                if (Envir.Time <= buff.ExpireTime) continue;
+                if (buff.Infinite || Envir.Time <= buff.ExpireTime) continue;
 
                 Buffs.RemoveAt(i);
 
@@ -1235,6 +1241,49 @@ namespace Server.MirObjects
             }
 
             if (refresh) RefreshAll();
+        }
+        private void ProcessInfiniteBuffs()
+        {
+            bool refresh = false;
+            for (int i = Buffs.Count - 1; i >= 0; i--)
+            {
+                Buff buff = Buffs[i];
+
+                if (!buff.Infinite) continue;
+
+                bool removeBuff = false;
+
+                switch (buff.Type)
+                {
+                    case BuffType.UltimateEnhancerAura:
+                        if (buff.Caster == null)
+                        {
+                            removeBuff = true;
+                            break;
+                        }
+
+                        PlayerObject player = Envir.GetPlayer(buff.Caster.Name);
+
+                        if (player == null)
+                        {
+                            removeBuff = true;
+                            break;
+                        }
+
+                        if (!player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura) || player.CurrentMap != CurrentMap || !Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE))
+                        {
+                            removeBuff = true;
+                            break;
+                        }
+                        break;
+                }
+                
+
+                if (removeBuff)
+                {
+                    RemoveBuff(buff.Type);
+                }
+            }
         }
         protected virtual void ProcessAI()
         {

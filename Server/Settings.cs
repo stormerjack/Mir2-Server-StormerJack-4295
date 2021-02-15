@@ -797,6 +797,7 @@ namespace Server
                 RandomItemStatsList.Add(new RandomItemStat(ItemType.Bracelet));
                 RandomItemStatsList.Add(new RandomItemStat(ItemType.Ring));
                 RandomItemStatsList.Add(new RandomItemStat(ItemType.Belt));
+                RandomItemStatsList.Add(new RandomItemStat(ItemType.ShoulderPads));
                 SaveRandomItemStats();
                 return;
             }
