@@ -1321,6 +1321,7 @@ public enum ItemType : byte
     Socket = 39,
     ShoulderPads = 40,
     Poison = 41,
+    SkillGem = 42,
 }
 
 public enum MirGridType : byte
@@ -1345,7 +1346,8 @@ public enum MirGridType : byte
     Renting = 17,
     GuestRenting = 18,
     Craft = 19,
-    Socket = 20
+    Socket = 20,
+    SkillSlot = 21
 }
 
 public enum EquipmentSlot : byte
@@ -1384,6 +1386,14 @@ public enum FishingSlot : byte
     Bait = 2,
     Finder = 3,
     Reel = 4
+}
+
+public enum SkillSlot : byte
+{
+    Active = 0,
+    Support1 = 1,
+    Support2 = 2,
+    Support3 = 3,
 }
 
 public enum AttackMode : byte

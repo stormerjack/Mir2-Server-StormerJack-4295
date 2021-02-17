@@ -61,6 +61,7 @@ namespace Client.MirScenes
         public FishingDialog FishingDialog;
         public FishingStatusDialog FishingStatusDialog;
         public RefineDialog RefineDialog;
+        public SkillSlotDialog SkillSlotDialog;
 
         public GroupDialog GroupDialog;
         public GuildDialog GuildDialog;
@@ -209,6 +210,7 @@ namespace Client.MirScenes
             MountDialog = new MountDialog { Parent = this, Visible = false };
             FishingDialog = new FishingDialog { Parent = this, Visible = false };
             FishingStatusDialog = new FishingStatusDialog { Parent = this, Visible = false };
+            SkillSlotDialog = new SkillSlotDialog { Parent = this, Visible = false };
 
             GroupDialog = new GroupDialog { Parent = this, Visible = false };
             GuildDialog = new GuildDialog { Parent = this, Visible = false };
@@ -1955,6 +1957,9 @@ namespace Client.MirScenes
                 case MirGridType.Fishing:
                     toCell = FishingDialog.Grid[p.To];
                     break;
+                case MirGridType.SkillSlot:
+                    toCell = SkillSlotDialog.Grid[p.To];
+                    break;
                 default:
                     return;
             }
@@ -2127,6 +2132,9 @@ namespace Client.MirScenes
                     break;
                 case MirGridType.Fishing:
                     fromCell = FishingDialog.GetCell(p.UniqueID);
+                    break;
+                case MirGridType.SkillSlot:
+                    fromCell = SkillSlotDialog.GetCell(p.UniqueID);
                     break;
                 default:
                     return;
@@ -7096,6 +7104,23 @@ namespace Client.MirScenes
 
             #region SOCKET
 
+            bool skillDescriptions = false;
+            switch (item.Info.Type)
+            {
+                case ItemType.Weapon:
+                    if (!Globals.FishingRodShapes.Contains(item.Info.Shape))
+                        skillDescriptions = true;
+                    break;
+                case ItemType.Armour:
+                case ItemType.Helmet:
+                case ItemType.Boots:
+                case ItemType.Ring:
+                case ItemType.Bracelet:
+                case ItemType.Necklace:
+                    skillDescriptions = true;
+                    break;
+            }
+
             for (int i = 0; i < item.Slots.Length; i++)
             {
                 count++;
@@ -7106,8 +7131,17 @@ namespace Client.MirScenes
                     Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
                     OutLine = true,
                     Parent = ItemLabel,
-                    Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName)
                 };
+
+                if (skillDescriptions)
+                {
+                    if (i == 0)
+                        SOCKETLabel.Text = string.Format("Active Slot : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                    else
+                        SOCKETLabel.Text = string.Format("Support Slot : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                }
+                else
+                    SOCKETLabel.Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
 
                 ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, SOCKETLabel.DisplayRectangle.Right + 4),
                     Math.Max(ItemLabel.Size.Height, SOCKETLabel.DisplayRectangle.Bottom));

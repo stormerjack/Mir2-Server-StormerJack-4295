@@ -10802,7 +10802,8 @@ namespace Server.MirObjects
                 case MirGridType.Fishing:
                     Item = Info.Equipment[(int)EquipmentSlot.Weapon];
                     break;
-                case MirGridType.Socket:
+                //case MirGridType.Socket:
+                case MirGridType.SkillSlot:
                     UserItem temp2;
                     for (int i = 0; i < Info.Equipment.Length; i++)
                     {
@@ -10928,11 +10929,11 @@ namespace Server.MirObjects
                 switch(temp.Info.Shape)
                 {
                     case 1:
-                        if (Item.Info.Type != ItemType.Weapon)
+                        /*if (Item.Info.Type != ItemType.Weapon)
                         {
                             Enqueue(p);
                             return;
-                        }
+                        }*/
                         break;
                     case 2:
                         if (Item.Info.Type != ItemType.Armour)
@@ -11115,7 +11116,8 @@ namespace Server.MirObjects
                 case MirGridType.Fishing:
                     temp = Info.Equipment[(int)EquipmentSlot.Weapon];
                     break;
-                case MirGridType.Socket:
+                //case MirGridType.Socket:
+                case MirGridType.SkillSlot:
                     UserItem temp2;
                     for (int i = 0; i < Info.Equipment.Length; i++)
                     {
@@ -13365,7 +13367,7 @@ namespace Server.MirObjects
                     }
                     break;
                 case ItemType.Socket:
-                    break;
+                    return false; //LCD
                 case ItemType.Pets:
                     switch (item.Info.Shape)
                     {

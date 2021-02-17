@@ -698,6 +698,20 @@ public class UserItem
                 case ItemType.Weapon:
                     if (Info.Shape == 49 || Info.Shape == 50)
                         size = 5;
+                    else
+                        size = 4;
+                    break;
+                case ItemType.Armour:
+                    size = 4;
+                    break;
+                case ItemType.Helmet:
+                case ItemType.Boots:
+                    size = 2;
+                    break;
+                case ItemType.Ring:
+                case ItemType.Bracelet:
+                case ItemType.Necklace:
+                    size = 1;
                     break;
             }
         }

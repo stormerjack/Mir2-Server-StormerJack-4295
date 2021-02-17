@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Client.MirGraphics;
 using Client.MirNetwork;
@@ -98,6 +99,8 @@ namespace Client.MirControls
                         return CraftDialog.Slots;
                     case MirGridType.Socket:
                         return GameScene.SelectedItem?.Slots;
+                    case MirGridType.SkillSlot:
+                        return SkillSlotDialog.Item.Slots;
 
                     default:
                         throw new NotImplementedException();
@@ -335,8 +338,24 @@ namespace Client.MirControls
         public void OpenItem()
         {
             if ((GridType != MirGridType.Equipment && GridType != MirGridType.Inventory) || Item == null || GameScene.SelectedCell == this) return;
+            
+            switch (Item.Info.Type)
+            {
+                case ItemType.Weapon:
+                    if (Globals.FishingRodShapes.Contains(Item.Info.Shape)) return;
+                    break;
+                case ItemType.Armour:
+                case ItemType.Helmet:
+                case ItemType.Boots:
+                case ItemType.Ring:
+                case ItemType.Bracelet:
+                case ItemType.Necklace:
+                    break;
+                default:
+                    return;
+            }
 
-            GameScene.Scene.SocketDialog.Show(GridType, Item);
+            GameScene.Scene.SkillSlotDialog.Show(Item);
         }
 
         public void UseItem()
@@ -352,7 +371,7 @@ namespace Client.MirControls
                 return;
             }
 
-            if (GridType == MirGridType.Equipment || GridType == MirGridType.Mount || GridType == MirGridType.Fishing || GridType == MirGridType.Socket)
+            if (GridType == MirGridType.Equipment || GridType == MirGridType.Mount || GridType == MirGridType.Fishing || GridType == MirGridType.Socket || GridType == MirGridType.SkillSlot)
             {
                 RemoveItem();
                 return;
@@ -557,6 +576,7 @@ namespace Client.MirControls
                 case ItemType.Finder:
                 case ItemType.Reel:
                 case ItemType.Socket:
+                case ItemType.SkillGem:
                     UseSlotItem();
                     break;
             }
@@ -719,6 +739,53 @@ namespace Client.MirControls
                         Locked = true;
                     }
                     break;
+                case ItemType.SkillGem:
+                    if (SkillSlotDialog.Item != null)
+                    {
+                        switch (Item.Info.Shape)
+                        {
+                            case 0: //Active gem
+                                if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].CanWearItem(Item))
+                                {
+                                    var toItem = SkillSlotDialog.Item;
+                                    Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Active, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                                    GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].Locked = true;
+                                    Locked = true;
+                                }
+                                break;
+                            case 1: //Support gem
+                                if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Item == null)
+                                {
+                                    if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].CanWearItem(Item))
+                                    {
+                                        var toItem = SkillSlotDialog.Item;
+                                        Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support1, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                                        GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Locked = true;
+                                        Locked = true;
+                                    }
+                                }
+                                else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Item == null)
+                                {
+                                    if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].CanWearItem(Item))
+                                    {
+                                        var toItem = SkillSlotDialog.Item;
+                                        Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support2, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                                        GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Locked = true;
+                                        Locked = true;
+                                    }
+                                }
+                                else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].CanWearItem(Item))
+                                {
+                                    var toItem = SkillSlotDialog.Item;
+                                    Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support3, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                                    GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].Locked = true;
+                                    Locked = true;
+                                }
+                                break;
+                        }
+                    }
+                    
+                    break;
             }
         }
 
@@ -790,6 +857,12 @@ namespace Client.MirControls
                         if (GameScene.Scene.CharacterDialog.Grid[(byte)EquipmentSlot.Mount].Item == null) return;
 
                         fromID = GameScene.Scene.CharacterDialog.Grid[(byte)EquipmentSlot.Mount].Item.UniqueID;
+                    }
+                    else if (GridType == MirGridType.SkillSlot)
+                    {
+                        if (SkillSlotDialog.Item == null) return;
+
+                        fromID = SkillSlotDialog.Item.UniqueID;
                     }
                     else
                     {
@@ -2145,6 +2218,14 @@ namespace Client.MirControls
                     {
                         return false;
                     }
+                    break;
+                case ItemType.SkillGem:
+                    if (SkillSlotDialog.Item == null)
+                        return false;
+                    if (i.Info.Shape == 0 && ItemSlot > 0)
+                        return false;
+                    if (i.Info.Shape == 1 && ItemSlot == 0)
+                        return false;
                     break;
             }
 
