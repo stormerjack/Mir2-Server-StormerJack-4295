@@ -431,7 +431,7 @@ namespace Server.MirObjects
                 }
             }
             Pets.Clear();
-            
+
             for (int i = 0; i < Info.Magics.Count; i++)
             {
                 if (Envir.Time < (Info.Magics[i].CastTime + Info.Magics[i].GetDelay()))
@@ -1191,6 +1191,7 @@ namespace Server.MirObjects
                     ReceiveChat($"{item.Info.FriendlyName} has just expired from your equipment.", ChatType.Hint);
                     Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
                     Info.Equipment[i] = null;
+                    ItemRemoved(item);
 
                     continue;
                 }
@@ -1439,6 +1440,7 @@ namespace Server.MirObjects
                         {
                             Info.Equipment[i] = null;
                             Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                            ItemRemoved(item);
                             ReceiveChat($"Your {item.FriendlyName} shattered upon death.", ChatType.System2);
                             Report.ItemChanged(item, item.Count, 1);
                         }
@@ -1449,6 +1451,7 @@ namespace Server.MirObjects
                         {
                             Info.Equipment[i] = null;
                             Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                            ItemRemoved(item);
 
                             Report.ItemChanged(item, item.Count, 1);
                         }
@@ -1482,7 +1485,8 @@ namespace Server.MirObjects
                         {
                             Info.Equipment[i] = null;
                             Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
-   
+                            ItemRemoved(item);
+
                             ReceiveChat($"You died and {item.Info.FriendlyName} has been returned to it's owner.", ChatType.Hint);
                             Report.ItemMailed(item, 1, 1);
 
@@ -1500,6 +1504,7 @@ namespace Server.MirObjects
 
                         Info.Equipment[i] = null;
                         Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                        ItemRemoved(item);
 
                         Report.ItemChanged(item, item.Count, 1);
                     }
@@ -1599,6 +1604,7 @@ namespace Server.MirObjects
                     {
                         Info.Equipment[i] = null;
                         Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                        ItemRemoved(item);
                         ReceiveChat($"Your {item.FriendlyName} shattered upon death.", ChatType.System2);
                         Report.ItemChanged(item, item.Count, 1, "RedDeathDrop");
                     }
@@ -1629,8 +1635,9 @@ namespace Server.MirObjects
                     {
                         if (Envir.ReturnRentalItem(item, item.RentalInformation?.OwnerName, Info))
                         {
-                            Info.Equipment[i] = null;
+                            Info.Equipment[i] = null;                            
                             Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                            ItemRemoved(item);
 
                             ReceiveChat($"You died and {item.Info.FriendlyName} has been returned to it's owner.", ChatType.Hint);
                             Report.ItemMailed(item, 1, 1, "Death Dropped Rental Item");
@@ -1649,6 +1656,7 @@ namespace Server.MirObjects
 
                         Info.Equipment[i] = null;
                         Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
+                        ItemRemoved(item);
 
                         Report.ItemChanged(item, item.Count, 1, "RedDeathDrop");
                     }
@@ -2465,6 +2473,37 @@ namespace Server.MirObjects
                 CheckItem(item);
             }
         }
+        private void GetMagics()
+        {
+            for (int i = 0; i < Info.Equipment.Length; i++)
+            {
+                UserItem item = Info.Equipment[i];
+
+                if (item == null) continue;
+                if (item.Slots.Length > 0)
+                {
+                    UserItem slotItem = item.Slots[0];
+                    if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
+
+                    if (Info.Magics.Any(x => x.Spell == (Spell)slotItem.Info.Shape))
+                    {
+                        //Check if better
+                    }
+                    else
+                    {
+                        UserMagic magic = new UserMagic((Spell)slotItem.Info.Shape)
+                        {
+                            Level = 1,
+                            Experience = 0,
+                            Item = slotItem
+                        };
+
+                        Info.Magics.Add(magic);
+                        Enqueue(magic.GetInfo());
+                    }
+                }
+            }
+        }
         private void GetUserInfo()
         {
             string guildname = MyGuild != null ? MyGuild.Name : "";
@@ -2930,7 +2969,7 @@ namespace Server.MirObjects
             MaxMAC = (ushort)Math.Min(ushort.MaxValue, (((double)Macrate / 100) + 1) * MaxMAC);
 
             AddTempSkills(skillsToAdd);
-            RemoveTempSkills(skillsToRemove.Except(skillsToAdd));
+            RemoveTempSkills(skillsToRemove.Except(skillsToAdd));                     
 
             if (HasMuscleRing)
             {
@@ -3344,6 +3383,7 @@ namespace Server.MirObjects
             for (int i = 0; i < Info.Magics.Count; i++)
             {
                 UserMagic magic = Info.Magics[i];
+
                 switch (magic.Spell)
                 {
                     case Spell.Fencing:
@@ -10926,14 +10966,14 @@ namespace Server.MirObjects
                     Enqueue(new S.RefreshItem { Item = temp });
                 }
 
-                switch(temp.Info.Shape)
+                /*switch(temp.Info.Shape)
                 {
                     case 1:
-                        /*if (Item.Info.Type != ItemType.Weapon)
+                        if (Item.Info.Type != ItemType.Weapon)
                         {
                             Enqueue(p);
                             return;
-                        }*/
+                        }
                         break;
                     case 2:
                         if (Item.Info.Type != ItemType.Armour)
@@ -10949,7 +10989,7 @@ namespace Server.MirObjects
                             return;
                         }
                         break;
-                }
+                }*/
 
                 //if ((temp.Info.BindOnEquip) && (temp.SoulBoundId == -1))
                 //{
@@ -11057,6 +11097,7 @@ namespace Server.MirObjects
                 array[to] = temp;
                 p.Success = true;
                 Enqueue(p);
+                ItemRemoved(temp);
                 RefreshStats();
                 Broadcast(GetUpdateInfo());
 
@@ -11506,14 +11547,20 @@ namespace Server.MirObjects
                     Enqueue(new S.RefreshItem { Item = temp });
                 }
 
-                if ((Info.Equipment[to] != null) && (Info.Equipment[to].Cursed) && (UnlockCurse))
-                    UnlockCurse = false;
+                if (Info.Equipment[to] != null)
+                {
+                    if (Info.Equipment[to].Cursed && UnlockCurse)
+                        UnlockCurse = false;
+
+                    ItemRemoved(Info.Equipment[to]);
+                }
 
                 array[index] = Info.Equipment[to];
 
                 Report.ItemMoved(temp, MirGridType.Equipment, grid, to, index, "RemoveItem");
 
                 Info.Equipment[to] = temp;
+                ItemEquipped(Info.Equipment[to]);
 
                 Report.ItemMoved(temp, grid, MirGridType.Equipment, index, to);
 
@@ -11525,6 +11572,47 @@ namespace Server.MirObjects
                 return;
             }
             Enqueue(p);
+        }
+        private void ItemEquipped(UserItem item)
+        {
+            if (item.Slots.Length > 0)
+            {
+                UserItem slotItem = item.Slots[0];
+                if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
+
+                if (Info.Magics.Any(x => x.Spell == (Spell)slotItem.Info.Shape))
+                {
+                    //Check if better
+                }
+                else
+                {
+                    UserMagic magic = new UserMagic((Spell)slotItem.Info.Shape)
+                    {
+                        Level = 1,
+                        Experience = 0,
+                        Item = slotItem
+                    };
+
+                    Info.Magics.Add(magic);
+                    Enqueue(magic.GetInfo());
+                }
+            }
+        }
+        private void ItemRemoved(UserItem item)
+        {
+            if (item.Slots.Length > 0)
+            {
+                UserItem slotItem = item.Slots[0];
+                if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
+
+                for (var i = Info.Magics.Count - 1; i >= 0; i--)
+                {
+                    if (Info.Magics[i].Spell != (Spell)slotItem.Info.Shape) continue;
+
+                    Info.Magics.RemoveAt(i);
+                    Enqueue(new S.RemoveMagic { PlaceId = i });
+                }
+            }
         }
         public void UseItem(ulong id)
         {

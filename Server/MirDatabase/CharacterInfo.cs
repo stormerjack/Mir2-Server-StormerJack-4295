@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Server.MirEnvir;
 using Server.MirNetwork;
 using Server.MirObjects;
@@ -386,9 +387,9 @@ namespace Server.MirDatabase
                 QuestInventory[i].Save(writer);
             }
 
-            writer.Write(Magics.Count);
-            for (int i = 0; i < Magics.Count; i++)
-                Magics[i].Save(writer);
+            writer.Write(Magics.Where(x => x.Item != null).Count());
+            foreach (UserMagic magic in Magics.Where(x => x.Item != null))
+                magic.Save(writer);
 
             writer.Write(Thrusting);
             writer.Write(HalfMoon);

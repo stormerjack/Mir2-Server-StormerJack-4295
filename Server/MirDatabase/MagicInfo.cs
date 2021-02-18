@@ -100,10 +100,48 @@ namespace Server.MirDatabase
         public Spell Spell;
         public MagicInfo Info;
 
-        public byte Level, Key;
-        public ushort Experience;
+        private byte level;
+        public byte Level
+        {
+            get
+            {
+                if (Item != null)
+                    return Item.AC;
+                else
+                    return level;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.AC = value;
+                else
+                    level = value;
+            }
+        }
+
+        private ushort experience;
+        public ushort Experience
+        {
+            get
+            {
+                if (Item != null)
+                    return Item.CurrentDura;
+                else
+                    return experience;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.CurrentDura = value;
+                else
+                    experience = value;
+            }
+        }
+        public byte Key;
         public bool IsTempSpell;
         public long CastTime;
+
+        public UserItem Item;
 
         private MagicInfo GetMagicInfo(Spell spell)
         {

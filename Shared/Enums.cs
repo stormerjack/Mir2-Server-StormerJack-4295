@@ -1321,7 +1321,8 @@ public enum ItemType : byte
     Socket = 39,
     ShoulderPads = 40,
     Poison = 41,
-    SkillGem = 42,
+    ActiveGem = 42,
+    SupportGem = 43
 }
 
 public enum MirGridType : byte

@@ -576,7 +576,8 @@ namespace Client.MirControls
                 case ItemType.Finder:
                 case ItemType.Reel:
                 case ItemType.Socket:
-                case ItemType.SkillGem:
+                case ItemType.ActiveGem:
+                case ItemType.SupportGem:
                     UseSlotItem();
                     break;
             }
@@ -739,52 +740,46 @@ namespace Client.MirControls
                         Locked = true;
                     }
                     break;
-                case ItemType.SkillGem:
+                case ItemType.ActiveGem:
                     if (SkillSlotDialog.Item != null)
                     {
-                        switch (Item.Info.Shape)
+                        if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].CanWearItem(Item))
                         {
-                            case 0: //Active gem
-                                if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].CanWearItem(Item))
-                                {
-                                    var toItem = SkillSlotDialog.Item;
-                                    Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Active, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
-                                    GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].Locked = true;
-                                    Locked = true;
-                                }
-                                break;
-                            case 1: //Support gem
-                                if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Item == null)
-                                {
-                                    if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].CanWearItem(Item))
-                                    {
-                                        var toItem = SkillSlotDialog.Item;
-                                        Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support1, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
-                                        GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Locked = true;
-                                        Locked = true;
-                                    }
-                                }
-                                else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Item == null)
-                                {
-                                    if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].CanWearItem(Item))
-                                    {
-                                        var toItem = SkillSlotDialog.Item;
-                                        Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support2, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
-                                        GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Locked = true;
-                                        Locked = true;
-                                    }
-                                }
-                                else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].CanWearItem(Item))
-                                {
-                                    var toItem = SkillSlotDialog.Item;
-                                    Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support3, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
-                                    GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].Locked = true;
-                                    Locked = true;
-                                }
-                                break;
+                            var toItem = SkillSlotDialog.Item;
+                            Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Active, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                            GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Active].Locked = true;
+                            Locked = true;
                         }
                     }
-                    
+                    break;
+                case ItemType.SupportGem:
+                    if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Item == null)
+                    {
+                        if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].CanWearItem(Item))
+                        {
+                            var toItem = SkillSlotDialog.Item;
+                            Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support1, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                            GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support1].Locked = true;
+                            Locked = true;
+                        }
+                    }
+                    else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Item == null)
+                    {
+                        if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].CanWearItem(Item))
+                        {
+                            var toItem = SkillSlotDialog.Item;
+                            Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support2, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                            GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support2].Locked = true;
+                            Locked = true;
+                        }
+                    }
+                    else if (GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].CanWearItem(Item))
+                    {
+                        var toItem = SkillSlotDialog.Item;
+                        Network.Enqueue(new C.EquipSlotItem { Grid = GridType, UniqueID = Item.UniqueID, To = (int)SkillSlot.Support3, GridTo = MirGridType.SkillSlot, ToUniqueID = toItem.UniqueID });
+                        GameScene.Scene.SkillSlotDialog.Grid[(int)SkillSlot.Support3].Locked = true;
+                        Locked = true;
+                    }
                     break;
             }
         }
@@ -2219,12 +2214,16 @@ namespace Client.MirControls
                         return false;
                     }
                     break;
-                case ItemType.SkillGem:
+                case ItemType.ActiveGem:
                     if (SkillSlotDialog.Item == null)
                         return false;
-                    if (i.Info.Shape == 0 && ItemSlot > 0)
+                    if (ItemSlot > 0)
                         return false;
-                    if (i.Info.Shape == 1 && ItemSlot == 0)
+                    break;
+                case ItemType.SupportGem:
+                    if (SkillSlotDialog.Item == null)
+                        return false;
+                    if (ItemSlot == 0)
                         return false;
                     break;
             }
