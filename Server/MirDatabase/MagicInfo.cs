@@ -106,14 +106,14 @@ namespace Server.MirDatabase
             get
             {
                 if (Item != null)
-                    return Item.AC;
+                    return (byte)Item.MaxDura;
                 else
                     return level;
             }
             set
             {
                 if (Item != null)
-                    Item.AC = value;
+                    Item.MaxDura = value;
                 else
                     level = value;
             }

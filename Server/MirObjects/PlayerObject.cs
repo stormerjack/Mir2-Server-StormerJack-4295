@@ -2184,6 +2184,7 @@ namespace Server.MirObjects
             SetLevelEffects();
 
             GetItemInfo();
+            GetMagics();
             GetMapInfo();
             GetUserInfo();
             GetQuestInfo();
@@ -2483,23 +2484,26 @@ namespace Server.MirObjects
                 if (item.Slots.Length > 0)
                 {
                     UserItem slotItem = item.Slots[0];
-                    if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
+                    if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) continue;
 
-                    if (Info.Magics.Any(x => x.Spell == (Spell)slotItem.Info.Shape))
+                    UserMagic magic = Info.Magics.FirstOrDefault(x => x.Spell == (Spell)slotItem.Info.Shape);
+                    if (magic != null)
                     {
-                        //Check if better
+                        if (magic.Item == null || (slotItem.MaxDura > magic.Level || (slotItem.MaxDura == magic.Level && slotItem.CurrentDura > magic.Experience)))
+                        {
+                            magic.Item = slotItem;
+                            Enqueue(magic.GetInfo());
+                        }
                     }
                     else
                     {
-                        UserMagic magic = new UserMagic((Spell)slotItem.Info.Shape)
-                        {
-                            Level = 1,
-                            Experience = 0,
-                            Item = slotItem
+                        UserMagic newMagic = new UserMagic((Spell)slotItem.Info.Shape)
+                        {                     
+                            Item = slotItem                          
                         };
 
-                        Info.Magics.Add(magic);
-                        Enqueue(magic.GetInfo());
+                        Info.Magics.Add(newMagic);
+                        Enqueue(newMagic.GetInfo());
                     }
                 }
             }
@@ -10833,6 +10837,7 @@ namespace Server.MirObjects
             S.EquipSlotItem p = new S.EquipSlotItem { Grid = grid, UniqueID = id, To = to, GridTo = gridTo, Success = false };
 
             UserItem Item = null;
+            bool isEquipment = false;
 
             switch (gridTo)
             {
@@ -10850,13 +10855,14 @@ namespace Server.MirObjects
                         temp2 = Info.Equipment[i];
                         if (temp2 == null || temp2.UniqueID != idTo) continue;
                         Item = temp2;
+                        isEquipment = true;
                         break;
                     }
                     for (int i = 0; i < Info.Inventory.Length; i++)
                     {
                         temp2 = Info.Inventory[i];
                         if (temp2 == null || temp2.UniqueID != idTo) continue;
-                        Item = temp2;
+                        Item = temp2;                        
                         break;
                     }
                     break;
@@ -11003,6 +11009,8 @@ namespace Server.MirObjects
                 array[index] = null;
 
                 p.Success = true;
+                if (isEquipment)
+                    ItemEquipped(Item);
                 Enqueue(p);
                 RefreshStats();
 
@@ -11148,6 +11156,7 @@ namespace Server.MirObjects
             UserItem temp = null;
             UserItem slotTemp = null;
             int index = -1;
+            bool isEquipment = false;
 
             switch (grid)
             {
@@ -11165,6 +11174,7 @@ namespace Server.MirObjects
                         temp2 = Info.Equipment[i];
                         if (temp2 == null || temp2.UniqueID != idFrom) continue;
                         temp = temp2;
+                        isEquipment = true;
                         break;
                     }
                     for (int i = 0; i < Info.Inventory.Length; i++)
@@ -11229,6 +11239,7 @@ namespace Server.MirObjects
             {
                 array[to] = slotTemp;
                 p.Success = true;
+                ItemRemoved(slotTemp, true);
                 Enqueue(p);
                 RefreshStats();
                 Broadcast(GetUpdateInfo());
@@ -11551,11 +11562,11 @@ namespace Server.MirObjects
                 {
                     if (Info.Equipment[to].Cursed && UnlockCurse)
                         UnlockCurse = false;
-
+                    array[index] = Info.Equipment[to];
                     ItemRemoved(Info.Equipment[to]);
                 }
-
-                array[index] = Info.Equipment[to];
+                else
+                    array[index] = Info.Equipment[to];
 
                 Report.ItemMoved(temp, MirGridType.Equipment, grid, to, index, "RemoveItem");
 
@@ -11580,21 +11591,24 @@ namespace Server.MirObjects
                 UserItem slotItem = item.Slots[0];
                 if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
 
-                if (Info.Magics.Any(x => x.Spell == (Spell)slotItem.Info.Shape))
+                UserMagic magic = Info.Magics.FirstOrDefault(x => x.Spell == (Spell)slotItem.Info.Shape);
+                if (magic != null)
                 {
-                    //Check if better
+                    if (slotItem.MaxDura > magic.Level || (slotItem.MaxDura == magic.Level && slotItem.CurrentDura > magic.Experience))
+                    {
+                        magic.Item = slotItem;
+                        Enqueue(magic.GetInfo());
+                    }
                 }
                 else
                 {
-                    UserMagic magic = new UserMagic((Spell)slotItem.Info.Shape)
+                    UserMagic newMagic = new UserMagic((Spell)slotItem.Info.Shape)
                     {
-                        Level = 1,
-                        Experience = 0,
                         Item = slotItem
                     };
 
-                    Info.Magics.Add(magic);
-                    Enqueue(magic.GetInfo());
+                    Info.Magics.Add(newMagic);
+                    Enqueue(newMagic.GetInfo());
                 }
             }
         }
@@ -11607,12 +11621,81 @@ namespace Server.MirObjects
 
                 for (var i = Info.Magics.Count - 1; i >= 0; i--)
                 {
-                    if (Info.Magics[i].Spell != (Spell)slotItem.Info.Shape) continue;
+                    UserMagic magic = Info.Magics[i];
+                    if (magic.Item != slotItem) continue;
+
+                    magic.Item = null;
+                    magic.Level = 0;
+                    magic.Experience = 0;
+
+                    bool replaced = false;
+                    for (int j = 0; j < Info.Equipment.Length; j++)
+                    {
+                        UserItem equipItem = Info.Equipment[j];
+                        if (equipItem == null) continue;
+                        if (equipItem.Slots.Length > 0)
+                        {
+                            slotItem = equipItem.Slots[0];
+                            if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem || slotItem.Info.Shape != (int)magic.Spell) continue;
+
+                            if (magic.Item == null || (slotItem.MaxDura > magic.Level || (slotItem.MaxDura == magic.Level && slotItem.CurrentDura > magic.Experience)))
+                            {
+                                magic.Item = slotItem;
+                                Enqueue(magic.GetInfo());
+                                replaced = true;
+                            }
+                        }
+                    }
+
+                    if (replaced)
+                        return;
 
                     Info.Magics.RemoveAt(i);
                     Enqueue(new S.RemoveMagic { PlaceId = i });
-                }
+                    break;
+                }                
             }
+        }
+        private void ItemRemoved(UserItem slotItem, bool isSlotItem)
+        {
+            if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem) return;
+
+            for (var i = Info.Magics.Count - 1; i >= 0; i--)
+            {
+                UserMagic magic = Info.Magics[i];
+                if (magic.Item != slotItem) continue;
+
+                magic.Item = null;
+                magic.Level = 0;
+                magic.Experience = 0;
+
+                bool replaced = false;
+                for (int j = 0; j < Info.Equipment.Length; j++)
+                {
+                    UserItem equipItem = Info.Equipment[j];
+                    if (equipItem == null) continue;
+                    if (equipItem.Slots.Length > 0)
+                    {
+                        slotItem = equipItem.Slots[0];
+                        if (slotItem == null || slotItem.Info.Type != ItemType.ActiveGem || slotItem.Info.Shape != (int)magic.Spell) continue;
+
+                        if (magic.Item == null || (slotItem.MaxDura > magic.Level || (slotItem.MaxDura == magic.Level && slotItem.CurrentDura > magic.Experience)))
+                        {
+                            magic.Item = slotItem;
+                            Enqueue(magic.GetInfo());
+                            replaced = true;
+                        }
+                    }
+                }
+
+                if (replaced)
+                    return;
+
+                Info.Magics.RemoveAt(i);
+                Enqueue(new S.RemoveMagic { PlaceId = i });
+                break;
+            }
+
         }
         public void UseItem(ulong id)
         {

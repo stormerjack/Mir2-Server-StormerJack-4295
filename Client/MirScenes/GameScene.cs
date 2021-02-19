@@ -3629,7 +3629,11 @@ namespace Client.MirScenes
         {
             ClientMagic magic = p.Magic;
 
-            User.Magics.Add(magic);
+            if (User.Magics.Any(x => x.Spell == magic.Spell))
+                User.Magics[User.Magics.FindIndex(x => x.Spell == magic.Spell)] = magic;
+            else
+                User.Magics.Add(magic);
+
             User.RefreshStats();
             foreach (SkillBarDialog Bar in SkillBarDialogs)
                 Bar.Update();
