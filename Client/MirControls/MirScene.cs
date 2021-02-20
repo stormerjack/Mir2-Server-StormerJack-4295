@@ -183,6 +183,9 @@ namespace Client.MirControls
                 case (short)ServerPacketIds.NewItemInfo:
                     NewItemInfo((S.NewItemInfo) p);
                     break;
+                case (short)ServerPacketIds.NewMagicInfo:
+                    NewMagicInfo((S.NewMagicInfo)p);
+                    break;
                 case (short)ServerPacketIds.NewChatItem:
                     NewChatItem((S.NewChatItem)p);
                     break;
@@ -201,6 +204,11 @@ namespace Client.MirControls
         private void NewItemInfo(S.NewItemInfo info)
         {
             GameScene.ItemInfoList.Add(info.Info);
+        }
+
+        private void NewMagicInfo(S.NewMagicInfo info)
+        {
+            GameScene.MagicInfoList.Add(info.Info);
         }
 
         private void NewChatItem(S.NewChatItem p)

@@ -2023,12 +2023,27 @@ namespace Server.MirObjects
         {
             CheckItemInfo(item.Info);
 
+            switch (item.Info.Type)
+            {
+                case ItemType.ActiveGem:
+                    MagicInfo info = Envir.MagicInfoList.FirstOrDefault(x => x.Spell == (Spell)item.Info.Shape);
+                    if (info != null)
+                        CheckMagicInfo(info);
+                    break;
+            }
+
             for (int i = 0; i < item.Slots.Length; i++)
             {
                 if (item.Slots[i] == null) continue;
 
-                CheckItemInfo(item.Slots[i].Info);
+                CheckItem(item.Slots[i]);
             }
+        }
+        public void CheckMagicInfo(MagicInfo info)
+        {
+            if (Connection.SentMagicInfo.Contains(info)) return;
+            Enqueue(new S.NewMagicInfo { Info = info.ToClientInfo() });
+            Connection.SentMagicInfo.Add(info);
         }
         public void CheckQuestInfo(QuestInfo info)
         {

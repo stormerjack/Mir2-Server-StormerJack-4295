@@ -56,6 +56,7 @@ namespace Server.MirNetwork
         public AccountInfo Account;
         public PlayerObject Player;
         public List<ItemInfo> SentItemInfo = new List<ItemInfo>();
+        public List<MagicInfo> SentMagicInfo = new List<MagicInfo>();
         public List<QuestInfo> SentQuestInfo = new List<QuestInfo>();
         public List<RecipeInfo> SentRecipeInfo = new List<RecipeInfo>();
         public List<UserItem> SentChatItem = new List<UserItem>(); //TODO - Add Expiry time

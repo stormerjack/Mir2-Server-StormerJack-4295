@@ -951,6 +951,25 @@ namespace ServerPackets
             Info.Save(writer);
         }
     }
+    public sealed class NewMagicInfo : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.NewMagicInfo; }
+        }
+
+        public ClientMagicInfo Info;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Info = new ClientMagicInfo(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            Info.Save(writer);
+        }
+    }
     public sealed class NewChatItem : Packet
     {
         public override short Index

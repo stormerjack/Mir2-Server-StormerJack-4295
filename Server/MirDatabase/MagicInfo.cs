@@ -88,6 +88,22 @@ namespace Server.MirDatabase
             writer.Write(MultiplierBase);
             writer.Write(MultiplierBonus);
         }
+
+        public ClientMagicInfo ToClientInfo()
+        {
+            return new ClientMagicInfo()
+            {
+                Name = Name,
+                Spell = Spell,
+                Icon = Icon,
+                Level1 = Level1,
+                Level2 = Level2,
+                Level3 = Level3,
+                Need1 = Need1,
+                Need2 = Need2,
+                Need3 = Need3
+            };
+        }
     }
 
     public class UserMagic

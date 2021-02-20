@@ -108,7 +108,7 @@ namespace Client.MirScenes.Dialogs
             switch (Item.Info.Type)
             {
                 case ItemType.Weapon:
-                case ItemType.Amulet:
+                case ItemType.Armour:
                     Grid[(int)SkillSlot.Support1].Visible = true;
                     Grid[(int)SkillSlot.Support2].Visible = true;
                     Grid[(int)SkillSlot.Support3].Visible = true;

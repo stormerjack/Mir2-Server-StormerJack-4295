@@ -120,6 +120,7 @@ namespace Client.MirScenes
         public TimerDialog TimerControl;
 
         public static List<ItemInfo> ItemInfoList = new List<ItemInfo>();
+        public static List<ClientMagicInfo> MagicInfoList = new List<ClientMagicInfo>();
         public static List<UserId> UserIdList = new List<UserId>();
         public static List<UserItem> ChatItemList = new List<UserItem>();
         public static List<ClientQuestInfo> QuestInfoList = new List<ClientQuestInfo>();
@@ -487,6 +488,7 @@ namespace Client.MirScenes
                         MailReadParcelDialog.Hide();
                         ItemRentalDialog.Hide();
                         NoticeDialog.Hide();
+                        SkillSlotDialog.Hide();
 
 
 
@@ -7099,10 +7101,7 @@ namespace Client.MirScenes
             ushort level = Inspect ? InspectDialog.Level : MapObject.User.Level;
             MirClass job = Inspect ? InspectDialog.Class : MapObject.User.Class;
             HoverItem = item;
-            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);
-
-            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
-
+            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);            
 
             int count = 0;
 
@@ -7127,28 +7126,33 @@ namespace Client.MirScenes
 
             for (int i = 0; i < item.Slots.Length; i++)
             {
-                count++;
-                MirLabel SOCKETLabel = new MirLabel
-                {
-                    AutoSize = true,
-                    ForeColour = (count > realItem.Slots && !realItem.IsFishingRod && realItem.Type != ItemType.Mount) ? Color.Cyan : Color.White,
-                    Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
-                    OutLine = true,
-                    Parent = ItemLabel,
-                };
+                count++;                
 
                 if (skillDescriptions)
                 {
-                    if (i == 0)
-                        SOCKETLabel.Text = string.Format("Active Slot : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
-                    else
-                        SOCKETLabel.Text = string.Format("Support Slot : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                    if (item.Slots[i] == null) continue;
+                    MirControl slotControl = SlotInfoLabel(item.Slots[i], Inspect);
+                    if (slotControl != null)
+                    {
+                        skillOutlines.Add(slotControl);
+                        ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, slotControl.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, slotControl.DisplayRectangle.Bottom));
+                    }
                 }
                 else
-                    SOCKETLabel.Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                {
+                    ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+                    MirLabel SOCKETLabel = new MirLabel
+                    {
+                        AutoSize = true,
+                        ForeColour = (count > realItem.Slots && !realItem.IsFishingRod && realItem.Type != ItemType.Mount) ? Color.Cyan : Color.White,
+                        Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                        OutLine = true,
+                        Parent = ItemLabel,
+                    };
 
-                ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, SOCKETLabel.DisplayRectangle.Right + 4),
-                    Math.Max(ItemLabel.Size.Height, SOCKETLabel.DisplayRectangle.Bottom));
+                    SOCKETLabel.Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                    ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, SOCKETLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, SOCKETLabel.DisplayRectangle.Bottom));
+                }
             }
 
             #endregion
@@ -7196,6 +7200,100 @@ namespace Client.MirScenes
                 ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height - 4);
             }
             return null;
+        }
+        public MirControl SlotInfoLabel(UserItem item, bool Inspect = false)
+        {
+            ushort level = Inspect ? InspectDialog.Level : MapObject.User.Level;
+            MirClass job = Inspect ? InspectDialog.Class : MapObject.User.Class;
+            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);
+
+            if (item.Info.Shape == 0) return null;
+
+            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+
+            #region SOCKET             
+
+            ClientMagicInfo magic = MagicInfoList.First(x => x.Spell == (Spell)item.Info.Shape);
+
+            MirImageControl icon = new MirImageControl
+            {
+                Index = magic.Icon,
+                Library = Libraries.MagIcon2,
+                Parent = ItemLabel,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+            };      
+           
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, icon.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, icon.DisplayRectangle.Bottom + 4));
+
+            MirLabel GemNameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.Yellow,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                OutLine = true,
+                Parent = ItemLabel,
+                Text = magic.Name,
+            };
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, GemNameLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, GemNameLabel.DisplayRectangle.Bottom));
+
+            MirLabel GemLevelLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                OutLine = true,
+                Parent = ItemLabel,
+            };
+
+            string currentexp = "-";
+            switch (item.MaxDura)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    currentexp = item.CurrentDura.ToString();
+                    break;
+            }
+
+            string needexp = "-";
+            switch (item.MaxDura)
+            {
+                case 0:
+                    needexp = magic.Need1.ToString();
+                    break;
+                case 1:
+                    needexp = magic.Need2.ToString();
+                    break;
+                case 2:
+                    needexp = magic.Need3.ToString();
+                    break;
+            }
+
+            GemLevelLabel.Text = $"Level: {item.MaxDura}\nExperience: {currentexp}/{needexp}";
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, GemLevelLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, GemLevelLabel.DisplayRectangle.Bottom));
+
+            #endregion
+
+            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+
+            #region OUTLINE
+            MirControl outLine = new MirControl
+            {
+                BackColour = Color.FromArgb(255, 50, 50, 50),
+                Border = true,
+                BorderColour = Color.Gray,
+                NotControl = true,
+                Parent = ItemLabel,
+                Opacity = 0.4F,
+                Location = new Point(0, 0)
+            };
+            outLine.Size = ItemLabel.Size;
+            #endregion
+
+            return outLine;
         }
         public MirControl NeedInfoLabel(UserItem item, bool Inspect = false)
         {
@@ -8222,6 +8320,7 @@ namespace Client.MirScenes
             return null;
         }
 
+        private List<MirControl> skillOutlines = new List<MirControl>();
         public void CreateItemLabel(UserItem item, bool inspect = false, bool hideDura = false, bool hideAdded = false)
         {
             if (item == null)
@@ -8250,6 +8349,7 @@ namespace Client.MirScenes
 
             //Name Info Label
             MirControl[] outlines = new MirControl[10];
+            skillOutlines.Clear();
             outlines[0] = NameInfoLabel(item, inspect, hideDura);
             //Attribute Info1 Label - Attack Info
             outlines[1] = AttackInfoLabel(item, inspect, hideAdded);
@@ -8273,9 +8373,13 @@ namespace Client.MirScenes
             foreach (var outline in outlines)
             {
                 if (outline != null)
-                {
                     outline.Size = new Size(ItemLabel.Size.Width, outline.Size.Height);
-                }
+            }
+
+            foreach (var outline in skillOutlines)
+            {
+                if (outline != null)
+                    outline.Size = new Size(ItemLabel.Size.Width, outline.Size.Height);
             }
 
             //ItemLabel.Visible = true;
