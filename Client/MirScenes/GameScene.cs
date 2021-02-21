@@ -7105,6 +7105,12 @@ namespace Client.MirScenes
 
             int count = 0;
 
+            if (item.Info.Type == ItemType.ActiveGem || item.Info.Type == ItemType.SupportGem)
+            {
+                MirControl ol = SlotInfoLabel(item, Inspect);
+                return ol;
+            }
+
             #region SOCKET
 
             bool skillDescriptions = false;

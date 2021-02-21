@@ -157,6 +157,8 @@ namespace Server.MirDatabase
         public bool IsTempSpell;
         public long CastTime;
 
+        public UserMagic[] SupportMagics = new UserMagic[3];
+
         public UserItem Item;
 
         private MagicInfo GetMagicInfo(Spell spell)
