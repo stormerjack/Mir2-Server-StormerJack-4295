@@ -883,7 +883,7 @@ namespace Client.MirControls
 
         private void MoveItem()
         {
-            if (GridType == MirGridType.BuyBack || GridType == MirGridType.DropPanel || GridType == MirGridType.Inspect || GridType == MirGridType.TrustMerchant || GridType == MirGridType.Craft) return;
+            if (GridType == MirGridType.BuyBack || GridType == MirGridType.DropPanel || GridType == MirGridType.Inspect || GridType == MirGridType.TrustMerchant || GridType == MirGridType.Craft || GridType == MirGridType.SkillSlot) return;
 
             if (GameScene.SelectedCell != null)
             {
@@ -1495,7 +1495,6 @@ namespace Client.MirControls
                         break;
 
                     #endregion
-
                     #region To Refine 
                   
                     case MirGridType.Refine:
@@ -1550,7 +1549,6 @@ namespace Client.MirControls
                         break;
 
                     #endregion
-
                     #region To Item Renting Dialog
 
                     case MirGridType.Renting:
@@ -1573,7 +1571,6 @@ namespace Client.MirControls
                         break;
 
                     #endregion
-
                     #region To Awakening
                     case MirGridType.AwakenItem:
                         {
@@ -1733,6 +1730,29 @@ namespace Client.MirControls
                         }
                         break;
                     #endregion
+                    #region To Socket
+                    case MirGridType.SkillSlot:
+                        switch (GameScene.SelectedCell.GridType)
+                        {
+                            #region From Inventory
+                            case MirGridType.Inventory:
+                                if (Item != null)
+                                    return;
+
+                                if (CanWearItem(GameScene.SelectedCell.Item))
+                                {
+                                    var toItem = SkillSlotDialog.Item;
+                                    Network.Enqueue(new C.EquipSlotItem { Grid = GameScene.SelectedCell.GridType, UniqueID = GameScene.SelectedCell.Item.UniqueID, To = ItemSlot, GridTo = MirGridType.SkillSlot, ToUniqueID = SkillSlotDialog.Item.UniqueID });
+                                    Locked = true;
+                                    GameScene.SelectedCell.Locked = true;
+                                    GameScene.SelectedCell = null;
+                                }
+                                return;
+                                #endregion
+                        }
+                        break;
+
+                        #endregion
                 }
 
                 return;
