@@ -1044,6 +1044,15 @@ namespace Server.MirEnvir
 
                     player.LevelMagic(magic);
 
+                    long expireTime = (10 + value / 2) * 1000;
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        expireTime += (long)(expireTime / 100F * ((magic.Level + 1) * 5));
+                        player.LevelMagic(support);
+                    }
+                    expireTime += Envir.Time;
+
                     if (ValidPoint(location))
                     {
                         cell = GetCell(location);
@@ -1065,7 +1074,7 @@ namespace Server.MirEnvir
                                 {
                                     Spell = Spell.FireWall,
                                     Value = value,
-                                    ExpireTime = Envir.Time + (10 + value / 2) * 1000,
+                                    ExpireTime = expireTime,
                                     TickSpeed = 2000,
                                     Caster = player,
                                     CurrentLocation = location,
@@ -1103,7 +1112,7 @@ namespace Server.MirEnvir
                         {
                             Spell = Spell.FireWall,
                             Value = value,
-                            ExpireTime = Envir.Time + (10 + value / 2) * 1000,
+                            ExpireTime = expireTime,
                             TickSpeed = 2000,
                             Caster = player,
                             CurrentLocation = location,
@@ -1288,6 +1297,14 @@ namespace Server.MirEnvir
                 case Spell.LionRoar:
                     location = (Point)data[2];
 
+                    long roarTime = magic.Level + 2;
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        roarTime += (long)(roarTime / 100F * ((magic.Level + 1) * 5));
+                        player.LevelMagic(support);
+                    }
+
                     for (int y = location.Y - 2; y <= location.Y + 2; y++)
                     {
                         if (y < 0) continue;
@@ -1308,7 +1325,7 @@ namespace Server.MirEnvir
                                 if (target.Race != ObjectType.Monster) continue;
                                 //Only targets
                                 if (!target.IsAttackTarget(player) || player.Level + 3 < target.Level) continue;
-                                target.ApplyPoison(new Poison { PType = PoisonType.LRParalysis, Duration = magic.Level + 2, TickSpeed = 1000 }, player);
+                                target.ApplyPoison(new Poison { PType = PoisonType.LRParalysis, Duration = roarTime, TickSpeed = 1000 }, player);
                                 target.OperateTime = 0;
                                 train = true;
                             }
@@ -1357,11 +1374,20 @@ namespace Server.MirEnvir
 
                             if (!cast) continue;
 
+                            long cloudTime = 6000;
+                            support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                            if (support != null)
+                            {
+                                cloudTime += (long)(cloudTime / 100F * ((magic.Level + 1) * 5));
+                                player.LevelMagic(support);
+                            }
+                            cloudTime += Envir.Time;
+
                             SpellObject ob = new SpellObject
                                 {
                                     Spell = Spell.PoisonCloud,
                                     Value = value + bonusdmg,
-                                    ExpireTime = Envir.Time + 6000,
+                                    ExpireTime = cloudTime,
                                     TickSpeed = 1000,
                                     Caster = player,
                                     CurrentLocation = new Point(x, y),

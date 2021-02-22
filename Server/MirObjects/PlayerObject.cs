@@ -2511,7 +2511,6 @@ namespace Server.MirObjects
                             magic.Item = slotItem;
                             for (int j = 0; j < magic.SupportMagics.Length; j++)
                                 magic.SupportMagics[j] = null;
-                            Enqueue(magic.GetInfo());
                             replaced = true;
                         }
                     }
@@ -2523,7 +2522,6 @@ namespace Server.MirObjects
                         };
 
                         Info.Magics.Add(magic);
-                        Enqueue(magic.GetInfo());
                         replaced = true;
                     }
 
@@ -7407,16 +7405,25 @@ namespace Server.MirObjects
 
             LevelMagic(magic);
 
+            long shockTime = (magic.Level * 5 + 10) * 1000;
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                shockTime += (long)(shockTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+            shockTime += Envir.Time;
+
             if (target.Master == this)
             {
-                target.ShockTime = Envir.Time + (magic.Level * 5 + 10) * 1000;
+                target.ShockTime = shockTime;
                 target.Target = null;
                 return;
             }
 
             if (Envir.Random.Next(2) > 0)
             {
-                target.ShockTime = Envir.Time + (magic.Level * 5 + 10) * 1000;
+                target.ShockTime = shockTime;
                 target.Target = null;
                 return;
             }
@@ -7779,7 +7786,17 @@ namespace Server.MirObjects
 
             ConsumeItem(item, 1);
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, GetAttackPower(MinSC, MaxSC) + (magic.Level + 1) * 5);
+            int hidingTime = GetAttackPower(MinSC, MaxSC) + (magic.Level + 1) * 5;
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                hidingTime += (int)(hidingTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
+
+
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, hidingTime);
             ActionList.Add(action);
 
         }
@@ -7792,7 +7809,15 @@ namespace Server.MirObjects
 
             int delay = Functions.MaxDistance(CurrentLocation, location) * 50 + 500; //50 MS per Step
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, GetAttackPower(MinSC, MaxSC) / 2 + (magic.Level + 1) * 2, location);
+            int hidingTime = GetAttackPower(MinSC, MaxSC) / 2 + (magic.Level + 1) * 2;
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                hidingTime += (int)(hidingTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, hidingTime, location);
             CurrentMap.ActionList.Add(action);
         }
         private void SoulShield(UserMagic magic, Point location, out bool cast)
@@ -7820,9 +7845,15 @@ namespace Server.MirObjects
         {
             if (target == null) return;
 
-            int value = GetAttackPower(MinSC, MaxSC) + magic.GetPower();
+            long revelationTime = GetAttackPower(MinSC, MaxSC) + magic.GetPower();
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                revelationTime += (long)(revelationTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, value, target);
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, revelationTime, target);
 
             ActionList.Add(action);
         }
@@ -8003,7 +8034,14 @@ namespace Server.MirObjects
             
             if (target == null || !target.IsFriendlyTarget(this)) target = this; //offical is only party target
 
-            int duration = 30 + 50 * magic.Level;
+            long shieldTime = 30 + 50 * magic.Level;
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                shieldTime += (long)(shieldTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
             int power = magic.GetPower(GetAttackPower(MinSC, MaxSC));
             int chance = 9 - (Luck / 3 + magic.Level);
 
@@ -8015,7 +8053,7 @@ namespace Server.MirObjects
                     //Only targets
                     if (target.IsFriendlyTarget(this))
                     {
-                        target.AddBuff(new Buff { Type = BuffType.EnergyShield, Caster = this, ExpireTime = Envir.Time + duration * 1000, Visible = true, Values = values });
+                        target.AddBuff(new Buff { Type = BuffType.EnergyShield, Caster = this, ExpireTime = Envir.Time + shieldTime * 1000, Visible = true, Values = values });
                         target.OperateTime = 0;
                         LevelMagic(magic);
                         cast = true;
@@ -8093,7 +8131,15 @@ namespace Server.MirObjects
 
             int delay = Functions.MaxDistance(CurrentLocation, location) * 50 + 500; //50 MS per Step
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, magic.GetDamage(GetAttackPower(MinSC, MaxSC)), location, 1 + ((magic.Level + 1) * 2));
+            long curseTime = magic.GetDamage(GetAttackPower(MinSC, MaxSC));
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                curseTime += (long)(curseTime / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, curseTime, location, 1 + ((magic.Level + 1) * 2));
             CurrentMap.ActionList.Add(action);
 
         }
@@ -8181,6 +8227,14 @@ namespace Server.MirObjects
             if (count > 0) return;
 
             int duration = 45 + (15 * magic.Level);
+
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                duration += (int)(duration / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
             int value = (int)Math.Round(MaxAC * (0.2 + (0.03 * magic.Level)));
 
             AddBuff(new Buff { Type = BuffType.ProtectionField, Caster = this, ExpireTime = Envir.Time + duration * 1000, Values = new int[] { value } });
@@ -8193,6 +8247,14 @@ namespace Server.MirObjects
             if (count > 0) return;
 
             int duration = 48 + (6 * magic.Level);
+
+            UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+            if (support != null)
+            {
+                duration += (int)(duration / 100F * ((magic.Level + 1) * 5));
+                LevelMagic(support);
+            }
+
             int value = (int)Math.Round(MaxDC * (0.12 + (0.03 * magic.Level)));
 
             AddBuff(new Buff { Type = BuffType.Rage, Caster = this, ExpireTime = Envir.Time + duration * 1000, Values = new int[] { value } });
@@ -9173,12 +9235,20 @@ namespace Server.MirObjects
 
                     if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
 
+                    long poisonTime = (value * 2) + ((magic.Level + 1) * 7);
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        poisonTime += (long)(poisonTime / 100F * ((magic.Level + 1) * 5));
+                        LevelMagic(support);
+                    }
+
                     switch (item.Info.Shape)
                     {
                         case 1:
                             target.ApplyPoison(new Poison
                             {
-                                Duration = (value * 2) + ((magic.Level + 1) * 7),
+                                Duration = poisonTime,
                                 Owner = this,
                                 PType = PoisonType.Green,
                                 TickSpeed = 2000,
@@ -9188,7 +9258,7 @@ namespace Server.MirObjects
                         case 2:
                             target.ApplyPoison(new Poison
                             {
-                                Duration = (value * 2) + (magic.Level + 1) * 7,
+                                Duration = poisonTime,
                                 Owner = this,
                                 PType = PoisonType.Red,
                                 TickSpeed = 2000,
@@ -9369,7 +9439,16 @@ namespace Server.MirObjects
                 case Spell.MagicBooster:
                     value = (int)data[1];
 
-                    AddBuff(new Buff { Type = BuffType.MagicBooster, Caster = this, ExpireTime = Envir.Time + 60000, Values = new int[] { value, 6 + magic.Level }, Visible = true });
+                    long expireTime = 60000;
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        expireTime += (long)(expireTime / 100F * ((magic.Level + 1) * 5));
+                        LevelMagic(support);
+                    }
+                    expireTime += Envir.Time;
+
+                    AddBuff(new Buff { Type = BuffType.MagicBooster, Caster = this, ExpireTime = expireTime, Values = new int[] { value, 6 + magic.Level }, Visible = true });
                     LevelMagic(magic);
                     break;
 
@@ -9469,7 +9548,16 @@ namespace Server.MirObjects
                     item = GetAmulet(1);
                     if (item == null) return;
 
-                    ((MonsterObject)target).HallucinationTime = Envir.Time + (Envir.Random.Next(20) + 10) * 1000;
+                    long hallucinationTime = (Envir.Random.Next(20) + 10) * 1000;
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        hallucinationTime += (long)(hallucinationTime / 100F * ((magic.Level + 1) * 5));
+                        LevelMagic(support);
+                    }
+                    hallucinationTime += Envir.Time;
+
+                    ((MonsterObject)target).HallucinationTime = hallucinationTime;
                     target.Target = null;
 
                     ConsumeItem(item, 1);
@@ -10091,8 +10179,7 @@ namespace Server.MirObjects
                 Enqueue(new S.MagicDelay { Spell = magic.Spell, Delay = delay });
             }
 
-            Enqueue(new S.MagicLeveled { Spell = magic.Spell, Level = magic.Level, Experience = magic.Experience });
-
+            Enqueue(new S.MagicLeveled { Spell = magic.Spell, Level = magic.Level, Experience = magic.Experience, ItemID = magic.Item == null ? 0 : magic.Item.UniqueID });
         }
 
         public bool CheckMovement(Point location)

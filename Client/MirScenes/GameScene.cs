@@ -3666,7 +3666,24 @@ namespace Client.MirScenes
                 break;
             }
 
+            if (p.ItemID == 0) return;
+            for (int i = 0; i < User.Equipment.Length; i++)
+            {
+                UserItem item = User.Equipment[i];
+                if (item == null) continue;
+                if (item.Slots.Length == 0) continue;
 
+                for (int j = 0; j < item.Slots.Length; j++)
+                {
+                    UserItem slotItem = item.Slots[j];
+                    if (slotItem == null) continue;
+                    if (slotItem.UniqueID != p.ItemID) continue;
+
+                    slotItem.MaxDura = p.Level;
+                    slotItem.CurrentDura = p.Experience;
+                    return;
+                }
+            }
         }
         private void Magic(S.Magic p)
         {

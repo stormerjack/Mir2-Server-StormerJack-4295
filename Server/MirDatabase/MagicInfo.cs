@@ -280,5 +280,14 @@ namespace Server.MirDatabase
         {
             return Info.DelayBase - (Level * Info.DelayReduction);
         }
+
+        public UserMagic GetSupportMagic(Spell spell)
+        {
+            for (int i = 0; i < SupportMagics.Length; i++)
+                if (SupportMagics[i] != null && SupportMagics[i].Spell == spell)
+                    return SupportMagics[i];
+
+            return null;
+        }
     }
 }

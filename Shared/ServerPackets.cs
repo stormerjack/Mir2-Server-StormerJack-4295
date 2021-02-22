@@ -2894,12 +2894,14 @@ namespace ServerPackets
         public Spell Spell;
         public byte Level;
         public ushort Experience;
+        public ulong ItemID;
 
         protected override void ReadPacket(BinaryReader reader)
         {
             Spell = (Spell)reader.ReadByte();
             Level = reader.ReadByte();
             Experience = reader.ReadUInt16();
+            ItemID = reader.ReadUInt64();
         }
 
         protected override void WritePacket(BinaryWriter writer)
@@ -2907,6 +2909,7 @@ namespace ServerPackets
             writer.Write((byte)Spell);
             writer.Write(Level);
             writer.Write(Experience);
+            writer.Write(ItemID);
         }
     }
 
