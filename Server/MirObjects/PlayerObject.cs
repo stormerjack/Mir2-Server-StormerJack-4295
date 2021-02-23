@@ -7356,7 +7356,15 @@ namespace Server.MirObjects
         {
             if (target == null || !target.IsAttackTarget(this) || !CanFly(target.CurrentLocation)) return false;
 
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);            
 
             int delay = Functions.MaxDistance(CurrentLocation, target.CurrentLocation) * 50 + 500; //50 MS per Step
 
@@ -7541,7 +7549,15 @@ namespace Server.MirObjects
         {
             if (target == null || !target.IsAttackTarget(this)) return;
 
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             if (target.Undead) damage = (int)(damage * 1.5F);
 
@@ -7561,21 +7577,45 @@ namespace Server.MirObjects
         }
         private void FireBang(UserMagic magic, Point location)
         {
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, location);
             CurrentMap.ActionList.Add(action);
         }
         private void FireWall(UserMagic magic, Point location)
         {
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, location);
             CurrentMap.ActionList.Add(action);
         }
         private void Lightning(UserMagic magic)
         {
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, CurrentLocation, Direction);
             CurrentMap.ActionList.Add(action);
@@ -7605,7 +7645,15 @@ namespace Server.MirObjects
         {
             if (target == null || (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) || !target.IsAttackTarget(this)) return;
 
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             if (!target.Undead) damage = (int)(damage * 1.5F);
 
@@ -7615,7 +7663,15 @@ namespace Server.MirObjects
         }
         private void ThunderStorm(UserMagic magic)
         {
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, CurrentLocation);
             CurrentMap.ActionList.Add(action);
@@ -7654,7 +7710,15 @@ namespace Server.MirObjects
         {
             cast = false;
 
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, location);
 
@@ -7666,7 +7730,15 @@ namespace Server.MirObjects
         {
             cast = false;
 
-            int damage = magic.GetDamage(GetAttackPower(MinMC, MaxMC));
+            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damage = magic.GetDamage(damageBase);
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damage, location);
 
@@ -7680,6 +7752,14 @@ namespace Server.MirObjects
             int damageBase = GetAttackPower(MinMC, MaxMC);
             if (Envir.Random.Next(100) <= (1 + Luck))
                 damageBase += damageBase;
+
+            UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
+            if (support != null)
+            {
+                damageBase += support.Level + 1;
+                LevelMagic(support);
+            }
+
             int damageFinish = magic.GetDamage(damageBase);
 
             Point location = Functions.PointMove(CurrentLocation, Direction, 1);
