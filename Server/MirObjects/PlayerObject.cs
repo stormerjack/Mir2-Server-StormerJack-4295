@@ -7718,6 +7718,13 @@ namespace Server.MirObjects
 
             int power = magic.GetDamage(GetAttackPower(MinSC, MaxSC));
 
+            UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
+            if (support != null)
+            {
+                power += support.Level + 1;
+                LevelMagic(support);
+            }
+
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, power, target, item);
             ActionList.Add(action);
             ConsumeItem(item, 1);
@@ -7733,6 +7740,13 @@ namespace Server.MirObjects
             if (target == null || !target.IsAttackTarget(this) || !CanFly(target.CurrentLocation)) return false;
 
             int damage = magic.GetDamage(GetAttackPower(MinSC, MaxSC));
+
+            UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
+            if (support != null)
+            {
+                damage += support.Level + 1;
+                LevelMagic(support);
+            }
 
             int delay = Functions.MaxDistance(CurrentLocation, target.CurrentLocation) * 50 + 500; //50 MS per Step
 
@@ -7914,6 +7928,13 @@ namespace Server.MirObjects
 
             int delay = Functions.MaxDistance(CurrentLocation, location) * 50 + 500; //50 MS per Step
             int damage = magic.GetDamage(GetAttackPower(MinSC, MaxSC));
+
+            UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
+            if (support != null)
+            {
+                damage += support.Level + 1;
+                LevelMagic(support);
+            }
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, damage, location, (byte)Envir.Random.Next(PoisonAttack));
 
