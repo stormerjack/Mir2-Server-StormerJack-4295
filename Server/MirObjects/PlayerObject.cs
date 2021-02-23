@@ -6542,7 +6542,16 @@ namespace Server.MirObjects
                 {
                     case Spell.Slaying:
                         magic = GetMagic(Spell.Slaying);
-                        damageFinal = magic.GetDamage(damageBase);
+
+                        UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+                        if (support != null)
+                        {
+                            damageBase += 2 * support.Level + 1;
+                            LevelMagic(support);
+                        }
+
+                        damageFinal = magic.GetDamage(damageBase);                        
+
                         LevelMagic(magic);
                         break;
                     case Spell.DoubleSlash:
@@ -6569,7 +6578,16 @@ namespace Server.MirObjects
                         break;
                     case Spell.TwinDrakeBlade:
                         magic = GetMagic(Spell.TwinDrakeBlade);
-                        damageFinal = magic.GetDamage(damageBase);
+
+                        support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+                        if (support != null)
+                        {
+                            damageBase += 2 * support.Level + 1;
+                            LevelMagic(support);
+                        }
+
+                        damageFinal = magic.GetDamage(damageBase);                        
+
                         TwinDrakeBlade = false;
                         action = new DelayedAction(DelayedType.Damage, Envir.Time + 400,
                             ob,                     //Object (Target)
@@ -6583,7 +6601,16 @@ namespace Server.MirObjects
                         break;
                     case Spell.FlamingSword:
                         magic = GetMagic(Spell.FlamingSword);
-                        damageFinal = magic.GetDamage(damageBase);
+
+                        support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+                        if (support != null)
+                        {
+                            damageBase += 2 * support.Level + 1;
+                            LevelMagic(support);
+                        }
+
+                        damageFinal = magic.GetDamage(damageBase);                       
+
                         FlamingSword = false;
                         defence = DefenceType.AC;
                         //action = new DelayedAction(DelayedType.Damage, Envir.Time + 400, ob, damage, DefenceType.Agility, true);
@@ -6629,7 +6656,16 @@ namespace Server.MirObjects
                 dir = Functions.PreviousDir(dir);
 
                 magic = GetMagic(spell);
-                damageFinal = magic.GetDamage(damageBase);
+
+                UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+                if (support != null)
+                {
+                    damageBase += 2 * support.Level + 1;
+                    LevelMagic(support);
+                }
+
+                damageFinal = magic.GetDamage(damageBase);                
+
                 for (int i = 0; i < 4; i++)
                 {
                     target = Functions.PointMove(CurrentLocation, dir, 1);
@@ -6658,7 +6694,16 @@ namespace Server.MirObjects
             if (spell == Spell.CrossHalfMoon)
             {
                 magic = GetMagic(spell);
-                damageFinal = magic.GetDamage(damageBase);
+
+                UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+                if (support != null)
+                {
+                    damageBase += 2 * support.Level + 1;
+                    LevelMagic(support);
+                }
+
+                damageFinal = magic.GetDamage(damageBase);               
+
                 for (int i = 0; i < 8; i++)
                 {
                     target = Functions.PointMove(CurrentLocation, dir, 1);
@@ -8177,7 +8222,15 @@ namespace Server.MirObjects
             int damageBase = GetAttackPower(MinDC, MaxDC);
             if (Envir.Random.Next(0,100) <= (1+Luck)) 
                 damageBase += damageBase;//crit should do something like double dmg, not double max dc dmg!
-            int damageFinal = magic.GetDamage(damageBase);
+
+            UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+            if (support != null)
+            {
+                damageBase += 2 * support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damageFinal = magic.GetDamage(damageBase);            
 
             int col = 3;
             int row = 3;
@@ -8470,7 +8523,15 @@ namespace Server.MirObjects
 
             // damage
             int damageBase = GetAttackPower(MinDC, MaxDC);
-            int damageFinal = magic.GetDamage(damageBase);
+
+            UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
+            if (support != null)
+            {
+                damageBase += 2 * support.Level + 1;
+                LevelMagic(support);
+            }
+
+            int damageFinal = magic.GetDamage(damageBase);            
 
             // objects = this, magic, damage, currentlocation, direction, attackRange
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, damageFinal, CurrentLocation, Direction, 1);
