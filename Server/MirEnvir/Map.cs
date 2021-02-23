@@ -1512,8 +1512,19 @@ namespace Server.MirEnvir
                             if (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) continue;
 
                             if (!target.IsAttackTarget(player)) continue;
+
+                            byte oldAccuracy = player.Accuracy;
+                            support = magic.GetSupportMagic(Spell.AdditionalAccuracy);
+                            if (support != null)
+                            {
+                                player.Accuracy += (byte)(support.Level + 1);
+                                player.LevelMagic(support);
+                            }
+
                             if (target.Attacked(player, value, DefenceType.AC, false) > 0)
                                 train = true;
+
+                            player.Accuracy = oldAccuracy;
                             break;
                         }
                     }

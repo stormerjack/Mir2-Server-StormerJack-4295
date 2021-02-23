@@ -6620,7 +6620,7 @@ namespace Server.MirObjects
                 }
 
                 //if (ob.Attacked(this, damage, defence) <= 0) break;
-                action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, ob, damageFinal, defence, true);
+                action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, ob, damageFinal, defence, true, magic);
                 ActionList.Add(action);
                 break;
             }
@@ -7356,7 +7356,7 @@ namespace Server.MirObjects
         {
             if (target == null || !target.IsAttackTarget(this) || !CanFly(target.CurrentLocation)) return false;
 
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7549,7 +7549,7 @@ namespace Server.MirObjects
         {
             if (target == null || !target.IsAttackTarget(this)) return;
 
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7577,7 +7577,7 @@ namespace Server.MirObjects
         }
         private void FireBang(UserMagic magic, Point location)
         {
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7592,7 +7592,7 @@ namespace Server.MirObjects
         }
         private void FireWall(UserMagic magic, Point location)
         {
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7607,7 +7607,7 @@ namespace Server.MirObjects
         }
         private void Lightning(UserMagic magic)
         {
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7645,7 +7645,7 @@ namespace Server.MirObjects
         {
             if (target == null || (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) || !target.IsAttackTarget(this)) return;
 
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7663,7 +7663,7 @@ namespace Server.MirObjects
         }
         private void ThunderStorm(UserMagic magic)
         {
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7710,7 +7710,7 @@ namespace Server.MirObjects
         {
             cast = false;
 
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -7730,7 +7730,7 @@ namespace Server.MirObjects
         {
             cast = false;
 
-            int damageBase = (GetAttackPower(MinMC, MaxMC);
+            int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
@@ -8364,8 +8364,16 @@ namespace Server.MirObjects
                                 //Only targets
                                 if (target.IsAttackTarget(this))
                                 {
+                                    byte oldAccuracy = Accuracy;
+                                    support = magic.GetSupportMagic(Spell.AdditionalAccuracy);
+                                    if (support != null)
+                                    {
+                                        Accuracy += (byte)(support.Level + 1);
+                                        LevelMagic(support);
+                                    }
                                     if (target.Attacked(this, j <= 1 ? damageFinal : (int)(damageFinal * 0.6), DefenceType.MAC, false) > 0)
                                         train = true;
+                                    Accuracy = oldAccuracy;
                                 }
                                 break;
                         }
@@ -10070,6 +10078,8 @@ namespace Server.MirObjects
                 target.Direction++;
             target.Broadcast(target.GetInfo());
         }
+
+        private static Spell[] AdditionalAccuracySpells = new Spell[] { Spell.TwinDrakeBlade, Spell.FlamingSword, Spell.Slaying, Spell.HalfMoon, Spell.CrossHalfMoon };
         private void CompleteAttack(IList<object> data)
         {
             MapObject target = (MapObject)data[0];
@@ -10087,7 +10097,23 @@ namespace Server.MirObjects
             if (FatalSword)
                 defence = DefenceType.Agility;
 
-            if (target.Attacked(this, damage, defence, damageWeapon) <= 0) return;
+            byte oldAccuracy = Accuracy;
+            if (userMagic != null && AdditionalAccuracySpells.Contains(userMagic.Spell))
+            {
+                UserMagic support = userMagic.GetSupportMagic(Spell.AdditionalAccuracy);
+                if (support != null)
+                {
+                    Accuracy += (byte)(support.Level + 1);
+                    LevelMagic(support);
+                }
+            }
+
+            if (target.Attacked(this, damage, defence, damageWeapon) <= 0)
+            {
+                Accuracy = oldAccuracy;
+                return;
+            }
+            Accuracy = oldAccuracy;
             if (FatalSword)
             {
                 S.ObjectEffect p = new S.ObjectEffect { ObjectID = target.ObjectID, Effect = SpellEffect.FatalSword };
