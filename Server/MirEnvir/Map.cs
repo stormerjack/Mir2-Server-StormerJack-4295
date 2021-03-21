@@ -825,6 +825,18 @@ namespace Server.MirEnvir
             MirDirection dir;
             MonsterObject monster;
             Point front;
+
+            int culling = -1;
+            if (PlayerObject.CullingStrikeSpells.Contains(magic.Spell))
+            {
+                UserMagic support = magic.GetSupportMagic(Spell.CullingStrike);
+                if (support != null)
+                {
+                    culling = support.Level;
+                    player.LevelMagic(support);
+                }
+            }
+
             switch (magic.Spell)
             {
 
@@ -924,7 +936,7 @@ namespace Server.MirEnvir
                                         //Only targets
                                         if (target.IsAttackTarget(player))
                                         {
-                                            if (target.Attacked(player, value, DefenceType.MAC, false) > 0)
+                                            if (target.Attacked(player, value, DefenceType.MAC, false, culling) > 0)
                                                 train = true;
                                         }
                                         break;
@@ -1149,7 +1161,7 @@ namespace Server.MirEnvir
                             if (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) continue;
 
                             if (!target.IsAttackTarget(player)) continue;
-                            if (target.Attacked(player, value, DefenceType.MAC, false) > 0)
+                            if (target.Attacked(player, value, DefenceType.MAC, false, culling) > 0)
                                 train = true;
                             break;
                         }
@@ -1271,7 +1283,7 @@ namespace Server.MirEnvir
                                         //Only targets
                                         if (!target.IsAttackTarget(player)) break;
 
-                                        if (target.Attacked(player, magic.Spell == Spell.ThunderStorm && !target.Undead ? value / 10 : value, DefenceType.MAC, false) <= 0)
+                                        if (target.Attacked(player, magic.Spell == Spell.ThunderStorm && !target.Undead ? value / 10 : value, DefenceType.MAC, false, culling) <= 0)
                                         {
                                             if (target.Undead)
                                             {
@@ -1448,7 +1460,7 @@ namespace Server.MirEnvir
                                             if (target.IsAttackTarget(player))
                                             {
                                                 //Only targets
-                                                if (target.Attacked(player, j <= 1 ? nearDamage : farDamage, DefenceType.MAC, false) > 0)
+                                                if (target.Attacked(player, j <= 1 ? nearDamage : farDamage, DefenceType.MAC, false, culling) > 0)
                                                 {
                                                     if (player.Level + (target.Race == ObjectType.Player ? 2 : 10) >= target.Level && Envir.Random.Next(target.Race == ObjectType.Player ? 100 : 20) <= magic.Level)
                                                     {

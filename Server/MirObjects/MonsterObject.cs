@@ -1993,7 +1993,7 @@ namespace Server.MirObjects
             return true;
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
         {
             if (Target == null && attacker.IsAttackTarget(this))
             {
@@ -2022,6 +2022,12 @@ namespace Server.MirObjects
                 Broadcast(new S.ObjectEffect { ObjectID = ObjectID, Effect = SpellEffect.Critical });
                 damage = Math.Min(int.MaxValue, damage + (int)Math.Floor(damage * (((double)attacker.CriticalDamage / (double)Settings.CriticalDamageWeight) * 10)));
                 BroadcastDamageIndicator(DamageType.Critical);
+            }
+
+            if (cullingStrike >= 0 && Info.CanCullingStrike)
+            {
+                if (PercentHealth <= 6 + cullingStrike * 2)
+                    damage = (int)Health;
             }
 
             if (attacker.LifeOnHit > 0)

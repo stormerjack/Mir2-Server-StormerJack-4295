@@ -58,7 +58,7 @@ namespace Server.MirObjects.Monsters
         }
 
         // Player attacking trainer.
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = false)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = false, int cullingStrike = -1)
         {
             if (attacker == null) return 0;
 

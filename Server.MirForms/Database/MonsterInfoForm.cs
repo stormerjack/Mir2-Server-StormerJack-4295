@@ -139,6 +139,7 @@ namespace Server
             CanTameCheckBox.Checked = info.CanTame;
             AutoRevCheckBox.Checked = info.AutoRev;
             UndeadCheckBox.Checked = info.Undead;
+            CanCullCheckBox.Checked = info.CanTame;
 
             for (int i = 1; i < _selectedMonsterInfos.Count; i++)
             {
@@ -175,6 +176,7 @@ namespace Server
 
                 if (CanPushCheckBox.Checked != info.CanPush) CanPushCheckBox.CheckState = CheckState.Indeterminate;
                 if (CanTameCheckBox.Checked != info.CanTame) CanTameCheckBox.CheckState = CheckState.Indeterminate;
+                if (CanCullCheckBox.Checked != info.CanCullingStrike) CanCullCheckBox.CheckState = CheckState.Indeterminate;
 
                 if (AutoRevCheckBox.Checked != info.AutoRev) AutoRevCheckBox.CheckState = CheckState.Indeterminate;
                 if (UndeadCheckBox.Checked != info.Undead) UndeadCheckBox.CheckState = CheckState.Indeterminate;
@@ -720,6 +722,14 @@ namespace Server
         private void SearchTextBox_TextChanged(object sender, EventArgs e)
         {
             RefreshMonsterList(false);
+        }
+
+        private void CanCullCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            for (int i = 0; i < _selectedMonsterInfos.Count; i++)
+                _selectedMonsterInfos[i].CanCullingStrike = CanCullCheckBox.Checked;
         }
     }
 }

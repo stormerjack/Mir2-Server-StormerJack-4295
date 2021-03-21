@@ -41,7 +41,7 @@ namespace Server.MirDatabase
         
         public List<DropInfo> Drops = new List<DropInfo>();
 
-        public bool CanTame = true, CanPush = true, AutoRev = true, Undead = false;
+        public bool CanTame = true, CanPush = true, AutoRev = true, Undead = false, CanCullingStrike = true;
 
         public bool HasSpawnScript;
         public bool HasDieScript;
@@ -112,6 +112,9 @@ namespace Server.MirDatabase
             if (Envir.LoadVersion < 18) return;
             AutoRev = reader.ReadBoolean();
             Undead = reader.ReadBoolean();
+
+            if (Envir.LoadVersion < 87) return;
+            CanCullingStrike = reader.ReadBoolean();
         }
 
         public string GameName
@@ -156,6 +159,7 @@ namespace Server.MirDatabase
             writer.Write(CanTame);
             writer.Write(AutoRev);
             writer.Write(Undead);
+            writer.Write(CanCullingStrike);
         }
 
         public void LoadDrops()

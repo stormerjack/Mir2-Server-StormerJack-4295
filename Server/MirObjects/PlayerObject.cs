@@ -8331,7 +8331,18 @@ namespace Server.MirObjects
                 LevelMagic(support);
             }
 
-            int damageFinal = magic.GetDamage(damageBase);            
+            int damageFinal = magic.GetDamage(damageBase);
+
+            int culling = -1;
+            if (CullingStrikeSpells.Contains(magic.Spell))
+            {
+                support = magic.GetSupportMagic(Spell.CullingStrike);
+                if (support != null)
+                {
+                    culling = support.Level;
+                    LevelMagic(support);
+                }
+            }
 
             int col = 3;
             int row = 3;
@@ -8371,7 +8382,7 @@ namespace Server.MirObjects
                                         Accuracy += (byte)(support.Level + 1);
                                         LevelMagic(support);
                                     }
-                                    if (target.Attacked(this, j <= 1 ? damageFinal : (int)(damageFinal * 0.6), DefenceType.MAC, false) > 0)
+                                    if (target.Attacked(this, j <= 1 ? damageFinal : (int)(damageFinal * 0.6), DefenceType.MAC, false, culling) > 0)
                                         train = true;
                                     Accuracy = oldAccuracy;
                                 }
@@ -9295,6 +9306,17 @@ namespace Server.MirObjects
             Point location;
             MonsterObject monster;
 
+            int culling = -1;
+            if (CullingStrikeSpells.Contains(magic.Spell))
+            {
+                UserMagic support = magic.GetSupportMagic(Spell.CullingStrike);
+                if (support != null)
+                {
+                    culling = support.Level;
+                    LevelMagic(support);
+                }
+            }
+
             switch (magic.Spell)
             {
                 #region FireBall, GreatFireBall, ThunderBolt, SoulFireBall, FlameDisruptor
@@ -9311,7 +9333,7 @@ namespace Server.MirObjects
                     targetLocation = (Point)data[3];
 
                     if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null || !Functions.InRange(target.CurrentLocation, targetLocation, 2)) return;
-                    if (target.Attacked(this, value, DefenceType.MAC, false) > 0) LevelMagic(magic);
+                    if (target.Attacked(this, value, DefenceType.MAC, false, culling) > 0) LevelMagic(magic);
                     break;
 
                 #endregion
@@ -9323,7 +9345,7 @@ namespace Server.MirObjects
                     targetLocation = (Point)data[3];
 
                     if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null || !Functions.InRange(target.CurrentLocation, targetLocation, 2)) return;
-                    if (target.Attacked(this, value, DefenceType.MAC, false) > 0)
+                    if (target.Attacked(this, value, DefenceType.MAC, false, culling) > 0)
                     {
                         if (Level + (target.Race == ObjectType.Player ? 2 : 10) >= target.Level && Envir.Random.Next(target.Race == ObjectType.Player ? 100 : 20) <= magic.Level)
                         {
@@ -10079,7 +10101,29 @@ namespace Server.MirObjects
             target.Broadcast(target.GetInfo());
         }
 
-        private static Spell[] AdditionalAccuracySpells = new Spell[] { Spell.TwinDrakeBlade, Spell.FlamingSword, Spell.Slaying, Spell.HalfMoon, Spell.CrossHalfMoon };
+        public static Spell[] AdditionalAccuracySpells = new Spell[] { Spell.TwinDrakeBlade, Spell.FlamingSword, Spell.Slaying, Spell.HalfMoon, Spell.CrossHalfMoon };
+        public static Spell[] CullingStrikeSpells = new Spell[]
+        {
+            Spell.TwinDrakeBlade,
+            Spell.FlamingSword,
+            Spell.Slaying,
+            Spell.HalfMoon,
+            Spell.SlashingBurst,
+            Spell.CrossHalfMoon,
+            Spell.HalfMoon,
+            Spell.BladeAvalanche,
+            Spell.FireBall,
+            Spell.ThunderBolt,
+            Spell.FireBang,
+            Spell.Lightning,
+            Spell.FrostCrunch,
+            Spell.ThunderStorm,
+            Spell.IceStorm,
+            Spell.FlameDisruptor,
+            Spell.FlameField,
+            Spell.IceThrust,
+            Spell.SoulFireBall
+        };
         private void CompleteAttack(IList<object> data)
         {
             MapObject target = (MapObject)data[0];
@@ -10096,19 +10140,31 @@ namespace Server.MirObjects
 
             if (FatalSword)
                 defence = DefenceType.Agility;
-
+            int culling = -1;
             byte oldAccuracy = Accuracy;
-            if (userMagic != null && AdditionalAccuracySpells.Contains(userMagic.Spell))
+            if (userMagic != null)
             {
-                UserMagic support = userMagic.GetSupportMagic(Spell.AdditionalAccuracy);
-                if (support != null)
+                if (AdditionalAccuracySpells.Contains(userMagic.Spell))
                 {
-                    Accuracy += (byte)(support.Level + 1);
-                    LevelMagic(support);
+                    UserMagic support = userMagic.GetSupportMagic(Spell.AdditionalAccuracy);
+                    if (support != null)
+                    {
+                        Accuracy += (byte)(support.Level + 1);
+                        LevelMagic(support);
+                    }
+                }
+                if (CullingStrikeSpells.Contains(userMagic.Spell))
+                {
+                    UserMagic support = userMagic.GetSupportMagic(Spell.CullingStrike);
+                    if (support != null)
+                    {
+                        culling = support.Level;
+                        LevelMagic(support);
+                    }
                 }
             }
 
-            if (target.Attacked(this, damage, defence, damageWeapon) <= 0)
+            if (target.Attacked(this, damage, defence, damageWeapon, culling) <= 0)
             {
                 Accuracy = oldAccuracy;
                 return;
@@ -10775,7 +10831,7 @@ namespace Server.MirObjects
 
             return true;
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
         {
             var armour = GetArmour(type, attacker, out bool hit);
 

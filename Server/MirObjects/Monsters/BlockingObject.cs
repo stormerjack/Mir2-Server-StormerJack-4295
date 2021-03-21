@@ -39,7 +39,7 @@ namespace Server.MirObjects.Monsters
 
         protected override void ProcessSearch() { }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
         {
             return Parent.Attacked(attacker, damage, type, damageWeapon);
         }

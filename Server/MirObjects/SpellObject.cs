@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Server.MirDatabase;
 using Server.MirEnvir;
 using S = ServerPackets;
 
@@ -113,6 +114,7 @@ namespace Server.MirObjects
                     if (ob.Dead) return;
 
                     if (!ob.IsAttackTarget(Caster)) return;
+
                     ob.Attacked(Caster, Value, DefenceType.MAC, false);
                     break;
                 case Spell.Healing: //SafeZone
@@ -281,7 +283,7 @@ namespace Server.MirObjects
         {
             throw new NotSupportedException();
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
         {
             throw new NotSupportedException();
         }
