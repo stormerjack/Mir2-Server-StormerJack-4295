@@ -495,6 +495,8 @@ public abstract class Packet
                 return new S.Death();
             case (short)ServerPacketIds.ObjectDied:
                 return new S.ObjectDied();
+            case (short)ServerPacketIds.FasterAttacksSupport:
+                return new S.FasterAttacksSupport();
             case (short)ServerPacketIds.ColourChanged:
                 return new S.ColourChanged();
             case (short)ServerPacketIds.ObjectColourChanged:

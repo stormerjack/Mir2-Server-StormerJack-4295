@@ -6302,7 +6302,7 @@ namespace Server.MirObjects
             }
 
             byte level = 0;
-            UserMagic magic;
+            UserMagic magic = null;
 
             if (RidingMount)
             {
@@ -6368,6 +6368,17 @@ namespace Server.MirObjects
                     break;
             }
 
+            int speedchange = 0;
+            if (magic != null && FasterAttacksSpells.Contains(spell))
+            {
+                UserMagic support = magic.GetSupportMagic(Spell.FasterAttacks);
+                if (support != null)
+                {
+                    speedchange = (support.Level + 1) * 60;
+                    Enqueue(new S.FasterAttacksSupport { Change = speedchange });
+                    LevelMagic(support);
+                }
+            }
 
             if (!Slaying)
             {
@@ -6385,9 +6396,9 @@ namespace Server.MirObjects
             if (RidingMount) DecreaseMountLoyalty(3);
 
             Enqueue(new S.UserLocation { Direction = Direction, Location = CurrentLocation });
-            Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, Spell = spell, Level = level });
+            Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, Spell = spell, Level = level });            
 
-            AttackTime = Envir.Time + AttackSpeed;
+            AttackTime = Envir.Time + AttackSpeed - speedchange;
             ActionTime = Envir.Time + 550;
             RegenTime = Envir.Time + RegenDelay;
 
@@ -10102,6 +10113,7 @@ namespace Server.MirObjects
         }
 
         public static Spell[] AdditionalAccuracySpells = new Spell[] { Spell.TwinDrakeBlade, Spell.FlamingSword, Spell.Slaying, Spell.HalfMoon, Spell.CrossHalfMoon };
+        public static Spell[] FasterAttacksSpells = new Spell[] { Spell.TwinDrakeBlade, Spell.HalfMoon, Spell.CrossHalfMoon };
         public static Spell[] CullingStrikeSpells = new Spell[]
         {
             Spell.TwinDrakeBlade,

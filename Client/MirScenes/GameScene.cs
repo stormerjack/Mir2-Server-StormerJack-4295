@@ -1188,6 +1188,9 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.Struck:
                     Struck((S.Struck)p);
                     break;
+                case (short)ServerPacketIds.FasterAttacksSupport:
+                    FasterAttacksSupport((S.FasterAttacksSupport)p);
+                    break;
                 case (short)ServerPacketIds.DamageIndicator:
                     DamageIndicator((S.DamageIndicator)p);
                     break;
@@ -2875,6 +2878,11 @@ namespace Client.MirScenes
 
                 return;
             }
+        }
+
+        private void FasterAttacksSupport(S.FasterAttacksSupport p)
+        {
+            AttackTime -= p.Change;
         }
 
         private void DamageIndicator(S.DamageIndicator p)

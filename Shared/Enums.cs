@@ -1870,6 +1870,7 @@ public enum ServerPacketIds : short
     Struck,
     ObjectStruck,
     DamageIndicator,
+    FasterAttacksSupport,
     DuraChanged,
     HealthChanged,
     DeleteItem,

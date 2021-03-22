@@ -1436,7 +1436,6 @@ namespace Client.MirObjects
 
                             if (magic != null) SpellLevel = magic.Level;
 
-
                             GameScene.AttackTime = CMain.Time + User.AttackSpeed;
                             MapControl.NextAction = CMain.Time + 2500;
                             break;
