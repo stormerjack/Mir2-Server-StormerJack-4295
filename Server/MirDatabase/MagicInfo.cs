@@ -314,5 +314,7 @@ namespace Server.MirDatabase
         {
             return (byte)(value + Level + 1);
         }
+
+        public int FasterAttacksCalculation => (Level + 1) * 60; //60ms = 1 attack speed
     }
 }

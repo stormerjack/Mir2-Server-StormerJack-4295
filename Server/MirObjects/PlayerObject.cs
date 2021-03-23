@@ -6374,7 +6374,7 @@ namespace Server.MirObjects
                 UserMagic support = magic.GetSupportMagic(Spell.FasterAttacks);
                 if (support != null)
                 {
-                    speedchange = (support.Level + 1) * 60;
+                    speedchange = support.FasterAttacksCalculation;
                     Enqueue(new S.FasterAttacksSupport { Change = speedchange });
                     LevelMagic(support);
                 }
