@@ -294,5 +294,10 @@ namespace Server.MirDatabase
         {
             return value += (long)(value / 100F * ((Level + 1) * 5));
         }
+
+        public int AddedPhysicalDamageCalculation(int value)
+        {
+            return value + 2 * Level + 1;
+        }
     }
 }
