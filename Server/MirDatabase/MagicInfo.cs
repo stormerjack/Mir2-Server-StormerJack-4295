@@ -309,5 +309,10 @@ namespace Server.MirDatabase
         {
             return value + Level + 1;
         }
+
+        public byte AdditionalAccuracyCalculation(byte value)
+        {
+            return (byte)(value + Level + 1);
+        }
     }
 }

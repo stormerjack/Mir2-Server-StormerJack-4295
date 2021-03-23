@@ -8388,7 +8388,7 @@ namespace Server.MirObjects
                                     support = magic.GetSupportMagic(Spell.AdditionalAccuracy);
                                     if (support != null)
                                     {
-                                        Accuracy += (byte)(support.Level + 1);
+                                        Accuracy = support.AdditionalAccuracyCalculation(Accuracy);
                                         LevelMagic(support);
                                     }
                                     if (target.Attacked(this, j <= 1 ? damageFinal : (int)(damageFinal * 0.6), DefenceType.MAC, false, culling) > 0)
@@ -10168,7 +10168,7 @@ namespace Server.MirObjects
                     UserMagic support = userMagic.GetSupportMagic(Spell.AdditionalAccuracy);
                     if (support != null)
                     {
-                        Accuracy += (byte)(support.Level + 1);
+                        Accuracy = support.AdditionalAccuracyCalculation(Accuracy);
                         LevelMagic(support);
                     }
                 }

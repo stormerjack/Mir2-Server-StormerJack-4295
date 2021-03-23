@@ -1537,7 +1537,7 @@ namespace Server.MirEnvir
                             support = magic.GetSupportMagic(Spell.AdditionalAccuracy);
                             if (support != null)
                             {
-                                player.Accuracy += (byte)(support.Level + 1);
+                                player.Accuracy = support.AdditionalAccuracyCalculation(player.Accuracy);
                                 player.LevelMagic(support);
                             }
 
