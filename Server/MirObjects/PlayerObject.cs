@@ -9448,7 +9448,7 @@ namespace Server.MirObjects
                     support = magic.GetSupportMagic(Spell.VileToxins);
                     if (support != null)
                     {
-                        value += (int)(value / 100F * (10 + (magic.Level * 5)));
+                        value = support.VileToxinsCalculation(value);
                         LevelMagic(support);
                     }
 

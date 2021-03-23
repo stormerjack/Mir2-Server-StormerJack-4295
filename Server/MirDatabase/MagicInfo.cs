@@ -316,5 +316,11 @@ namespace Server.MirDatabase
         }
 
         public int FasterAttacksCalculation => (Level + 1) * 60; //60ms = 1 attack speed
+
+        public int VileToxinsCalculation(int value)
+        {
+            return value + (int)(value / 100F * (10 + (Level * 5)));
+        }
+
     }
 }
