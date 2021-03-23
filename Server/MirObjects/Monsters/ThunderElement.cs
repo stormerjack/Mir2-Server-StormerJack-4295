@@ -70,7 +70,7 @@ namespace Server.MirObjects.Monsters
 
             return base.Attacked(attacker, damage, type);
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (type != DefenceType.Repulsion) return 0;
 

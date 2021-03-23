@@ -9446,6 +9446,15 @@ namespace Server.MirObjects
                         LevelMagic(support);
                     }
 
+                    value = value / 15 + magic.Level + 1 + Envir.Random.Next(PoisonAttack);
+                    support = magic.GetSupportMagic(Spell.VileToxins);
+                    if (support != null)
+                    {
+                        value += (int)(value / 100F * (10 + (magic.Level * 5)));
+                        LevelMagic(support);
+                    }
+
+
                     switch (item.Info.Shape)
                     {
                         case 1:
@@ -9455,7 +9464,7 @@ namespace Server.MirObjects
                                 Owner = this,
                                 PType = PoisonType.Green,
                                 TickSpeed = 2000,
-                                Value = value / 15 + magic.Level + 1 + Envir.Random.Next(PoisonAttack)
+                                Value = value
                             }, this);
                             break;
                         case 2:
@@ -10843,7 +10852,7 @@ namespace Server.MirObjects
 
             return true;
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             var armour = GetArmour(type, attacker, out bool hit);
 
@@ -10952,7 +10961,7 @@ namespace Server.MirObjects
 
             ushort LevelOffset = (byte)(Level > attacker.Level ? 0 : Math.Min(10, attacker.Level - Level));
 
-            ApplyNegativeEffects(attacker, type, LevelOffset);
+            ApplyNegativeEffects(attacker, type, LevelOffset, magic);
 
             attacker.GatherElement();
 

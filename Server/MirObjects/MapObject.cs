@@ -415,7 +415,7 @@ namespace Server.MirObjects
 
         public abstract bool IsAttackTarget(PlayerObject attacker);
         public abstract bool IsAttackTarget(MonsterObject attacker);
-        public abstract int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1);
+        public abstract int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null);
         public abstract int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility);
 
         public virtual int GetArmour(DefenceType type, MapObject attacker, out bool hit)
@@ -467,7 +467,7 @@ namespace Server.MirObjects
             return armour;
         }
 
-        public virtual void ApplyNegativeEffects(PlayerObject attacker, DefenceType type, ushort LevelOffset)
+        public virtual void ApplyNegativeEffects(PlayerObject attacker, DefenceType type, ushort LevelOffset, UserMagic magic)
         {
             if (attacker.HasParalysisRing && type != DefenceType.MAC && type != DefenceType.MACAgility && 1 == Envir.Random.Next(1, 15))
             {
@@ -480,8 +480,19 @@ namespace Server.MirObjects
             }
             if (attacker.PoisonAttack > 0 && type != DefenceType.MAC && type != DefenceType.MACAgility)
             {
+                int value = Math.Min(10, 3 + Envir.Random.Next(attacker.PoisonAttack));
+                if (magic != null)
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.VileToxins);
+                    if (support != null)
+                    {
+                        value += (int)(value / 100F * (10 + (magic.Level * 5)));
+                        attacker.LevelMagic(support);
+                    }
+                }
+
                 if ((Envir.Random.Next(Settings.PoisonAttackWeight) < attacker.PoisonAttack) && (Envir.Random.Next(LevelOffset) == 0))
-                    ApplyPoison(new Poison { PType = PoisonType.Green, Duration = 5, TickSpeed = 1000, Value = Math.Min(10, 3 + Envir.Random.Next(attacker.PoisonAttack)) }, attacker);
+                    ApplyPoison(new Poison { PType = PoisonType.Green, Duration = 5, TickSpeed = 1000, Value = value }, attacker);
             }
         }
 

@@ -1395,10 +1395,18 @@ namespace Server.MirEnvir
                             }
                             cloudTime += Envir.Time;
 
+                            value = value + bonusdmg;
+                            support = magic.GetSupportMagic(Spell.VileToxins);
+                            if (support != null)
+                            {
+                                value += (int)(value / 100F * (10 + (magic.Level * 5)));
+                                player.LevelMagic(support);
+                            }
+
                             SpellObject ob = new SpellObject
                                 {
                                     Spell = Spell.PoisonCloud,
-                                    Value = value + bonusdmg,
+                                    Value = value,
                                     ExpireTime = cloudTime,
                                     TickSpeed = 1000,
                                     Caster = player,

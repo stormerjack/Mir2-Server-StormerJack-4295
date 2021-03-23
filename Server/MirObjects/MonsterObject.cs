@@ -1993,7 +1993,7 @@ namespace Server.MirObjects
             return true;
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (Target == null && attacker.IsAttackTarget(this))
             {
@@ -2067,7 +2067,7 @@ namespace Server.MirObjects
 
             ushort LevelOffset = (ushort)(Level > attacker.Level ? 0 : Math.Min(10, attacker.Level - Level));
 
-            ApplyNegativeEffects(attacker, type, LevelOffset);
+            ApplyNegativeEffects(attacker, type, LevelOffset, magic);
 
             Broadcast(new S.ObjectStruck { ObjectID = ObjectID, AttackerID = attacker.ObjectID, Direction = Direction, Location = CurrentLocation });
 
