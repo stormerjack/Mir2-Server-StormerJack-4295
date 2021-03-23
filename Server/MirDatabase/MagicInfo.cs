@@ -299,5 +299,10 @@ namespace Server.MirDatabase
         {
             return value + 2 * Level + 1;
         }
+
+        public int AddedSpiritualDamageCalculation(int value)
+        {
+            return value + Level + 1;
+        }
     }
 }

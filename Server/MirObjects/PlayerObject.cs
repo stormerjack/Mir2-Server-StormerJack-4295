@@ -7812,7 +7812,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
             if (support != null)
             {
-                power += support.Level + 1;
+                power = support.AddedSpiritualDamageCalculation(power);
                 LevelMagic(support);
             }
 
@@ -7835,7 +7835,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
             if (support != null)
             {
-                damage += support.Level + 1;
+                damage = support.AddedSpiritualDamageCalculation(damage);
                 LevelMagic(support);
             }
 
@@ -8023,7 +8023,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedSpiritualDamage);
             if (support != null)
             {
-                damage += support.Level + 1;
+                damage = support.AddedSpiritualDamageCalculation(damage);
                 LevelMagic(support);
             }
 
