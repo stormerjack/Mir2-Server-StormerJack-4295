@@ -304,5 +304,10 @@ namespace Server.MirDatabase
         {
             return value + Level + 1;
         }
+
+        public int AddedMagicalDamageCalculation(int value)
+        {
+            return value + Level + 1;
+        }
     }
 }

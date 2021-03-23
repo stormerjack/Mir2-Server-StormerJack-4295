@@ -7371,7 +7371,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7564,7 +7564,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7592,7 +7592,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7607,7 +7607,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7622,7 +7622,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7660,7 +7660,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7678,7 +7678,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7725,7 +7725,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7745,7 +7745,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
@@ -7767,7 +7767,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
             {
-                damageBase += support.Level + 1;
+                damageBase = support.AddedMagicalDamageCalculation(damageBase);
                 LevelMagic(support);
             }
 
