@@ -1060,7 +1060,7 @@ namespace Server.MirEnvir
                     UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
-                        expireTime += (long)(expireTime / 100F * ((magic.Level + 1) * 5));
+                        expireTime = support.IncreaseDurationCalculation(expireTime);
                         player.LevelMagic(support);
                     }
                     expireTime += Envir.Time;
@@ -1313,7 +1313,7 @@ namespace Server.MirEnvir
                     support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
-                        roarTime += (long)(roarTime / 100F * ((magic.Level + 1) * 5));
+                        roarTime = support.IncreaseDurationCalculation(roarTime);
                         player.LevelMagic(support);
                     }
 
@@ -1390,7 +1390,7 @@ namespace Server.MirEnvir
                             support = magic.GetSupportMagic(Spell.IncreasedDuration);
                             if (support != null)
                             {
-                                cloudTime += (long)(cloudTime / 100F * ((magic.Level + 1) * 5));
+                                cloudTime = support.IncreaseDurationCalculation(cloudTime);
                                 player.LevelMagic(support);
                             }
                             cloudTime += Envir.Time;

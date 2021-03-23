@@ -289,5 +289,10 @@ namespace Server.MirDatabase
 
             return null;
         }
+
+        public long IncreaseDurationCalculation(long value)
+        {
+            return value += (long)(value / 100F * ((Level + 1) * 5));
+        }
     }
 }

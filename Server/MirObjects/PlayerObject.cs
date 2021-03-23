@@ -7473,7 +7473,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                shockTime += (long)(shockTime / 100F * ((magic.Level + 1) * 5));
+                shockTime = support.IncreaseDurationCalculation(shockTime);
                 LevelMagic(support);
             }
             shockTime += Envir.Time;
@@ -7936,17 +7936,17 @@ namespace Server.MirObjects
 
             ConsumeItem(item, 1);
 
-            int hidingTime = GetAttackPower(MinSC, MaxSC) + (magic.Level + 1) * 5;
+            long hidingTime = GetAttackPower(MinSC, MaxSC) + (magic.Level + 1) * 5;
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                hidingTime += (int)(hidingTime / 100F * ((magic.Level + 1) * 5));
+                hidingTime = support.IncreaseDurationCalculation(hidingTime);
                 LevelMagic(support);
             }
 
 
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, hidingTime);
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, magic, (int)hidingTime);
             ActionList.Add(action);
 
         }
@@ -7959,15 +7959,15 @@ namespace Server.MirObjects
 
             int delay = Functions.MaxDistance(CurrentLocation, location) * 50 + 500; //50 MS per Step
 
-            int hidingTime = GetAttackPower(MinSC, MaxSC) / 2 + (magic.Level + 1) * 2;
+            long hidingTime = GetAttackPower(MinSC, MaxSC) / 2 + (magic.Level + 1) * 2;
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                hidingTime += (int)(hidingTime / 100F * ((magic.Level + 1) * 5));
+                hidingTime = support.IncreaseDurationCalculation(hidingTime);
                 LevelMagic(support);
             }
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, hidingTime, location);
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, (int)hidingTime, location);
             CurrentMap.ActionList.Add(action);
         }
         private void SoulShield(UserMagic magic, Point location, out bool cast)
@@ -7999,7 +7999,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                revelationTime += (long)(revelationTime / 100F * ((magic.Level + 1) * 5));
+                revelationTime = support.IncreaseDurationCalculation(revelationTime);
                 LevelMagic(support);
             }
 
@@ -8195,7 +8195,7 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                shieldTime += (long)(shieldTime / 100F * ((magic.Level + 1) * 5));
+                shieldTime = support.IncreaseDurationCalculation(shieldTime);
                 LevelMagic(support);
             }
 
@@ -8292,15 +8292,13 @@ namespace Server.MirObjects
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                curseTime += (long)(curseTime / 100F * ((magic.Level + 1) * 5));
+                curseTime = support.IncreaseDurationCalculation(curseTime);
                 LevelMagic(support);
             }
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, curseTime, location, 1 + ((magic.Level + 1) * 2));
             CurrentMap.ActionList.Add(action);
-
         }
-
 
         private void PetEnhancer(MapObject target, UserMagic magic, out bool cast)
         {
@@ -8410,12 +8408,12 @@ namespace Server.MirObjects
             int count = Buffs.Where(x => x.Type == BuffType.ProtectionField).ToList().Count();
             if (count > 0) return;
 
-            int duration = 45 + (15 * magic.Level);
+            long duration = 45 + (15 * magic.Level);
 
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                duration += (int)(duration / 100F * ((magic.Level + 1) * 5));
+                duration = support.IncreaseDurationCalculation(duration);
                 LevelMagic(support);
             }
 
@@ -8430,12 +8428,12 @@ namespace Server.MirObjects
             int count = Buffs.Where(x => x.Type == BuffType.Rage).ToList().Count();
             if (count > 0) return;
 
-            int duration = 48 + (6 * magic.Level);
+            long duration = 48 + (6 * magic.Level);
 
             UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
             if (support != null)
             {
-                duration += (int)(duration / 100F * ((magic.Level + 1) * 5));
+                duration = support.IncreaseDurationCalculation(duration);
                 LevelMagic(support);
             }
 
@@ -9442,7 +9440,7 @@ namespace Server.MirObjects
                     UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
-                        poisonTime += (long)(poisonTime / 100F * ((magic.Level + 1) * 5));
+                        poisonTime = support.IncreaseDurationCalculation(poisonTime);
                         LevelMagic(support);
                     }
 
@@ -9655,7 +9653,7 @@ namespace Server.MirObjects
                     support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
-                        expireTime += (long)(expireTime / 100F * ((magic.Level + 1) * 5));
+                        expireTime = support.IncreaseDurationCalculation(expireTime);
                         LevelMagic(support);
                     }
                     expireTime += Envir.Time;
@@ -9764,7 +9762,7 @@ namespace Server.MirObjects
                     support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
-                        hallucinationTime += (long)(hallucinationTime / 100F * ((magic.Level + 1) * 5));
+                        hallucinationTime = support.IncreaseDurationCalculation(hallucinationTime);
                         LevelMagic(support);
                     }
                     hallucinationTime += Envir.Time;
