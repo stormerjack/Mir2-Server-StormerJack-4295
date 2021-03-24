@@ -10428,7 +10428,11 @@ namespace Server.MirObjects
             
             if (Level == 65535) exp = byte.MaxValue;
 
-            int oldLevel = magic.Level;
+            UserMagic support = magic.GetSupportMagic(Spell.Empower);
+            if (support != null)
+                LevelMagic(support);
+
+            int oldLevel = magic.RealLevel;
 
             switch (magic.Level)
             {
@@ -10439,7 +10443,7 @@ namespace Server.MirObjects
                     magic.Experience += exp;
                     if (magic.Experience >= magic.Info.Need1)
                     {
-                        magic.Level++;
+                        magic.RealLevel++;
                         magic.Experience = (ushort)(magic.Experience - magic.Info.Need1);
                         RefreshStats();
                     }
@@ -10451,7 +10455,7 @@ namespace Server.MirObjects
                     magic.Experience += exp;
                     if (magic.Experience >= magic.Info.Need2)
                     {
-                        magic.Level++;
+                        magic.RealLevel++;
                         magic.Experience = (ushort)(magic.Experience - magic.Info.Need2);
                         RefreshStats();
                     }
@@ -10463,7 +10467,7 @@ namespace Server.MirObjects
                     magic.Experience += exp;
                     if (magic.Experience >= magic.Info.Need3)
                     {
-                        magic.Level++;
+                        magic.RealLevel++;
                         magic.Experience = 0;
                         RefreshStats();
                     }

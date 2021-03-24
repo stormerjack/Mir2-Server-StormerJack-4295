@@ -114,10 +114,35 @@ namespace Server.MirDatabase
         }
 
         public Spell Spell;
-        public MagicInfo Info;
+        public MagicInfo Info;        
 
         private byte level;
         public byte Level
+        {
+            get
+            {
+                byte value = 0;
+
+                if (Item != null)
+                    value = (byte)Item.MaxDura;
+                else
+                    value = level;
+
+                UserMagic support = GetSupportMagic(Spell.Empower);
+                if (support != null && support.Level > 2)
+                    value++;
+
+                return value;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.MaxDura = value;
+                else
+                    level = value;
+            }
+        }
+        public byte RealLevel
         {
             get
             {

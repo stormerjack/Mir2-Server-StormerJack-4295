@@ -3710,6 +3710,7 @@ namespace Client.MirScenes
         private void MagicDelay(S.MagicDelay p)
         {
             ClientMagic magic = User.GetMagic(p.Spell);
+            if (magic == null) return;
             magic.Delay = p.Delay;
         }
 
@@ -7245,6 +7246,11 @@ namespace Client.MirScenes
             #region SOCKET             
 
             ClientMagicInfo magic = MagicInfoList.First(x => x.Spell == (Spell)item.Info.Shape);
+            ClientMagic usermagic = User.Magics.FirstOrDefault(x => x.Spell == (Spell)item.Info.Shape);
+
+            byte mlevel = (byte)item.MaxDura;
+            if (usermagic != null)
+                mlevel = usermagic.Level;
 
             MirImageControl icon = new MirImageControl
             {
@@ -7279,7 +7285,7 @@ namespace Client.MirScenes
             };
 
             string currentexp = "-";
-            switch (item.MaxDura)
+            switch (mlevel)
             {
                 case 0:
                 case 1:
@@ -7289,7 +7295,7 @@ namespace Client.MirScenes
             }
 
             string needexp = "-";
-            switch (item.MaxDura)
+            switch (mlevel)
             {
                 case 0:
                     needexp = magic.Need1.ToString();
@@ -7302,7 +7308,7 @@ namespace Client.MirScenes
                     break;
             }
 
-            GemLevelLabel.Text = $"Level: {item.MaxDura}\nExperience: {currentexp}/{needexp}";
+            GemLevelLabel.Text = $"Level: {mlevel}\nExperience: {currentexp}/{needexp}";
 
             ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, GemLevelLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, GemLevelLabel.DisplayRectangle.Bottom));
 
