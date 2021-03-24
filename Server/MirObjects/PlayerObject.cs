@@ -10181,6 +10181,26 @@ namespace Server.MirObjects
                         LevelMagic(support);
                     }
                 }
+                if (userMagic.Spell == Spell.FlamingSword)
+                {
+                    UserMagic support = userMagic.GetSupportMagic(Spell.ChanceToBleed);
+                    if (support != null)
+                    {
+                        if (Envir.Random.Next(100) < support.ChanceToBleedCalculation)
+                        {
+                            target.ApplyPoison(new Poison
+                            {
+                                Duration = 4,
+                                Owner = this,
+                                PType = PoisonType.Bleeding,
+                                TickSpeed = 1000,
+                                Value = MaxDC + 1
+                            }, this);
+
+                            LevelMagic(support);
+                        }
+                    }
+                }
             }
 
             if (target.Attacked(this, damage, defence, damageWeapon, culling) <= 0)
@@ -10201,13 +10221,29 @@ namespace Server.MirObjects
             {
                 if (userMagic.Spell == Spell.TwinDrakeBlade)
                 {
-                    if ((((target.Race != ObjectType.Player) || Settings.PvpCanResistPoison) &&
-                        (Envir.Random.Next(Settings.PoisonAttackWeight) >= target.PoisonResist)) &&
-                        (target.Level < Level + 10 && Envir.Random.Next(target.Race == ObjectType.Player ? 40 : 20) <= userMagic.Level + 1))
+                    if ((((target.Race != ObjectType.Player) || Settings.PvpCanResistPoison) && (Envir.Random.Next(Settings.PoisonAttackWeight) >= target.PoisonResist)) && (target.Level < Level + 10 && Envir.Random.Next(target.Race == ObjectType.Player ? 40 : 20) <= userMagic.Level + 1))
                     {
                         target.ApplyPoison(new Poison { PType = PoisonType.Stun, Duration = target.Race == ObjectType.Player ? 2 : 2 + userMagic.Level, TickSpeed = 1000 }, this);
                         target.Broadcast(new S.ObjectEffect { ObjectID = target.ObjectID, Effect = SpellEffect.TwinDrakeBlade });
                     }
+
+                    UserMagic support = userMagic.GetSupportMagic(Spell.ChanceToBleed);
+                    if (support != null)
+                    {
+                        if (Envir.Random.Next(100) < support.ChanceToBleedCalculation)
+                        {
+                            target.ApplyPoison(new Poison
+                            {
+                                Duration = 4,
+                                Owner = this,
+                                PType = PoisonType.Bleeding,
+                                TickSpeed = 1000,
+                                Value = MaxDC + 1
+                            }, this);
+
+                            LevelMagic(support);
+                        }
+                    }                    
                 }
             }
 

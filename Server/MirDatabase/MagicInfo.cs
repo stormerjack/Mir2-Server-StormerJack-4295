@@ -322,5 +322,6 @@ namespace Server.MirDatabase
             return value + (int)(value / 100F * (10 + (Level * 5)));
         }
 
+        public int ChanceToBleedCalculation => 2 + Level;
     }
 }
