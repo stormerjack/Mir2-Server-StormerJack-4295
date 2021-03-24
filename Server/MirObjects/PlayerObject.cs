@@ -11445,6 +11445,9 @@ namespace Server.MirObjects
                             };
 
                             magic.SupportMagics[to - 1] = newMagic;
+
+                            if (newMagic.Spell == Spell.Empower)
+                                Enqueue(new S.MagicLeveled { Spell = magic.Spell, Level = magic.Level, Experience = magic.Experience, ItemID = magic.Item == null ? 0 : magic.Item.UniqueID });
                         }
                     }
                 }
@@ -11683,6 +11686,9 @@ namespace Server.MirObjects
                     UserMagic magic = Info.Magics.FirstOrDefault(x => x.Item == temp.Slots[0]);
                     if (magic != null)
                     {
+                        if (magic.SupportMagics[index - 1].Spell == Spell.Empower)
+                                Enqueue(new S.MagicLeveled { Spell = magic.Spell, Level = (byte)(magic.Level - 1), Experience = magic.Experience, ItemID = magic.Item == null ? 0 : magic.Item.UniqueID });
+
                         magic.SupportMagics[index - 1] = null;
                     }
                 }
