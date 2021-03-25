@@ -323,6 +323,7 @@ namespace Server.MirObjects
         public ushort BonusMinDC;
         public ushort BonusMaxDC;
         public uint BonusHealth;
+        public int BonusAttackSpeed;
 
         public int RoutePoint;
         public bool Waiting;
@@ -472,6 +473,7 @@ namespace Server.MirObjects
                 MoveSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, MoveSpeed - MaxPetLevel * 130)));
                 AttackSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, AttackSpeed - MaxPetLevel * 70)));
             }
+            AttackSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, AttackSpeed - BonusAttackSpeed * 70)));
 
             if (MoveSpeed < 400) MoveSpeed = 400;
             if (AttackSpeed < 400) AttackSpeed = 400;

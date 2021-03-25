@@ -10161,6 +10161,7 @@ namespace Server.MirObjects
         public static Spell[] MinionDamageSpells = new Spell[] { Spell.SummonSkeleton, Spell.SummonShinsu, Spell.SummonHolyDeva };
         public static Spell[] MinionLifeSpells = new Spell[] { Spell.SummonSkeleton, Spell.SummonShinsu, Spell.SummonHolyDeva };
         public static Spell[] MinionDefenceSpells = new Spell[] { Spell.SummonSkeleton, Spell.SummonShinsu, Spell.SummonHolyDeva };
+        public static Spell[] FeedingFrenzySpells = new Spell[] { Spell.SummonSkeleton, Spell.SummonShinsu, Spell.SummonHolyDeva };
         public static Spell[] CullingStrikeSpells = new Spell[]
         {
             Spell.TwinDrakeBlade,

@@ -367,5 +367,7 @@ namespace Server.MirDatabase
         }
 
         public ushort MinionDefenceCalculation => (ushort)(5 + 5 * Level);
+
+        public int FeedingFrenzyCalculation => Level + 1;
     }
 }

@@ -934,6 +934,15 @@ namespace Server.MirEnvir
                             player.LevelMagic(support);
                         }
                     }
+                    if (PlayerObject.FeedingFrenzySpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.FeedingFrenzy);
+                        if (support != null)
+                        {
+                            monster.BonusAttackSpeed = support.FeedingFrenzyCalculation;
+                            player.LevelMagic(support);
+                        }
+                    }
 
                     if (ValidPoint(front))
                         monster.Spawn(this, front);
