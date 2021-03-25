@@ -350,5 +350,10 @@ namespace Server.MirDatabase
         public int ChanceToBleedCalculation => 2 + Level;
 
         public int FortifyCalculation => 5 + 5 * Level;
+
+        public int IncreasedAuraCalculation(int value)
+        {
+            return value + (int)(value / 100F * (5 + (Level * 5)));
+        }
     }
 }

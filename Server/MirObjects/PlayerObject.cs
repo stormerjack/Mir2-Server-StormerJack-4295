@@ -9602,7 +9602,19 @@ namespace Server.MirObjects
                         item = GetAmulet(1);
                         if (item == null) return;
 
-                        AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { (magic.Level + 1) * 2, Level / 7 + 4 }, Infinite = true });
+                        int dcbuff = (magic.Level + 1) * 2;
+                        int defbuff = Level / 7 + 4;
+
+                        support = magic.GetSupportMagic(Spell.IncreasedAuraEffect);
+                        if (support != null)
+                        {
+                            dcbuff = support.IncreasedAuraCalculation(dcbuff);
+                            defbuff = support.IncreasedAuraCalculation(defbuff);
+                            LevelMagic(support);
+                        }
+
+
+                        AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { dcbuff, defbuff }, Infinite = true });
                         LevelMagic(magic);
 
                         ConsumeItem(item, 1);
