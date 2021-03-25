@@ -921,6 +921,19 @@ namespace Server.MirEnvir
                             player.LevelMagic(support);
                         }
                     }
+                    if (PlayerObject.MinionDefenceSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionDefence);
+                        if (support != null)
+                        {
+                            ushort amount = support.MinionDefenceCalculation;
+                            monster.BonusMinAC = amount;
+                            monster.BonusMaxAC = amount;
+                            monster.BonusMinMAC = amount;
+                            monster.BonusMaxMAC = amount;
+                            player.LevelMagic(support);
+                        }
+                    }
 
                     if (ValidPoint(front))
                         monster.Spawn(this, front);

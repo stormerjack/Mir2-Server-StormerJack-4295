@@ -365,5 +365,7 @@ namespace Server.MirDatabase
         {
             return (ushort)(value / 100 * (10 + 10 * Level));
         }
+
+        public ushort MinionDefenceCalculation => (ushort)(5 + 5 * Level);
     }
 }

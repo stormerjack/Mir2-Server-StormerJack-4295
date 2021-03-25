@@ -316,6 +316,10 @@ namespace Server.MirObjects
         public byte MaxPetLevel;
         public long TameTime;
 
+        public ushort BonusMinAC;
+        public ushort BonusMaxAC;
+        public ushort BonusMinMAC;
+        public ushort BonusMaxMAC;
         public ushort BonusMinDC;
         public ushort BonusMaxDC;
         public uint BonusHealth;
@@ -456,10 +460,10 @@ namespace Server.MirObjects
             RefreshBase();
 
             MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20 + BonusHealth);
-            MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2);
-            MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2);
-            MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2);
-            MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2);
+            MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2 + BonusMinAC);
+            MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2 + BonusMaxMAC);
+            MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2 + BonusMinMAC);
+            MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2 + BonusMaxMAC);
             MinDC = (ushort)Math.Min(ushort.MaxValue, MinDC + PetLevel + BonusMinDC);
             MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + PetLevel + BonusMaxDC);
 
