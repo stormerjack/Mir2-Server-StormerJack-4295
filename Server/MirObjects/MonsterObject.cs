@@ -318,6 +318,7 @@ namespace Server.MirObjects
 
         public ushort BonusMinDC;
         public ushort BonusMaxDC;
+        public uint BonusHealth;
 
         public int RoutePoint;
         public bool Waiting;
@@ -454,7 +455,7 @@ namespace Server.MirObjects
         {
             RefreshBase();
 
-            MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20);
+            MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20 + BonusHealth);
             MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2);
             MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2);
             MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2);

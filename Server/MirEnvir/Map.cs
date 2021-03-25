@@ -912,6 +912,15 @@ namespace Server.MirEnvir
                             player.LevelMagic(support);
                         }
                     }
+                    if (PlayerObject.MinionLifeSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionLife);
+                        if (support != null)
+                        {
+                            monster.BonusHealth = support.MinionLifeCalculation(monster.Info.HP);
+                            player.LevelMagic(support);
+                        }
+                    }
 
                     if (ValidPoint(front))
                         monster.Spawn(this, front);

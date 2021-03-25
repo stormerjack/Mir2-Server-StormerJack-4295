@@ -360,5 +360,10 @@ namespace Server.MirDatabase
         {
             return (ushort)(value / 100 * (10 + 10 * Level));
         }
+
+        public uint MinionLifeCalculation(uint value)
+        {
+            return (ushort)(value / 100 * (10 + 10 * Level));
+        }
     }
 }
