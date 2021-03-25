@@ -825,11 +825,12 @@ namespace Server.MirEnvir
             MirDirection dir;
             MonsterObject monster;
             Point front;
+            UserMagic support;
 
             int culling = -1;
             if (PlayerObject.CullingStrikeSpells.Contains(magic.Spell))
             {
-                UserMagic support = magic.GetSupportMagic(Spell.CullingStrike);
+                support = magic.GetSupportMagic(Spell.CullingStrike);
                 if (support != null)
                 {
                     culling = support.Level;
@@ -838,7 +839,7 @@ namespace Server.MirEnvir
             }
             if (PlayerObject.FortifySpells.Contains(magic.Spell))
             {
-                UserMagic support = magic.GetSupportMagic(Spell.Fortify);
+                support = magic.GetSupportMagic(Spell.Fortify);
                 if (support != null)
                     player.Fortify(support);
             }
@@ -900,6 +901,17 @@ namespace Server.MirEnvir
                     front = (Point)data[3];
 
                     if (monster.Master.Dead) return;
+
+                    if (PlayerObject.MinionDamageSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionDamage);
+                        if (support != null)
+                        {
+                            monster.BonusMinDC = support.MinionDamageCalculation(monster.Info.MinDC);
+                            monster.BonusMaxDC = support.MinionDamageCalculation(monster.Info.MaxDC);
+                            player.LevelMagic(support);
+                        }
+                    }
 
                     if (ValidPoint(front))
                         monster.Spawn(this, front);
@@ -1063,7 +1075,7 @@ namespace Server.MirEnvir
                     player.LevelMagic(magic);
 
                     long expireTime = (10 + value / 2) * 1000;
-                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
                     if (support != null)
                     {
                         expireTime = support.IncreaseDurationCalculation(expireTime);

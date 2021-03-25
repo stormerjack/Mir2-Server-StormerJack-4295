@@ -316,6 +316,9 @@ namespace Server.MirObjects
         public byte MaxPetLevel;
         public long TameTime;
 
+        public ushort BonusMinDC;
+        public ushort BonusMaxDC;
+
         public int RoutePoint;
         public bool Waiting;
 
@@ -450,16 +453,16 @@ namespace Server.MirObjects
         public virtual void RefreshAll()
         {
             RefreshBase();
-            
-                MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20);
-                MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2);
-                MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2);
-                MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2);
-                MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2);
-                MinDC = (ushort)Math.Min(ushort.MaxValue, MinDC + PetLevel);
-                MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + PetLevel);
 
-            if (Info.Name == Settings.SkeletonName ||Info.Name == Settings.ShinsuName ||Info.Name == Settings.AngelName) 
+            MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20);
+            MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2);
+            MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2);
+            MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2);
+            MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2);
+            MinDC = (ushort)Math.Min(ushort.MaxValue, MinDC + PetLevel + BonusMinDC);
+            MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + PetLevel + BonusMaxDC);
+
+            if (Info.Name == Settings.SkeletonName || Info.Name == Settings.ShinsuName || Info.Name == Settings.AngelName)
             {
                 MoveSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, MoveSpeed - MaxPetLevel * 130)));
                 AttackSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, AttackSpeed - MaxPetLevel * 70)));

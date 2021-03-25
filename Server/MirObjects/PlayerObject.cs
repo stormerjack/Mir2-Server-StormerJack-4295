@@ -10158,6 +10158,7 @@ namespace Server.MirObjects
 
         public static Spell[] AdditionalAccuracySpells = new Spell[] { Spell.TwinDrakeBlade, Spell.FlamingSword, Spell.Slaying, Spell.HalfMoon, Spell.CrossHalfMoon };
         public static Spell[] FasterAttacksSpells = new Spell[] { Spell.TwinDrakeBlade, Spell.HalfMoon, Spell.CrossHalfMoon };
+        public static Spell[] MinionDamageSpells = new Spell[] { Spell.SummonSkeleton, Spell.SummonShinsu, Spell.SummonHolyDeva };
         public static Spell[] CullingStrikeSpells = new Spell[]
         {
             Spell.TwinDrakeBlade,

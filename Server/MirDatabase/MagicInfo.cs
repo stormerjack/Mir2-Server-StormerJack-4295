@@ -355,5 +355,10 @@ namespace Server.MirDatabase
         {
             return value + (int)(value / 100F * (5 + (Level * 5)));
         }
+
+        public ushort MinionDamageCalculation(ushort value)
+        {
+            return (ushort)(value / 100 * (10 + 10 * Level));
+        }
     }
 }
