@@ -10608,6 +10608,9 @@ namespace Client.MirScenes
                 case BuffType.ProtectionField:
                     text = string.Format("Protection Field\nIncreases AC by: 0-{0}.\n", Values[0]);
                     break;
+                case BuffType.Fortify:
+                    text = string.Format("Fortify\nIncreases AC by: {0}-{0}.\n", Values[0]);
+                    break;
                 case BuffType.Rage:
                     text = string.Format("Rage\nIncreases DC by: 0-{0}.\n", Values[0]);
                     break;

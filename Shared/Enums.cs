@@ -1762,6 +1762,7 @@ public enum BuffType : byte
     ImmortalSkin,
     MagicShield,
     UltimateEnhancerAura,
+    Fortify,
 
     //special
     GameMaster = 100,

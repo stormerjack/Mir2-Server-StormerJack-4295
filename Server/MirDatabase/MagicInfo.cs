@@ -348,5 +348,7 @@ namespace Server.MirDatabase
         }
 
         public int ChanceToBleedCalculation => 2 + Level;
+
+        public int FortifyCalculation => 5 + 5 * Level;
     }
 }

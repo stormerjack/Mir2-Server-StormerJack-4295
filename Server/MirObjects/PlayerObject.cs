@@ -3506,6 +3506,10 @@ namespace Server.MirObjects
                     case BuffType.ProtectionField:
                         MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
                         break;
+                    case BuffType.Fortify:
+                        MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + buff.Values[0]);
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
+                        break;
                     case BuffType.Rage:
                         MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + buff.Values[0]);
                         break;
@@ -8423,6 +8427,21 @@ namespace Server.MirObjects
             OperateTime = 0;
             LevelMagic(magic);
         }
+        public void Fortify(UserMagic magic)
+        {
+            int count = Buffs.Where(x => x.Type == BuffType.Fortify).ToList().Count();
+            if (count > 0) return;
+
+            if (Envir.Random.Next(100) >= 1 + magic.Level) return;
+
+            long duration = 10;
+
+            int value = magic.FortifyCalculation;
+
+            AddBuff(new Buff { Type = BuffType.Fortify, Caster = this, ExpireTime = Envir.Time + duration * 1000, Values = new int[] { value } });
+            OperateTime = 0;
+            LevelMagic(magic);
+        }
         private void Rage(UserMagic magic)
         {
             int count = Buffs.Where(x => x.Type == BuffType.Rage).ToList().Count();
@@ -9325,6 +9344,12 @@ namespace Server.MirObjects
                     LevelMagic(support);
                 }
             }
+            if (PlayerObject.FortifySpells.Contains(magic.Spell))
+            {
+                UserMagic support = magic.GetSupportMagic(Spell.Fortify);
+                if (support != null)
+                    Fortify(support);
+            }
 
             switch (magic.Spell)
             {
@@ -10143,6 +10168,26 @@ namespace Server.MirObjects
             Spell.IceThrust,
             Spell.SoulFireBall
         };
+        public static Spell[] FortifySpells = new Spell[]
+        {
+            Spell.TwinDrakeBlade,
+            Spell.FlamingSword,
+            Spell.Slaying,
+            Spell.HalfMoon,
+            Spell.CrossHalfMoon,
+            Spell.HalfMoon,
+            Spell.FireBall,
+            Spell.ThunderBolt,
+            Spell.FireBang,
+            Spell.Lightning,
+            Spell.FrostCrunch,
+            Spell.ThunderStorm,
+            Spell.IceStorm,
+            Spell.FlameDisruptor,
+            Spell.FlameField,
+            Spell.IceThrust,
+            Spell.SoulFireBall
+        };
         private void CompleteAttack(IList<object> data)
         {
             MapObject target = (MapObject)data[0];
@@ -10180,6 +10225,12 @@ namespace Server.MirObjects
                         culling = support.Level;
                         LevelMagic(support);
                     }
+                }
+                if (PlayerObject.FortifySpells.Contains(userMagic.Spell))
+                {
+                    UserMagic support = userMagic.GetSupportMagic(Spell.Fortify);
+                    if (support != null)
+                        Fortify(support);
                 }
                 if (userMagic.Spell == Spell.FlamingSword)
                 {

@@ -339,6 +339,10 @@ namespace Client.MirScenes.Dialogs
                         buffAc += buff.Values[0];
                         break;
 
+                    case BuffType.Fortify:
+                        buffAc += buff.Values[0];
+                        break;
+
                     case BuffType.Rage:
                         buffDc += buff.Values[0];
                         break;
@@ -550,6 +554,8 @@ namespace Client.MirScenes.Dialogs
                     return 45;
                 case BuffType.EnergyShield:
                     return 57;
+                case BuffType.Fortify:
+                    return 50;
 
                 case BuffType.SwiftFeet:
                     return 67;

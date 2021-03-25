@@ -836,6 +836,12 @@ namespace Server.MirEnvir
                     player.LevelMagic(support);
                 }
             }
+            if (PlayerObject.FortifySpells.Contains(magic.Spell))
+            {
+                UserMagic support = magic.GetSupportMagic(Spell.Fortify);
+                if (support != null)
+                    player.Fortify(support);
+            }
 
             switch (magic.Spell)
             {
