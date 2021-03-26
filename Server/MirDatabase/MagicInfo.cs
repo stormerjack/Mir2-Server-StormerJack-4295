@@ -374,5 +374,7 @@ namespace Server.MirDatabase
         {
             return (byte)(value / 100F * (2 + 2 * Level));
         }
+
+        public byte IncreasedCriticalStrikeChanceCalculation => (byte)(Level + 1);
     }
 }

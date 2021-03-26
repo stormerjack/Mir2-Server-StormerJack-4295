@@ -10221,6 +10221,26 @@ namespace Server.MirObjects
             Spell.IceThrust,
             Spell.SoulFireBall
         };
+        public static Spell[] IncreasedCriticalStrikeChanceSpells = new Spell[]
+        {
+            Spell.TwinDrakeBlade,
+            Spell.FlamingSword,
+            Spell.Slaying,
+            Spell.HalfMoon,
+            Spell.CrossHalfMoon,
+            Spell.FireBall,
+            Spell.ThunderBolt,
+            Spell.FireBang,
+            Spell.FireWall,
+            Spell.Lightning,
+            Spell.FrostCrunch,
+            Spell.ThunderStorm,
+            Spell.IceStorm,
+            Spell.FlameDisruptor,
+            Spell.FlameField,
+            Spell.IceThrust,
+            Spell.SoulFireBall
+        };
         private void CompleteAttack(IList<object> data)
         {
             MapObject target = (MapObject)data[0];
@@ -11046,6 +11066,15 @@ namespace Server.MirObjects
                     if (support != null)
                     {
                         attacker.CriticalDamage = support.IncreasedCriticalDamageCalculation(attacker.CriticalDamage);
+                        attacker.LevelMagic(support);
+                    }
+                }
+                if (IncreasedCriticalStrikeChanceSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        attacker.CriticalRate = support.IncreasedCriticalStrikeChanceCalculation;
                         attacker.LevelMagic(support);
                     }
                 }

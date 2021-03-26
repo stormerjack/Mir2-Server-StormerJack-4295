@@ -2041,6 +2041,15 @@ namespace Server.MirObjects
                         attacker.LevelMagic(support);
                     }
                 }
+                if (PlayerObject.IncreasedCriticalStrikeChanceSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        attacker.CriticalRate = support.IncreasedCriticalStrikeChanceCalculation;
+                        attacker.LevelMagic(support);
+                    }
+                }
             }
 
             if ((attacker.CriticalRate * Settings.CriticalRateWeight) > Envir.Random.Next(100))
