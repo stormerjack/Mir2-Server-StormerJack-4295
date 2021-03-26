@@ -376,5 +376,7 @@ namespace Server.MirDatabase
         }
 
         public byte IncreasedCriticalStrikeChanceCalculation => (byte)(Level + 1);
+
+        public float DropRateCalculation => (Level + 1) * 3;
     }
 }

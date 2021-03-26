@@ -2029,6 +2029,8 @@ namespace Server.MirObjects
 
             byte oldCriticalDamage = attacker.CriticalDamage;
             byte oldCriticalRate = attacker.CriticalRate;
+            float oldItemDropRateOffset = attacker.ItemDropRateOffset;
+            UserMagic dropSupport = null;
 
             if (magic != null)
             {
@@ -2046,8 +2048,16 @@ namespace Server.MirObjects
                     UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
                     if (support != null)
                     {
-                        attacker.CriticalRate = support.IncreasedCriticalStrikeChanceCalculation;
+                        attacker.CriticalRate += support.IncreasedCriticalStrikeChanceCalculation;
                         attacker.LevelMagic(support);
+                    }
+                }
+                if (PlayerObject.DropRateSpells.Contains(magic.Spell))
+                {
+                    dropSupport = magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                    {
+                        attacker.ItemDropRateOffset += dropSupport.DropRateCalculation;
                     }
                 }
             }
@@ -2060,7 +2070,7 @@ namespace Server.MirObjects
             }
 
             attacker.CriticalDamage = oldCriticalDamage;
-            attacker.CriticalRate = oldCriticalRate;
+            attacker.CriticalRate = oldCriticalRate;            
 
             if (cullingStrike >= 0 && Info.CanCullingStrike)
             {
@@ -2152,6 +2162,9 @@ namespace Server.MirObjects
             BroadcastDamageIndicator(DamageType.Hit, armour - damage);
 
             ChangeHP(armour - damage);
+            if (Dead && dropSupport != null)
+                attacker.LevelMagic(dropSupport);
+            attacker.ItemDropRateOffset = oldItemDropRateOffset;
             return damage - armour;
         }
         public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)

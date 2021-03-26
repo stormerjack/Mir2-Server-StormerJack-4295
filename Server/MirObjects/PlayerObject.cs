@@ -10241,6 +10241,26 @@ namespace Server.MirObjects
             Spell.IceThrust,
             Spell.SoulFireBall
         };
+        public static Spell[] DropRateSpells = new Spell[]
+        {
+            Spell.TwinDrakeBlade,
+            Spell.FlamingSword,
+            Spell.Slaying,
+            Spell.HalfMoon,
+            Spell.CrossHalfMoon,
+            Spell.FireBall,
+            Spell.ThunderBolt,
+            Spell.FireBang,
+            Spell.FireWall,
+            Spell.Lightning,
+            Spell.FrostCrunch,
+            Spell.ThunderStorm,
+            Spell.IceStorm,
+            Spell.FlameDisruptor,
+            Spell.FlameField,
+            Spell.IceThrust,
+            Spell.SoulFireBall
+        };
         private void CompleteAttack(IList<object> data)
         {
             MapObject target = (MapObject)data[0];
@@ -11146,6 +11166,7 @@ namespace Server.MirObjects
             BroadcastDamageIndicator(DamageType.Hit, armour - damage);
 
             ChangeHP(armour - damage);
+
             return damage - armour;
         }
         public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
