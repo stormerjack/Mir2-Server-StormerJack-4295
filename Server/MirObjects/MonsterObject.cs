@@ -2027,12 +2027,31 @@ namespace Server.MirObjects
                 return 0;
             }
 
+            byte oldCriticalDamage = attacker.CriticalDamage;
+            byte oldCriticalRate = attacker.CriticalRate;
+
+            if (magic != null)
+            {
+                if (PlayerObject.IncreasedCriticalDamageSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                    if (support != null)
+                    {
+                        attacker.CriticalDamage = support.IncreasedCriticalDamageCalculation(attacker.CriticalDamage);
+                        attacker.LevelMagic(support);
+                    }
+                }
+            }
+
             if ((attacker.CriticalRate * Settings.CriticalRateWeight) > Envir.Random.Next(100))
             {
                 Broadcast(new S.ObjectEffect { ObjectID = ObjectID, Effect = SpellEffect.Critical });
                 damage = Math.Min(int.MaxValue, damage + (int)Math.Floor(damage * (((double)attacker.CriticalDamage / (double)Settings.CriticalDamageWeight) * 10)));
                 BroadcastDamageIndicator(DamageType.Critical);
             }
+
+            attacker.CriticalDamage = oldCriticalDamage;
+            attacker.CriticalRate = oldCriticalRate;
 
             if (cullingStrike >= 0 && Info.CanCullingStrike)
             {

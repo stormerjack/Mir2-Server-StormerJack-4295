@@ -358,16 +358,21 @@ namespace Server.MirDatabase
 
         public ushort MinionDamageCalculation(ushort value)
         {
-            return (ushort)(value / 100 * (10 + 10 * Level));
+            return (ushort)(value / 100F * (10 + 10 * Level));
         }
 
         public uint MinionLifeCalculation(uint value)
         {
-            return (ushort)(value / 100 * (10 + 10 * Level));
+            return (ushort)(value / 100F * (10 + 10 * Level));
         }
 
         public ushort MinionDefenceCalculation => (ushort)(5 + 5 * Level);
 
         public int FeedingFrenzyCalculation => Level + 1;
+
+        public byte IncreasedCriticalDamageCalculation(byte value)
+        {
+            return (byte)(value / 100F * (2 + 2 * Level));
+        }
     }
 }

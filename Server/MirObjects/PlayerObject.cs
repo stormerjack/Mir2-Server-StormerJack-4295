@@ -8334,7 +8334,7 @@ namespace Server.MirObjects
         private void BladeAvalanche(UserMagic magic)
         {
             int damageBase = GetAttackPower(MinDC, MaxDC);
-            if (Envir.Random.Next(0,100) <= (1+Luck)) 
+            if (Envir.Random.Next(0, 100) <= (1 + Luck))
                 damageBase += damageBase;//crit should do something like double dmg, not double max dc dmg!
 
             UserMagic support = magic.GetSupportMagic(Spell.AddedPhysicalDamage);
@@ -8347,15 +8347,13 @@ namespace Server.MirObjects
             int damageFinal = magic.GetDamage(damageBase);
 
             int culling = -1;
-            if (CullingStrikeSpells.Contains(magic.Spell))
+            support = magic.GetSupportMagic(Spell.CullingStrike);
+            if (support != null)
             {
-                support = magic.GetSupportMagic(Spell.CullingStrike);
-                if (support != null)
-                {
-                    culling = support.Level;
-                    LevelMagic(support);
-                }
+                culling = support.Level;
+                LevelMagic(support);
             }
+
 
             int col = 3;
             int row = 3;
@@ -10191,10 +10189,29 @@ namespace Server.MirObjects
             Spell.Slaying,
             Spell.HalfMoon,
             Spell.CrossHalfMoon,
-            Spell.HalfMoon,
             Spell.FireBall,
             Spell.ThunderBolt,
             Spell.FireBang,
+            Spell.Lightning,
+            Spell.FrostCrunch,
+            Spell.ThunderStorm,
+            Spell.IceStorm,
+            Spell.FlameDisruptor,
+            Spell.FlameField,
+            Spell.IceThrust,
+            Spell.SoulFireBall
+        };
+        public static Spell[] IncreasedCriticalDamageSpells = new Spell[]
+        {
+            Spell.TwinDrakeBlade,
+            Spell.FlamingSword,
+            Spell.Slaying,
+            Spell.HalfMoon,
+            Spell.CrossHalfMoon,
+            Spell.FireBall,
+            Spell.ThunderBolt,
+            Spell.FireBang,
+            Spell.FireWall,
             Spell.Lightning,
             Spell.FrostCrunch,
             Spell.ThunderStorm,
@@ -10270,7 +10287,7 @@ namespace Server.MirObjects
                 }
             }
 
-            if (target.Attacked(this, damage, defence, damageWeapon, culling) <= 0)
+            if (target.Attacked(this, damage, defence, damageWeapon, culling, userMagic) <= 0)
             {
                 Accuracy = oldAccuracy;
                 return;
@@ -11017,6 +11034,24 @@ namespace Server.MirObjects
                         break;
                 }
             }
+
+            byte oldCriticalDamage = attacker.CriticalDamage;
+            byte oldCriticalRate = attacker.CriticalRate;
+
+            if (magic != null)
+            {
+                if (IncreasedCriticalDamageSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                    if (support != null)
+                    {
+                        attacker.CriticalDamage = support.IncreasedCriticalDamageCalculation(attacker.CriticalDamage);
+                        attacker.LevelMagic(support);
+                    }
+                }
+            }
+            attacker.CriticalDamage = oldCriticalDamage;
+            attacker.CriticalRate = oldCriticalRate;
 
             if ((attacker.CriticalRate * Settings.CriticalRateWeight) > Envir.Random.Next(100))
             {
