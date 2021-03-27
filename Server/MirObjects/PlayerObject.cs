@@ -9501,6 +9501,10 @@ namespace Server.MirObjects
                     }
                     target.OperateTime = 0;
 
+                    support = magic.GetSupportMagic(Spell.Fortify);
+                    if (support != null)
+                        Fortify(support);
+
                     LevelMagic(magic);
                     break;
 
@@ -10300,7 +10304,7 @@ namespace Server.MirObjects
                         LevelMagic(support);
                     }
                 }
-                if (PlayerObject.FortifySpells.Contains(userMagic.Spell))
+                if (FortifySpells.Contains(userMagic.Spell))
                 {
                     UserMagic support = userMagic.GetSupportMagic(Spell.Fortify);
                     if (support != null)
