@@ -1974,19 +1974,28 @@ namespace Server.MirEnvir
                                                 poison = PoisonType.None;
 
                                             int tempValue = 0;
+                                            long duration = (2 * (magic.Level + 1)) + (value / 10);
 
                                             if (poison == PoisonType.Green)
                                             {
-                                                tempValue = value / 15 + magic.Level + 1;
+                                                tempValue = value / 15 + magic.Level + 1;                                                
                                             }
                                             else
                                             {
                                                 tempValue = value + (magic.Level + 1) * 2;
                                             }
 
+                                            support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                                            if (support != null)
+                                            {
+                                                duration = support.IncreaseDurationCalculation(duration);
+                                                player.LevelMagic(support);
+                                            }
+                                            MessageQueue.Enqueue(duration.ToString());
+
                                             if (poison != PoisonType.None)
                                             {
-                                                target.ApplyPoison(new Poison { PType = poison, Duration = (2 * (magic.Level + 1)) + (value / 10), TickSpeed = 1000, Value = tempValue, Owner = player }, player, false, false);
+                                                target.ApplyPoison(new Poison { PType = poison, Duration = duration, TickSpeed = 1000, Value = tempValue, Owner = player }, player, false, false);
                                             }
                                             
                                             if (target.Race == ObjectType.Player)
