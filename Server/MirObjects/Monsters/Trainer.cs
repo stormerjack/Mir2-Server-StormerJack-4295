@@ -101,7 +101,7 @@ namespace Server.MirObjects.Monsters
         }
 
         // Pet attacking trainer.
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             if (attacker == null || attacker.Master == null) return 0;
             

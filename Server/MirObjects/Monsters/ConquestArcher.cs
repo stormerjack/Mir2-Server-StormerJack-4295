@@ -67,7 +67,7 @@ namespace Server.MirObjects.Monsters
 
             return base.Attacked(attacker, damage, type, damageWeapon);
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             if (!Conquest.WarIsOn) damage = 0;
 

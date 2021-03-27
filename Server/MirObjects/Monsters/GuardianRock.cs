@@ -73,7 +73,7 @@ namespace Server.MirObjects.Monsters
             }
         }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             return 0;
         }

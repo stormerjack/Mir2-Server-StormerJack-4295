@@ -128,7 +128,7 @@ namespace Server.MirObjects.Monsters
             base.Die();
         }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             if (ChildRock) ParentRock.FirstAttack = false;
             if (!ChildRock && FirstAttack == true)

@@ -2167,7 +2167,7 @@ namespace Server.MirObjects
             attacker.ItemDropRateOffset = oldItemDropRateOffset;
             return damage - armour;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             if (Target == null && attacker.IsAttackTarget(this))
                 Target = attacker;
@@ -2179,6 +2179,15 @@ namespace Server.MirObjects
 
             armour = (int)Math.Max(int.MinValue, (Math.Min(int.MaxValue, (decimal)(armour * ArmourRate))));
             damage = (int)Math.Max(int.MinValue, (Math.Min(int.MaxValue, (decimal)(damage * DamageRate))));
+
+            if (cullingStrike >= 0 && Info.CanCullingStrike)
+            {
+                if (PercentHealth <= 6 + cullingStrike * 2)
+                {
+                    damage = (int)Health;
+                    armour = 0;
+                }
+            }
 
             if (armour >= damage)
             {
@@ -2216,7 +2225,6 @@ namespace Server.MirObjects
                     if (EXPOwner == attacker.Master)
                         EXPOwnerTime = Envir.Time + EXPOwnerDelay;
                 }
-
             }
 
             Broadcast(new S.ObjectStruck { ObjectID = ObjectID, AttackerID = attacker.ObjectID, Direction = Direction, Location = CurrentLocation });

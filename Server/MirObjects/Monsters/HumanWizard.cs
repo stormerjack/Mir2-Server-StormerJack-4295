@@ -1,4 +1,5 @@
-﻿using Server.MirDatabase;
+﻿using System.Collections.Generic;
+using Server.MirDatabase;
 using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
@@ -8,12 +9,14 @@ namespace Server.MirObjects.Monsters
         public long FearTime, DecreaseMPTime;
         public byte AttackRange = 6;
         public bool Summoned;
+        public UserMagic ParentMagic;
 
         protected internal HumanWizard(MonsterInfo info)
             : base(info)
         {
             Direction = MirDirection.Down;
             Summoned = true;
+            ParentMagic = null;
         }
 
         protected override bool InAttackRange()
@@ -40,7 +43,25 @@ namespace Server.MirObjects.Monsters
             int damage = GetAttackPower(MinMC, MaxMC);
             if (damage == 0) return;
 
-            DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MAC);
+            int culling = -1;
+
+            if (Master != null && Master is PlayerObject player)
+            {
+                UserMagic support = ParentMagic?.GetSupportMagic(Spell.AddedMagicalDamage);
+                if (support != null)
+                {
+                    damage = support.AddedMagicalDamageCalculation(damage);
+                    player.LevelMagic(support);
+                }
+                support = ParentMagic?.GetSupportMagic(Spell.CullingStrike);
+                if (support != null)
+                {
+                    culling = support.Level;
+                    player.LevelMagic(support);
+                }
+            }
+
+            DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MAC, culling);
             ActionList.Add(action);
 
             if (Target.Dead)
@@ -111,6 +132,18 @@ namespace Server.MirObjects.Monsters
                         break;
                 }
             }
+        }
+
+        protected override void CompleteAttack(IList<object> data)
+        {
+            MapObject target = (MapObject)data[0];
+            int damage = (int)data[1];
+            DefenceType defence = (DefenceType)data[2];
+            int culling = (int)data[3];
+
+            if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
+
+            target.Attacked(this, damage, defence, culling);
         }
 
         public override void Spawned()

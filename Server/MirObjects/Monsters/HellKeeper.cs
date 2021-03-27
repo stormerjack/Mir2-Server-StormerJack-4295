@@ -32,7 +32,7 @@ namespace Server.MirObjects.Monsters
         public override bool Walk(MirDirection dir) { return false; }
 
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             int armour = 0;
 

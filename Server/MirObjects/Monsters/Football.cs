@@ -51,7 +51,7 @@ namespace Server.MirObjects.Monsters
 
             return 0;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility) { throw new NotSupportedException(); }
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1) { throw new NotSupportedException(); }
 
         public override int Struck(int damage, DefenceType type = DefenceType.ACAgility)
         {

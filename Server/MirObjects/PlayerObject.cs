@@ -7715,6 +7715,7 @@ namespace Server.MirObjects
             monster.Master = this;
             monster.ActionTime = Envir.Time + 1000;
             monster.RefreshNameColour(false);
+            ((HumanWizard)monster).ParentMagic = magic;
 
             Pets.Add(monster);
 
@@ -11169,7 +11170,7 @@ namespace Server.MirObjects
 
             return damage - armour;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             var armour = GetArmour(type, attacker, out bool hit);
 

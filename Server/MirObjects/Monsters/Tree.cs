@@ -32,7 +32,7 @@ namespace Server.MirObjects.Monsters
         protected override void ProcessSearch() { }
         protected override void ProcessRoam() { }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
         {
             int armour = 0;
 
