@@ -1142,7 +1142,7 @@ namespace Server.MirEnvir
                                     Caster = player,
                                     CurrentLocation = location,
                                     CurrentMap = this,
-                                    CullingStrikeMagic = cullingsupport
+                                    Magic = magic
                                 };
                             AddObject(ob);
                             ob.Spawned();
@@ -1181,7 +1181,7 @@ namespace Server.MirEnvir
                             Caster = player,
                             CurrentLocation = location,
                             CurrentMap = this,
-                            CullingStrikeMagic = cullingsupport
+                            Magic = magic
                         };
                         AddObject(ob);
                         ob.Spawned();
