@@ -595,7 +595,6 @@ namespace Server.MirObjects
         }
         public virtual void ChangeHP(int amount)
         {
-
             uint value = (uint)Math.Max(uint.MinValue, Math.Min(MaxHP, HP + amount));
 
             if (value == HP) return;
@@ -2075,7 +2074,10 @@ namespace Server.MirObjects
             if (cullingStrike >= 0 && Info.CanCullingStrike)
             {
                 if (PercentHealth <= 6 + cullingStrike * 2)
+                {
+                    armour = 0;
                     damage = (int)Health;
+                }
             }
 
             if (attacker.LifeOnHit > 0)

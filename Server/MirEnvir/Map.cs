@@ -1114,6 +1114,8 @@ namespace Server.MirEnvir
                     }
                     expireTime += Envir.Time;
 
+                    var cullingsupport = magic.GetSupportMagic(Spell.CullingStrike);
+
                     if (ValidPoint(location))
                     {
                         cell = GetCell(location);
@@ -1140,6 +1142,7 @@ namespace Server.MirEnvir
                                     Caster = player,
                                     CurrentLocation = location,
                                     CurrentMap = this,
+                                    CullingStrikeMagic = cullingsupport
                                 };
                             AddObject(ob);
                             ob.Spawned();
@@ -1178,6 +1181,7 @@ namespace Server.MirEnvir
                             Caster = player,
                             CurrentLocation = location,
                             CurrentMap = this,
+                            CullingStrikeMagic = cullingsupport
                         };
                         AddObject(ob);
                         ob.Spawned();

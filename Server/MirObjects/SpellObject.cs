@@ -41,6 +41,9 @@ namespace Server.MirObjects
         public int ExplosiveTrapCount;
         public bool DetonatedTrap;
 
+        //Support Gems
+        public UserMagic CullingStrikeMagic;
+
         //Portal
         public Map ExitMap;
         public Point ExitCoord;
@@ -115,7 +118,13 @@ namespace Server.MirObjects
 
                     if (!ob.IsAttackTarget(Caster)) return;
 
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+                    int cullingStrikeLevel = -1;
+                    if (CullingStrikeMagic != null)
+                    {
+                        cullingStrikeLevel = CullingStrikeMagic.Level;
+                        Caster.LevelMagic(CullingStrikeMagic);
+                    }
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel);
                     break;
                 case Spell.Healing: //SafeZone
                     if (ob.Race != ObjectType.Player && (ob.Race != ObjectType.Monster || ob.Master == null || ob.Master.Race != ObjectType.Player)) return;
@@ -396,6 +405,8 @@ namespace Server.MirObjects
                     Caster.PortalObjectsArray[1] = null;
                 }
             }
+
+            CullingStrikeMagic = null;
         }
 
         public override void BroadcastInfo()
