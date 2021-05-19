@@ -1736,6 +1736,7 @@ namespace Server.MirEnvir
                                 Show = show,
                                 CurrentMap = this,
                                 StartTime = Envir.Time + 800,
+                                Magic = magic,
                             };
 
                             show = false;
