@@ -10264,7 +10264,8 @@ namespace Server.MirObjects
             Spell.FlameDisruptor,
             Spell.FlameField,
             Spell.IceThrust,
-            Spell.SoulFireBall
+            Spell.SoulFireBall,
+            Spell.Mirroring
         };
         private void CompleteAttack(IList<object> data)
         {
@@ -11174,7 +11175,7 @@ namespace Server.MirObjects
 
             return damage - armour;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             var armour = GetArmour(type, attacker, out bool hit);
 

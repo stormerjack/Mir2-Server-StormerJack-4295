@@ -64,7 +64,7 @@ namespace Server.MirObjects.Monsters
             Target.Attacked(this, damage, DefenceType.MAC);
         }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (type != DefenceType.Repulsion) return 0;
 

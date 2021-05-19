@@ -766,7 +766,7 @@ namespace Server.MirObjects
         {
             return 0;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             return 0;
         }

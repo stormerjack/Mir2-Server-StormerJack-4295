@@ -2169,11 +2169,10 @@ namespace Server.MirObjects
             attacker.ItemDropRateOffset = oldItemDropRateOffset;
             return damage - armour;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (Target == null && attacker.IsAttackTarget(this))
-                Target = attacker;
-
+                Target = attacker;           
             
             var armour = GetArmour(type, attacker, out bool hit);
             if (!hit)
@@ -2229,11 +2228,36 @@ namespace Server.MirObjects
                 }
             }
 
+            PlayerObject player = null;
+            float oldDropRateOffset = 0;
+            if (EXPOwner != null && EXPOwner.Race == ObjectType.Player)
+            {
+                player = EXPOwner as PlayerObject;
+                oldDropRateOffset = player.ItemDropRateOffset;
+            }
+
+            if (magic != null && player != null)
+            {
+                if (PlayerObject.DropRateSpells.Contains(magic.Spell))
+                {
+                    var dropSupport = magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                    {
+                        player.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                        player.LevelMagic(dropSupport);
+                    }
+                }
+            }
+
             Broadcast(new S.ObjectStruck { ObjectID = ObjectID, AttackerID = attacker.ObjectID, Direction = Direction, Location = CurrentLocation });
 
             BroadcastDamageIndicator(DamageType.Hit, armour - damage);
 
             ChangeHP(armour - damage);
+
+            if (player != null)
+                player.ItemDropRateOffset = oldDropRateOffset;
+
             return damage - armour;
         }
 

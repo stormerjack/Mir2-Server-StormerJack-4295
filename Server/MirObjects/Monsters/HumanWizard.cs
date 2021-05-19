@@ -61,7 +61,11 @@ namespace Server.MirObjects.Monsters
                 }
             }
 
-            DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MAC, culling);
+            DelayedAction action = null;
+            if (ParentMagic != null)
+                action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MAC, culling, ParentMagic);
+            else
+                action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MAC, culling, ParentMagic);
             ActionList.Add(action);
 
             if (Target.Dead)
@@ -140,10 +144,11 @@ namespace Server.MirObjects.Monsters
             int damage = (int)data[1];
             DefenceType defence = (DefenceType)data[2];
             int culling = (int)data[3];
+            UserMagic magic = data.Count > 4 ? (UserMagic)data[4] : null;
 
             if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
 
-            target.Attacked(this, damage, defence, culling);
+            target.Attacked(this, damage, defence, culling, magic);
         }
 
         public override void Spawned()
