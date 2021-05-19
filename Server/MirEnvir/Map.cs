@@ -1467,6 +1467,7 @@ namespace Server.MirEnvir
                                     CastLocation = location,
                                     Show = show,
                                     CurrentMap = this,
+                                    Magic = magic,
                                 };
 
                             show = false;

@@ -10207,6 +10207,7 @@ namespace Server.MirObjects
             Spell.SoulFireBall,
             Spell.Blizzard,
             Spell.MeteorStrike,
+            Spell.PoisonCloud,
         };
         public static Spell[] IncreasedCriticalDamageSpells = new Spell[]
         {
@@ -10229,6 +10230,7 @@ namespace Server.MirObjects
             Spell.SoulFireBall,
             Spell.Blizzard,
             Spell.MeteorStrike,
+            Spell.PoisonCloud,
         };
         public static Spell[] IncreasedCriticalStrikeChanceSpells = new Spell[]
         {
@@ -10251,6 +10253,7 @@ namespace Server.MirObjects
             Spell.SoulFireBall,
             Spell.Blizzard,
             Spell.MeteorStrike,
+            Spell.PoisonCloud,
         };
         public static Spell[] DropRateSpells = new Spell[]
         {
@@ -10273,7 +10276,8 @@ namespace Server.MirObjects
             Spell.SoulFireBall,
             Spell.Mirroring,
             Spell.Blizzard,
-            Spell.MeteorStrike
+            Spell.MeteorStrike,
+            Spell.PoisonCloud,
         };
         private void CompleteAttack(IList<object> data)
         {
