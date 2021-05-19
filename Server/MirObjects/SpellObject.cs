@@ -158,7 +158,26 @@ namespace Server.MirObjects
                     if (ob.Dead) return;
                     if (Caster != null && Caster.ActiveBlizzard == false) return;
                     if (!ob.IsAttackTarget(Caster)) return;
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+
+                    cullingStrikeLevel = -1;
+                    if (Magic != null)
+                    {
+                        UserMagic support = Magic.GetSupportMagic(Spell.CullingStrike);
+                        if (support != null)
+                        {
+                            cullingStrikeLevel = support.Level;
+                            Caster.LevelMagic(support);
+                        }
+
+                        if (PlayerObject.FortifySpells.Contains(Magic.Spell))
+                        {
+                            support = Magic.GetSupportMagic(Spell.Fortify);
+                            if (support != null)
+                                Caster.Fortify(support);
+                        }
+                    }
+
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel, Magic);
                     if (!ob.Dead && Envir.Random.Next(8) == 0)
                         ob.ApplyPoison(new Poison
                         {

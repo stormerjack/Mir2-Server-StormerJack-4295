@@ -10204,7 +10204,8 @@ namespace Server.MirObjects
             Spell.FlameDisruptor,
             Spell.FlameField,
             Spell.IceThrust,
-            Spell.SoulFireBall
+            Spell.SoulFireBall,
+            Spell.Blizzard
         };
         public static Spell[] IncreasedCriticalDamageSpells = new Spell[]
         {
@@ -10224,7 +10225,8 @@ namespace Server.MirObjects
             Spell.FlameDisruptor,
             Spell.FlameField,
             Spell.IceThrust,
-            Spell.SoulFireBall
+            Spell.SoulFireBall,
+            Spell.Blizzard
         };
         public static Spell[] IncreasedCriticalStrikeChanceSpells = new Spell[]
         {
@@ -10244,7 +10246,8 @@ namespace Server.MirObjects
             Spell.FlameDisruptor,
             Spell.FlameField,
             Spell.IceThrust,
-            Spell.SoulFireBall
+            Spell.SoulFireBall,
+            Spell.Blizzard
         };
         public static Spell[] DropRateSpells = new Spell[]
         {
