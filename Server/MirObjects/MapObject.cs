@@ -849,6 +849,7 @@ namespace Server.MirObjects
         public PoisonType PType;
         public int Value;
         public long Duration, Time, TickTime, TickSpeed;
+        public UserMagic Magic;
 
         public Poison() { }
 

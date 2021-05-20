@@ -164,8 +164,10 @@ namespace Server.MirObjects.Monsters
             return 0;
         }
 
-        public override void PoisonDamage(int damage, MapObject attacker)
+        public override void PoisonDamage(Poison poison)
         {
+            int damage = -poison.Value;
+            MapObject attacker = poison.Owner;
             damage = damage * (-1);
             if (attacker == null || (attacker is MonsterObject && attacker.Master == null)) return;
 

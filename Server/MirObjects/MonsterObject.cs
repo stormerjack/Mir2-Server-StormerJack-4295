@@ -608,9 +608,48 @@ namespace Server.MirObjects
         }
 
         //use this so you can have mobs take no/reduced poison damage
-        public virtual void PoisonDamage(int amount, MapObject Attacker)
+        public virtual void PoisonDamage(Poison poison)
         {
-            ChangeHP(amount);
+            int amount = poison.Value;
+            MapObject attacker = poison.Owner;
+            var oldItemDropRateOffset = attacker.ItemDropRateOffset;
+
+            if (poison.Magic != null && attacker != null && attacker is PlayerObject player)
+            {
+                if (PlayerObject.IncreasedCriticalStrikeChanceSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        if (Envir.Random.Next(10) < support.Level + 1)
+                        {
+                            player.LevelMagic(support);
+                            byte crit = attacker.CriticalDamage;
+
+                            support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                            if (support != null)
+                            {
+                                crit = support.IncreasedCriticalDamageCalculation(crit);
+                                player.LevelMagic(support);
+                            }
+
+                            amount = Math.Min(int.MaxValue, amount + (int)Math.Floor(amount * (((double)crit / (double)Settings.CriticalDamageWeight) * 10)));
+                        }
+                    }
+                }
+                
+                if (PlayerObject.DropRateSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic dropSupport = poison.Magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                    {
+                        attacker.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                    }
+                }
+            }
+
+            ChangeHP(-amount);
+            attacker.ItemDropRateOffset = oldItemDropRateOffset;
         }
 
 
@@ -1125,7 +1164,7 @@ namespace Server.MirObjects
                         }
 
                         //ChangeHP(-poison.Value);
-                        PoisonDamage(-poison.Value, poison.Owner);
+                        PoisonDamage(poison);
                         if (PoisonStopRegen)
                             RegenTime = Envir.Time + RegenDelay;
                     }

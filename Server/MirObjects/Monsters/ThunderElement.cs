@@ -88,7 +88,7 @@ namespace Server.MirObjects.Monsters
             return result;
         }
 
-        public override void PoisonDamage(int amount, MapObject Attacker)
+        public override void PoisonDamage(Poison poison)
         {
             return;
         }

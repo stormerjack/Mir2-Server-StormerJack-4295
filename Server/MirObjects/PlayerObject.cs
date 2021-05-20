@@ -1068,7 +1068,7 @@ namespace Server.MirObjects
                         }
 
                         //ChangeHP(-poison.Value);
-                        PoisonDamage(-poison.Value, poison.Owner);
+                        PoisonDamage(poison);
 
                         if (Dead) break;
                         RegenTime = Envir.Time + RegenDelay;
@@ -1298,9 +1298,37 @@ namespace Server.MirObjects
             BroadcastHealthChange();
         }
         //use this so you can have mobs take no/reduced poison damage
-        public void PoisonDamage(int amount, MapObject Attacker)
+        public void PoisonDamage(Poison poison)
         {
-            ChangeHP(amount);
+            int amount = poison.Value;
+            MapObject attacker = poison.Owner;
+
+            if (poison.Magic != null && attacker != null && attacker is PlayerObject player)
+            {
+                if (IncreasedCriticalStrikeChanceSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        if (Envir.Random.Next(10) < support.Level + 1)
+                        {
+                            player.LevelMagic(support);
+                            byte crit = attacker.CriticalDamage;                            
+
+                            support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                            if (support != null)
+                            {
+                                crit = support.IncreasedCriticalDamageCalculation(crit);                                
+                                player.LevelMagic(support);
+                            }
+
+                            amount = Math.Min(int.MaxValue, amount + (int)Math.Floor(amount * (((double)crit / (double)Settings.CriticalDamageWeight) * 10)));
+                        }
+                    }
+                }
+            }
+
+            ChangeHP(-amount);
         }
         public void ChangeMP(int amount)
         {
@@ -9486,7 +9514,8 @@ namespace Server.MirObjects
                                 Owner = this,
                                 PType = PoisonType.Green,
                                 TickSpeed = 2000,
-                                Value = value
+                                Value = value,
+                                Magic = magic
                             }, this);
                             break;
                         case 2:
@@ -10231,6 +10260,7 @@ namespace Server.MirObjects
             Spell.Blizzard,
             Spell.MeteorStrike,
             Spell.PoisonCloud,
+            Spell.Poisoning,
         };
         public static Spell[] IncreasedCriticalStrikeChanceSpells = new Spell[]
         {
@@ -10254,6 +10284,7 @@ namespace Server.MirObjects
             Spell.Blizzard,
             Spell.MeteorStrike,
             Spell.PoisonCloud,
+            Spell.Poisoning,
         };
         public static Spell[] DropRateSpells = new Spell[]
         {
@@ -10278,6 +10309,7 @@ namespace Server.MirObjects
             Spell.Blizzard,
             Spell.MeteorStrike,
             Spell.PoisonCloud,
+            Spell.Poisoning,
         };
         private void CompleteAttack(IList<object> data)
         {
