@@ -7254,7 +7254,7 @@ namespace Client.MirScenes
 
             MirImageControl icon = new MirImageControl
             {
-                Index = magic.Icon,
+                Index = magic.Icon * 2,
                 Library = Libraries.MagIcon2,
                 Parent = ItemLabel,
                 Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
