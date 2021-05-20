@@ -10214,7 +10214,8 @@ namespace Server.MirObjects
             Spell.FlameDisruptor,
             Spell.FlameField,
             Spell.IceThrust,
-            Spell.SoulFireBall
+            Spell.SoulFireBall,
+            Spell.Poisoning
         };
         public static Spell[] FortifySpells = new Spell[]
         {

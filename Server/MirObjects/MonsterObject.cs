@@ -613,9 +613,12 @@ namespace Server.MirObjects
             int amount = poison.Value;
             MapObject attacker = poison.Owner;
             var oldItemDropRateOffset = attacker.ItemDropRateOffset;
+            UserMagic dropSupport = null;
+            PlayerObject player = null;
 
-            if (poison.Magic != null && attacker != null && attacker is PlayerObject player)
+            if (poison.Magic != null && attacker != null && attacker.Race == ObjectType.Player)
             {
+                player = (PlayerObject)attacker;
                 if (PlayerObject.IncreasedCriticalStrikeChanceSpells.Contains(poison.Magic.Spell))
                 {
                     UserMagic support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
@@ -638,18 +641,37 @@ namespace Server.MirObjects
                     }
                 }
                 
+
                 if (PlayerObject.DropRateSpells.Contains(poison.Magic.Spell))
                 {
-                    UserMagic dropSupport = poison.Magic.GetSupportMagic(Spell.DropRate);
+                    dropSupport = poison.Magic.GetSupportMagic(Spell.DropRate);
                     if (dropSupport != null)
-                    {
                         attacker.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                }
+
+                if (PlayerObject.CullingStrikeSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic support = poison.Magic.GetSupportMagic(Spell.CullingStrike);
+                    if (support != null)
+                    {
+                        int cullingStrike = support.Level;
+                        if (cullingStrike >= 0 && Info.CanCullingStrike)
+                        {
+                            if (PercentHealth <= 6 + cullingStrike * 2)
+                            {
+                                amount = (int)Health;
+                                player.LevelMagic(support);
+                            }
+                        }
                     }
                 }
             }
 
             ChangeHP(-amount);
             attacker.ItemDropRateOffset = oldItemDropRateOffset;
+
+            if (Dead && dropSupport != null)
+                player.LevelMagic(dropSupport);
         }
 
 
