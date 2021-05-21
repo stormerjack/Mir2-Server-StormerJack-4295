@@ -881,21 +881,20 @@ namespace Server.MirObjects
 
                                     b = monster.Buffs.FirstOrDefault(x => x.Type == BuffType.UltimateEnhancerAura);
                                     val = monster.Level / 7 + 4;
-                                    if (b == null || b.Values[1] < val)
+                                    if (b == null || b.Values[1] < buff.Values[1])
                                     {
                                         monster.RemoveBuff(BuffType.UltimateEnhancerAura);
-                                        monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], val }, Infinite = true });
+                                        monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], buff.Values[1] }, Infinite = true });
                                     }
                                 }
                                 
                                 if (!Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
 
                                 b = player.Buffs.FirstOrDefault(x => x.Type == BuffType.UltimateEnhancerAura);
-                                val = player.Level / 7 + 4;
-                                if (b == null || b.Values[1] < val)
+                                if (b == null || b.Values[1] < buff.Values[1])
                                 {
                                     player.RemoveBuff(BuffType.UltimateEnhancerAura);
-                                    player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], val }, Infinite = true });
+                                    player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], buff.Values[1] }, Infinite = true });
                                 }
                             }
                         }
