@@ -871,21 +871,29 @@ namespace Server.MirObjects
                                 if (player == null) continue;
 
                                 if (!player.IsFriendlyTarget(this)) continue;
+                                Buff b;
 
                                 for (int k = 0; k < player.Pets.Count; k++)
                                 {
                                     MonsterObject monster = player.Pets[k];
-
-                                    if (monster.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
                                     if (!Functions.InRange(CurrentLocation, monster.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
 
-                                    monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], monster.Level / 7 + 4 }, Infinite = true });
+                                    b = monster.Buffs.FirstOrDefault(x => x.Type == BuffType.UltimateEnhancerAura);
+                                    if (b == null || b.Values[0] < buff.Values[0])
+                                    {
+                                        monster.RemoveBuff(BuffType.UltimateEnhancerAura);
+                                        monster.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], monster.Level / 7 + 4 }, Infinite = true });
+                                    }
                                 }
-
-                                if (player.Buffs.Any(x => x.Type == BuffType.UltimateEnhancerAura)) continue;
+                                
                                 if (!Functions.InRange(CurrentLocation, player.CurrentLocation, ULTIMATEENHANCERAURARANGE)) continue;
 
-                                player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], player.Level / 7 + 4 }, Infinite = true });
+                                b = player.Buffs.FirstOrDefault(x => x.Type == BuffType.UltimateEnhancerAura);
+                                if (b == null || b.Values[0] < buff.Values[0])
+                                {
+                                    player.RemoveBuff(BuffType.UltimateEnhancerAura);
+                                    player.AddBuff(new Buff { Type = BuffType.UltimateEnhancerAura, Caster = this, ExpireTime = Envir.Time + 1000, Values = new int[] { buff.Values[0], player.Level / 7 + 4 }, Infinite = true });
+                                }
                             }
                         }
                         else
