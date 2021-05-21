@@ -883,7 +883,7 @@ namespace Client.MirControls
 
         private void MoveItem()
         {
-            if (GridType == MirGridType.BuyBack || GridType == MirGridType.DropPanel || GridType == MirGridType.Inspect || GridType == MirGridType.TrustMerchant || GridType == MirGridType.Craft || GridType == MirGridType.SkillSlot) return;
+            if (GridType == MirGridType.BuyBack || GridType == MirGridType.DropPanel || GridType == MirGridType.Inspect || GridType == MirGridType.TrustMerchant || GridType == MirGridType.Craft) return;
 
             if (GameScene.SelectedCell != null)
             {
@@ -1132,7 +1132,6 @@ namespace Client.MirControls
                                 GameScene.SelectedCell = null;
                                 break;
                              #endregion
-
                             #region From Refine
                             case MirGridType.Refine: //From AwakenItem
                                 if (Item != null && (GameScene.SelectedCell.Item.Info.Type == ItemType.Amulet || GameScene.SelectedCell.Item.Info.Type == ItemType.Poison))
@@ -1193,7 +1192,6 @@ namespace Client.MirControls
                                     }
                                 break;
                             #endregion
-
                             #region From Item Renting Dialog
 
                             case MirGridType.Renting:
