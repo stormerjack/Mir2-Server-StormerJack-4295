@@ -603,6 +603,8 @@ namespace Client.MirScenes.Dialogs
                     return 240;
                 case BuffType.TemporalFlux:
                     return 261;
+                case BuffType.Darkness:
+                    return 45;
 
                 //Stats
                 case BuffType.Impact:

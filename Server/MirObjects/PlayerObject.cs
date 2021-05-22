@@ -206,6 +206,7 @@ namespace Server.MirObjects
         public long ElementalBarrierTime;
 
         public long NextAuraAmulet;
+        public long NextDarknessTime;
 
         public bool HasElemental;
         public int ElementsLevel;
@@ -469,7 +470,7 @@ namespace Server.MirObjects
             {
                 Buff buff = Buffs[i];
                 if (buff.Infinite) continue;
-                if (buff.Type == BuffType.Curse) continue;
+                if (buff.Type == BuffType.Curse || buff.Type == BuffType.Darkness) continue;
 
                 buff.Caster = null;
                 if (!buff.Paused) buff.ExpireTime -= Envir.Time;
@@ -913,6 +914,14 @@ namespace Server.MirObjects
                                 removeBuff = true;
                                 break;
                             }
+                        }
+                        break;
+                    case BuffType.Darkness:
+                        if (Envir.Time > NextDarknessTime)
+                        {
+                            NextDarknessTime = Envir.Time + 1000;
+                            ChangeHP(-buff.Values[0]);
+                            removeBuff = Dead;
                         }
                         break;
                 }
@@ -2334,6 +2343,8 @@ namespace Server.MirObjects
 
             Info.Poisons.Clear();
 
+            CheckMapDarkness();
+
             if (MyGuild != null)
             {
                 MyGuild.PlayerLogged(this, true);
@@ -2427,11 +2438,12 @@ namespace Server.MirObjects
                 Location = CurrentLocation,
                 Direction = Direction,
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
-                Music = CurrentMap.Info.Music
+                Music = CurrentMap.Info.Music,
             });
 
+            
             CheckMapInfo(CurrentMap.Info);
-
+            CheckMapDarkness();
             GetObjects();
 
             Enqueue(new S.Revived());
@@ -2489,7 +2501,7 @@ namespace Server.MirObjects
             });
 
             CheckMapInfo(CurrentMap.Info);
-
+            CheckMapDarkness();
             GetObjects();
             Enqueue(new S.Revived());
             Broadcast(new S.ObjectRevived { ObjectID = ObjectID, Effect = true });
@@ -10760,6 +10772,7 @@ namespace Server.MirObjects
             });
 
             CheckMapInfo(CurrentMap.Info);
+            CheckMapDarkness();
 
             if (RidingMount) RefreshMount();
 
@@ -10816,6 +10829,7 @@ namespace Server.MirObjects
             });
 
             CheckMapInfo(CurrentMap.Info);
+            CheckMapDarkness();
 
             if (effects) Enqueue(new S.ObjectTeleportIn { ObjectID = ObjectID, Type = effectnumber });
 
@@ -21688,6 +21702,15 @@ namespace Server.MirObjects
                     }
                     break;
             }
+        }
+
+        public void CheckMapDarkness()
+        {
+            RemoveBuff(BuffType.Darkness);
+            if (CurrentMap.Info.Darkness > 0)
+            {
+                AddBuff(new Buff { Type = BuffType.Darkness, ExpireTime = Envir.Time + 1000, Infinite = true, Values = new int[] { CurrentMap.Info.Darkness } });
+            }                
         }
     }
 }
