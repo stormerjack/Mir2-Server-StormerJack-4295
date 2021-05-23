@@ -77,6 +77,12 @@ namespace Client.MirScenes.Dialogs
 
             var buffLibrary = Libraries.BuffIcon;
 
+            if (buffImage >= 40000)
+            {
+                buffImage -= 40000;
+                buffLibrary = Libraries.MagIcon2;
+            }
+
             if (buffImage >= 20000)
             {
                 buffImage -= 20000;
@@ -604,7 +610,7 @@ namespace Client.MirScenes.Dialogs
                 case BuffType.TemporalFlux:
                     return 261;
                 case BuffType.Darkness:
-                    return 45;
+                    return 40160;
 
                 //Stats
                 case BuffType.Impact:

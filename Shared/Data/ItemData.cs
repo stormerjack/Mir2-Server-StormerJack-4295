@@ -40,6 +40,7 @@ public class ItemInfo
     public bool CanFastRun;
     public bool CanAwakening;
     public byte MaxAcRate, MaxMacRate, Holy, Freezing, PoisonAttack, HpDrainRate;
+    public byte DarkResist;
 
     public BindMode Bind = BindMode.None;
     public byte Reflect;
@@ -171,6 +172,9 @@ public class ItemInfo
             if ((Type == ItemType.Ring) && (Unique != SpecialItemMode.None))
                 Bind |= BindMode.NoWeddingRing;
         }
+
+        if (version > 88)
+            DarkResist = reader.ReadByte();
     }
 
 
@@ -257,6 +261,8 @@ public class ItemInfo
         writer.Write(ToolTip != null);
         if (ToolTip != null)
             writer.Write(ToolTip);
+
+        writer.Write(DarkResist);
     }
 
     public static ItemInfo FromText(string text)

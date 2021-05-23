@@ -2283,7 +2283,7 @@ namespace Client.MirScenes.Dialogs
         public MirLabel NameLabel, GuildLabel, LoverLabel;
         public MirLabel ACLabel, MACLabel, DCLabel, MCLabel, SCLabel, HealthLabel, ManaLabel;
         public MirLabel CritRLabel, CritDLabel, LuckLabel, AttkSpdLabel, AccLabel, AgilLabel;
-        public MirLabel ExpPLabel, BagWLabel, WearWLabel, HandWLabel, MagicRLabel, PoisonRecLabel, HealthRLabel, ManaRLabel, PoisonResLabel, HolyTLabel, FreezeLabel, PoisonAtkLabel;
+        public MirLabel ExpPLabel, BagWLabel, WearWLabel, HandWLabel, MagicRLabel, PoisonRecLabel, HealthRLabel, ManaRLabel, PoisonResLabel, HolyTLabel, FreezeLabel, PoisonAtkLabel, DarkResistLabel;
         public MirLabel HeadingLabel, StatLabel;
         public MirButton NextButton, BackButton;
 
@@ -2395,6 +2395,7 @@ namespace Client.MirScenes.Dialogs
                 HolyTLabel.Text = string.Format("+{0}", MapObject.User.Holy);
                 FreezeLabel.Text = string.Format("+{0}", MapObject.User.Freezing);
                 PoisonAtkLabel.Text = string.Format("+{0}", MapObject.User.PoisonAttack);
+                DarkResistLabel.Text = string.Format("+{0}", MapObject.User.DarkResist);
             };
 
 
@@ -2822,6 +2823,13 @@ namespace Client.MirScenes.Dialogs
                 AutoSize = true,
                 Parent = StatePage,
                 Location = new Point(126, 218),
+                NotControl = true
+            };
+            DarkResistLabel = new MirLabel
+            {
+                AutoSize = true,
+                Parent = StatePage,
+                Location = new Point(126, 236),
                 NotControl = true
             };
 

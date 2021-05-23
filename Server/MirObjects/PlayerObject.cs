@@ -729,6 +729,7 @@ namespace Server.MirObjects
                         Info.Equipment[(int)EquipmentSlot.Torch] = null;
                         Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
                         RefreshStats();
+                        CheckMapDarkness();
                     }
                 }
             }
@@ -2825,6 +2826,7 @@ namespace Server.MirObjects
             Holy = 0;
             Freezing = 0;
             PoisonAttack = 0;
+            DarkResist = 0;
 
             ExpRateOffset = 0;
             ItemDropRateOffset = 0;
@@ -2976,6 +2978,7 @@ namespace Server.MirObjects
                 PoisonAttack = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, PoisonAttack + temp.PoisonAttack + RealItem.PoisonAttack)));
                 Reflect = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, Reflect + RealItem.Reflect)));
                 HpDrainRate = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, HpDrainRate + RealItem.HpDrainRate)));
+                DarkResist = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, DarkResist + RealItem.DarkResist)));
 
                 if (RealItem.Light > Light) Light = RealItem.Light;
                 if (RealItem.Unique != SpecialItemMode.None)
@@ -3150,6 +3153,7 @@ namespace Server.MirObjects
                 PoisonAttack = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, PoisonAttack + temp.PoisonAttack + RealItem.PoisonAttack)));
                 Reflect = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, Reflect + RealItem.Reflect)));
                 HpDrainRate = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, HpDrainRate + RealItem.HpDrainRate)));
+                DarkResist = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, DarkResist + RealItem.DarkResist)));
 
                 if (RealItem.Light > Light) Light = RealItem.Light;
                 if (RealItem.Unique != SpecialItemMode.None)
@@ -11782,6 +11786,7 @@ namespace Server.MirObjects
                 ItemRemoved(temp);
                 RefreshStats();
                 Broadcast(GetUpdateInfo());
+                CheckMapDarkness();
 
                 Report.ItemMoved(temp, MirGridType.Equipment, grid, index, to);
 
@@ -12267,6 +12272,7 @@ namespace Server.MirObjects
                 p.Success = true;
                 Enqueue(p);
                 RefreshStats();
+                CheckMapDarkness();
 
                 //Broadcast(GetUpdateInfo());
                 return;
@@ -14646,6 +14652,7 @@ namespace Server.MirObjects
 
             item.DuraChanged = false;
             RefreshStats();
+            CheckMapDarkness();
         }
         private void ConsumeItem(UserItem item, uint cost)
         {
@@ -21707,9 +21714,9 @@ namespace Server.MirObjects
         public void CheckMapDarkness()
         {
             RemoveBuff(BuffType.Darkness);
-            if (CurrentMap.Info.Darkness > 0)
+            if (CurrentMap.Info.Darkness - DarkResist > 0)
             {
-                AddBuff(new Buff { Type = BuffType.Darkness, ExpireTime = Envir.Time + 1000, Infinite = true, Values = new int[] { CurrentMap.Info.Darkness } });
+                AddBuff(new Buff { Type = BuffType.Darkness, ExpireTime = Envir.Time + 1000, Infinite = true, Values = new int[] { CurrentMap.Info.Darkness - DarkResist } });
             }                
         }
     }

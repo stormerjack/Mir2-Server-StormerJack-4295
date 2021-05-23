@@ -6272,6 +6272,31 @@ namespace Client.MirScenes
 
             #endregion
 
+            #region DARKRESIST
+
+            minValue = realItem.DarkResist;
+            maxValue = 0;
+            addValue = 0;//(!hideAdded && (!HoverItem.Info.NeedIdentify || HoverItem.Identified)) ? HoverItem.CriticalDamage : 0;
+
+            if ((minValue > 0 || maxValue > 0 || addValue > 0) && (realItem.Type != ItemType.Gem))
+            {
+                count++;
+                MirLabel DARKRESISTLabel = new MirLabel
+                {
+                    AutoSize = true,
+                    ForeColour = addValue > 0 ? Color.Cyan : Color.White,
+                    Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                    OutLine = true,
+                    Parent = ItemLabel,
+                    Text = string.Format("Darkness Resistance + {0}", minValue + addValue)
+                };
+
+                ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, DARKRESISTLabel.DisplayRectangle.Right + 4),
+                    Math.Max(ItemLabel.Size.Height, DARKRESISTLabel.DisplayRectangle.Bottom));
+            }
+
+            #endregion
+
             #region Reflect
 
             minValue = realItem.Reflect;

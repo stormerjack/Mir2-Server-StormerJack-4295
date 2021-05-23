@@ -196,6 +196,8 @@
             this.ImportButton = new System.Windows.Forms.Button();
             this.Gameshop_button = new System.Windows.Forms.Button();
             this.SearchTextBox = new System.Windows.Forms.TextBox();
+            this.DarkResistTextBox = new System.Windows.Forms.TextBox();
+            this.label58 = new System.Windows.Forms.Label();
             this.ItemInfoPanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -834,7 +836,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.DarkResistTextBox);
             this.groupBox1.Controls.Add(this.label50);
+            this.groupBox1.Controls.Add(this.label58);
             this.groupBox1.Controls.Add(this.label52);
             this.groupBox1.Controls.Add(this.label49);
             this.groupBox1.Controls.Add(this.ReflecttextBox);
@@ -844,7 +848,7 @@
             this.groupBox1.Controls.Add(this.label51);
             this.groupBox1.Location = new System.Drawing.Point(16, 277);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(304, 94);
+            this.groupBox1.Size = new System.Drawing.Size(480, 94);
             this.groupBox1.TabIndex = 123;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "New Stats";
@@ -1961,6 +1965,24 @@
             this.SearchTextBox.TabIndex = 30;
             this.SearchTextBox.TextChanged += new System.EventHandler(this.SearchTextBox_TextChanged);
             // 
+            // DarkResistTextBox
+            // 
+            this.DarkResistTextBox.Location = new System.Drawing.Point(406, 35);
+            this.DarkResistTextBox.MaxLength = 3;
+            this.DarkResistTextBox.Name = "DarkResistTextBox";
+            this.DarkResistTextBox.Size = new System.Drawing.Size(30, 20);
+            this.DarkResistTextBox.TabIndex = 125;
+            this.DarkResistTextBox.TextChanged += new System.EventHandler(this.DarkResistTextBox_TextChanged);
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(340, 39);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(65, 13);
+            this.label58.TabIndex = 124;
+            this.label58.Text = "Dark Resist:";
+            // 
             // ItemInfoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2169,5 +2191,7 @@
         private System.Windows.Forms.TextBox SlotsTextBox;
         private System.Windows.Forms.Label label57;
         private System.Windows.Forms.TextBox SearchTextBox;
+        private System.Windows.Forms.TextBox DarkResistTextBox;
+        private System.Windows.Forms.Label label58;
     }
 }

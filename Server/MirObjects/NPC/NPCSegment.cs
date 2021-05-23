@@ -2862,6 +2862,7 @@ namespace Server.MirObjects
                             break;
                         }
                         player.RefreshStats();
+                        player.CheckMapDarkness();
                         break;
 
                     case ActionType.GiveExp:
