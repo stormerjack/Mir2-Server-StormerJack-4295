@@ -10997,7 +10997,7 @@ namespace Client.MirScenes
                     text = string.Format("Knapsack\nIncreases BagWeight by: {0}.\n", Values[0]);
                     break;
                 case BuffType.Darkness:
-                    text = string.Format("Darkness\nDecreases Health: {0} per second.\n", Values[0]);
+                    text = string.Format("Darkness\nDecreases Health: {0}% per second.\n", Values[0]);
                     break;
             }
 

@@ -921,7 +921,8 @@ namespace Server.MirObjects
                         if (Envir.Time > NextDarknessTime)
                         {
                             NextDarknessTime = Envir.Time + 1000;
-                            ChangeHP(-buff.Values[0]);
+                            int decHealth = (int)(MaxHealth / 100F * buff.Values[0]);
+                            ChangeHP(-decHealth);
                             removeBuff = Dead;
                         }
                         break;
