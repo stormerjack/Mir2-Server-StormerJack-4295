@@ -477,6 +477,8 @@ public abstract class Packet
                 return new S.LoseCredit();
             case (short)ServerPacketIds.ObjectMonster:
                 return new S.ObjectMonster();
+            case (short)ServerPacketIds.ObjectMonsterData:
+                return new S.ObjectMonsterData();
             case (short)ServerPacketIds.ObjectAttack:
                 return new S.ObjectAttack();
             case (short)ServerPacketIds.Struck:
@@ -713,6 +715,8 @@ public abstract class Packet
                 return new S.GainedQuestItem();
             case (short)ServerPacketIds.DeleteQuestItem:
                 return new S.DeleteQuestItem();
+            case (short)ServerPacketIds.NewMonsterInfo:
+                return new S.NewMonsterInfo();
             case (short)ServerPacketIds.CancelReincarnation:
                 return new S.CancelReincarnation();
             case (short)ServerPacketIds.RequestReincarnation:

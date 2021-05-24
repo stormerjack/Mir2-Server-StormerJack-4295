@@ -289,6 +289,12 @@ namespace Server.MirObjects
                 return;
             }
 
+            if (Race == ObjectType.Monster)
+            {
+                MonsterObject monster = (MonsterObject)this;
+                player.CheckMonsterInfo(monster.Info);
+            }
+            
             player.Enqueue(GetInfo());
 
             //if (Race == ObjectType.Player)

@@ -2100,6 +2100,12 @@ namespace Server.MirObjects
             Enqueue(new S.NewQuestInfo { Info = info.CreateClientQuestInfo() });
             Connection.SentQuestInfo.Add(info);
         }
+        public void CheckMonsterInfo(MonsterInfo info)
+        {
+            if (Connection.SentMonsterInfo.Contains(info)) return;
+            Enqueue(new S.NewMonsterInfo { Info = info.ClientData });
+            Connection.SentMonsterInfo.Add(info);
+        }
 
         public void CheckMapInfo(MapInfo info)
         {
@@ -2753,6 +2759,12 @@ namespace Server.MirObjects
                             NPC.CheckVisible(this);
 
                             if (NPC.VisibleLog[Info.Index] && NPC.Visible) Enqueue(ob.GetInfo());
+                        }
+                        else if (ob.Race == ObjectType.Monster)
+                        {
+                            MonsterObject monster = (MonsterObject)ob;
+                            CheckMonsterInfo(monster.Info);
+                            Enqueue(ob.GetInfo());
                         }
                         else
                         {

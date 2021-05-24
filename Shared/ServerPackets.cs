@@ -1935,6 +1935,7 @@ namespace ServerPackets
             get { return (short)ServerPacketIds.ObjectMonster; }
         }
 
+        public int MonsterIndex;
         public uint ObjectID;
         public string Name = string.Empty;
         public Color NameColour;
@@ -1950,9 +1951,11 @@ namespace ServerPackets
         public bool BindingShotCenter;
 
         public List<BuffType> Buffs = new List<BuffType>();
+        public ClientMonsterData Data;
 
         protected override void ReadPacket(BinaryReader reader)
         {
+            MonsterIndex = reader.ReadInt32();
             ObjectID = reader.ReadUInt32();
             Name = reader.ReadString();
             NameColour = Color.FromArgb(reader.ReadInt32());
@@ -1976,10 +1979,14 @@ namespace ServerPackets
             {
                 Buffs.Add((BuffType)reader.ReadByte());
             }
+
+            if (reader.ReadBoolean())
+                Data = new ClientMonsterData(reader);
         }
 
         protected override void WritePacket(BinaryWriter writer)
         {
+            writer.Write(MonsterIndex);
             writer.Write(ObjectID);
             writer.Write(Name);
             writer.Write(NameColour.ToArgb());
@@ -2004,8 +2011,33 @@ namespace ServerPackets
             {
                 writer.Write((byte)Buffs[i]);
             }
+
+            writer.Write(Data != null);
+            if (Data != null)
+                Data.Save(writer);
+        }
+    }
+    public sealed class ObjectMonsterData : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.ObjectMonsterData; }
         }
 
+        public uint ObjectID;
+        public ClientMonsterData Data;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            ObjectID = reader.ReadUInt32();
+            Data = new ClientMonsterData(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(ObjectID);
+            Data.Save(writer);
+        }
     }
     public sealed class ObjectAttack : Packet
     {
@@ -4363,6 +4395,26 @@ namespace ServerPackets
         protected override void ReadPacket(BinaryReader reader)
         {
             Info = new ClientQuestInfo(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            Info.Save(writer);
+        }
+    }
+
+    public sealed class NewMonsterInfo : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.NewMonsterInfo; }
+        }
+
+        public ClientMonsterData Info;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Info = new ClientMonsterData(reader);
         }
 
         protected override void WritePacket(BinaryWriter writer)

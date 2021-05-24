@@ -234,6 +234,8 @@ namespace Server.MirObjects
 
         public MonsterInfo Info;
         public MapRespawn Respawn;
+
+        public ClientMonsterData ClientData;
         
         public override string Name
         {
@@ -454,7 +456,7 @@ namespace Server.MirObjects
             Agility = Info.Agility;
 
             MoveSpeed = Info.MoveSpeed;
-            AttackSpeed = Info.AttackSpeed;
+            AttackSpeed = Info.AttackSpeed;            
         }
         public virtual void RefreshAll()
         {
@@ -479,6 +481,32 @@ namespace Server.MirObjects
             if (AttackSpeed < 400) AttackSpeed = 400;
 
             RefreshBuffs();
+
+            uint total = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility;
+            if (total != Info.StatTotal)
+            {
+                ClientData = new ClientMonsterData()
+                {
+                    Level = Level,
+                    Experience = Experience,
+                    MinAC = MinAC,
+                    MaxAC = MaxAC,
+                    MinMAC = MinMAC,
+                    MaxMAC = MaxMAC,
+                    MinDC = MinDC,
+                    MaxDC = MaxDC,
+                    MinMC = MinMC,
+                    MaxMC = MaxMC,
+                    MinSC = MinSC,
+                    MaxSC = MaxSC,
+                    Accuracy = Accuracy,
+                    Agility = Agility,
+                    IsTameable = Info.CanTame
+                };
+                Broadcast(new S.ObjectMonsterData { ObjectID = ObjectID, Data = ClientData });
+            }
+            else
+                ClientData = null;
         }
         protected virtual void RefreshBuffs()
         {
@@ -2411,27 +2439,29 @@ namespace Server.MirObjects
             base.AddBuff(b);
             RefreshAll();
         }
-        
+
         public override Packet GetInfo()
-        {
+        {            
             return new S.ObjectMonster
-                {
-                    ObjectID = ObjectID,
-                    Name = Name,
-                    NameColour = NameColour,
-                    Location = CurrentLocation,
-                    Image = Info.Image,
-                    Direction = Direction,
-                    Effect = Info.Effect,
-                    AI = Info.AI,
-                    Light = Info.Light,
-                    Dead = Dead,
-                    Skeleton = Harvested,
-                    Poison = CurrentPoison,
-                    Hidden = Hidden,
-                    ShockTime = (ShockTime > 0 ? ShockTime - Envir.Time : 0),
-                    BindingShotCenter = BindingShotCenter,
-                    Buffs = Buffs.Where(d => d.Visible).Select(e => e.Type).ToList()
+            {
+                MonsterIndex = Info.Index,
+                ObjectID = ObjectID,
+                Name = Name,
+                NameColour = NameColour,
+                Location = CurrentLocation,
+                Image = Info.Image,
+                Direction = Direction,
+                Effect = Info.Effect,
+                AI = Info.AI,
+                Light = Info.Light,
+                Dead = Dead,
+                Skeleton = Harvested,
+                Poison = CurrentPoison,
+                Hidden = Hidden,
+                ShockTime = (ShockTime > 0 ? ShockTime - Envir.Time : 0),
+                BindingShotCenter = BindingShotCenter,
+                Buffs = Buffs.Where(d => d.Visible).Select(e => e.Type).ToList(),
+                Data = ClientData
             };
         }
 
@@ -3076,6 +3106,22 @@ namespace Server.MirObjects
         {
             SlaveList.Clear();
             base.Despawn();
+        }
+
+        public override void BroadcastInfo()
+        {
+            if (CurrentMap == null) return;
+
+            for (int i = CurrentMap.Players.Count - 1; i >= 0; i--)
+            {
+                PlayerObject player = CurrentMap.Players[i];
+
+                if (Functions.InRange(CurrentLocation, player.CurrentLocation, Globals.DataRange))
+                    player.CheckMonsterInfo(Info);
+            }
+
+            Broadcast(GetInfo());
+            return;
         }
 
     }

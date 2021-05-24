@@ -127,6 +127,7 @@ namespace Client.MirScenes
         public static List<GameShopItem> GameShopInfoList = new List<GameShopItem>();
         public static List<ClientRecipeInfo> RecipeInfoList = new List<ClientRecipeInfo>();
         public static List<ClientMapInfo> MapInfoList = new List<ClientMapInfo>();
+        public static List<ClientMonsterData> MonsterInfoList = new List<ClientMonsterData>();
 
         public List<Buff> Buffs = new List<Buff>();
 
@@ -137,7 +138,7 @@ namespace Client.MirScenes
         public static MirItemCell SelectedCell;
 
         public static bool PickedUpGold;
-        public MirControl ItemLabel, MailLabel, MemoLabel, GuildBuffLabel;
+        public MirControl ItemLabel, MailLabel, MemoLabel, GuildBuffLabel, MonsterLabel;
         public static long UseItemTime, PickUpTime, DropViewTime, TargetDeadTime;
         public static uint Gold, Credit;
         public static long InspectTime;
@@ -492,7 +493,8 @@ namespace Client.MirScenes
 
 
 
-                        GameScene.Scene.DisposeItemLabel();
+                        Scene.DisposeItemLabel();
+                        Scene.DisposeMonsterLabel();
                         break;
                     case KeybindOptions.Options:
                     case KeybindOptions.Options2:
@@ -945,7 +947,7 @@ namespace Client.MirScenes
                 if (y + ItemLabel.Size.Height > Settings.ScreenHeight)
                     y = Settings.ScreenHeight - ItemLabel.Size.Height;
                 ItemLabel.Location = new Point(x, y);
-            }
+            }            
 
             if (MailLabel != null && !MailLabel.IsDisposed)
             {
@@ -1014,6 +1016,19 @@ namespace Client.MirScenes
             CustomPanel1.Process();
             GameShopDialog.Process();
             MiniMapDialog.Process();
+
+            if (MonsterLabel != null && !MonsterLabel.IsDisposed)
+            {
+                MonsterLabel.BringToFront();
+
+                int x = CMain.MPoint.X + 15, y = CMain.MPoint.Y;
+                if (x + MonsterLabel.Size.Width > Settings.ScreenWidth)
+                    x = Settings.ScreenWidth - MonsterLabel.Size.Width;
+
+                if (y + MonsterLabel.Size.Height > Settings.ScreenHeight)
+                    y = Settings.ScreenHeight - MonsterLabel.Size.Height;
+                MonsterLabel.Location = new Point(x, y);
+            }
 
             foreach (SkillBarDialog Bar in Scene.SkillBarDialogs)
                 Bar.Process();
@@ -1181,6 +1196,9 @@ namespace Client.MirScenes
                     break;
                 case (short)ServerPacketIds.ObjectMonster:
                     ObjectMonster((S.ObjectMonster)p);
+                    break;
+                case (short)ServerPacketIds.ObjectMonsterData:
+                    ObjectMonsterData((S.ObjectMonsterData)p);
                     break;
                 case (short)ServerPacketIds.ObjectAttack:
                     ObjectAttack((S.ObjectAttack)p);
@@ -2732,6 +2750,20 @@ namespace Client.MirScenes
             }
             mob = new MonsterObject(p.ObjectID);
             mob.Load(p);
+        }
+        private void ObjectMonsterData(S.ObjectMonsterData p)
+        {
+            MonsterObject mob;
+            for (int i = MapControl.Objects.Count - 1; i >= 0; i--)
+            {
+                MapObject ob = MapControl.Objects[i];
+                if (ob.ObjectID == p.ObjectID)
+                {
+                    mob = (MonsterObject)ob;
+                    mob.Data = p.Data;
+                    return;
+                }
+            }
         }
         private void ObjectAttack(S.ObjectAttack p)
         {
@@ -5608,6 +5640,12 @@ namespace Client.MirScenes
                 ItemLabel.Dispose();
             ItemLabel = null;
         }
+        public void DisposeMonsterLabel()
+        {
+            if (MonsterLabel != null && !MonsterLabel.IsDisposed)
+                MonsterLabel.Dispose();
+            MonsterLabel = null;
+        }
         public void DisposeMailLabel()
         {
             if (MailLabel != null && !MailLabel.IsDisposed)
@@ -8382,6 +8420,134 @@ namespace Client.MirScenes
             return null;
         }
 
+        public void CreateMonsterLabel(MonsterObject monster)
+        {
+            if (monster == null || monster.Data == null)
+            {
+                DisposeMonsterLabel();
+                return;
+            }
+
+            MonsterLabel = new MirImageControl
+            {
+                Index = 7,
+                Library = Libraries.PrguseCustom,
+                Parent = this,
+                NotControl = true
+            };
+
+            MirLabel nameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(68, 32),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Name
+            };
+
+            decimal gainEXP = monster.Data.Experience / (decimal)User.MaxExperience * 100M;
+            MirLabel experienceLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(93, 44),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.Experience} ({string.Format("{0:0.00}", gainEXP)}%)"
+            };
+
+            MirLabel levelLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(66, 56),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Level.ToString()
+            };
+
+            MirLabel acLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(63, 76),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinAC}-{monster.Data.MaxAC}"
+            };
+
+            MirLabel macLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(124, 76),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinMAC}-{monster.Data.MaxMAC}"
+            };
+
+            MirLabel dcLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(166, 76),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinDC}-{monster.Data.MaxDC}"
+            };
+
+            MirLabel mcLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(63, 101),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinMC}-{monster.Data.MaxMC}"
+            };
+
+            MirLabel scLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(116, 102),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinSC}-{monster.Data.MaxSC}"
+            };
+
+            MirLabel agilityLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(177, 102),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Agility.ToString()
+            };
+
+            MirLabel accuracyLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(93, 126),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Accuracy.ToString()
+            };
+
+            MirLabel tameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(170, 126),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.IsTameable.ToString()
+            };
+        }
+
         private List<MirControl> skillOutlines = new List<MirControl>();
         public void CreateItemLabel(UserItem item, bool inspect = false, bool hideDura = false, bool hideAdded = false)
         {
@@ -8806,6 +8972,7 @@ namespace Client.MirScenes
                 InspectTime = 0;
 
                 DisposeItemLabel();
+                DisposeMonsterLabel();
 
                 AMode = 0;
                 PMode = 0;
@@ -8991,7 +9158,6 @@ namespace Client.MirScenes
 
             CheckInput();
 
-
             MapObject bestmouseobject = null;
             for (int y = MapLocation.Y + 2; y >= MapLocation.Y - 2; y--)
             {
@@ -9026,16 +9192,26 @@ namespace Client.MirScenes
                             MapObject.MouseObject = bestmouseobject;
                             Redraw();
                         }
+                        if (CMain.Alt && MapObject.MouseObject != null)
+                        {
+                            if (MapObject.MouseObject.Race == ObjectType.Monster)
+                            {
+                                if (GameScene.Scene.MonsterLabel == null)
+                                    GameScene.Scene.CreateMonsterLabel((MonsterObject)MapObject.MouseObject);
+                            }
+                        }
+                        else
+                            GameScene.Scene.DisposeMonsterLabel();
                         return;
                     }
                 }
             }
 
-
             if (MapObject.MouseObject != null)
             {
+                GameScene.Scene.DisposeMonsterLabel();
                 MapObject.MouseObject = null;
-                Redraw();
+                Redraw();                
             }
         }
 

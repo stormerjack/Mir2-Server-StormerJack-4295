@@ -814,6 +814,7 @@ namespace Server.MirObjects
         {
             return new S.ObjectMonster
             {
+                MonsterIndex = Info.Index,
                 ObjectID = ObjectID,
                 Name = Name,
                 NameColour = NameColour,
@@ -828,6 +829,7 @@ namespace Server.MirObjects
                 Poison = CurrentPoison,
                 Hidden = Hidden,
                 Extra = Summoned,
+                Data = ClientData
             };
         }
     }

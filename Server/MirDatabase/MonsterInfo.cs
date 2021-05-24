@@ -46,6 +46,9 @@ namespace Server.MirDatabase
         public bool HasSpawnScript;
         public bool HasDieScript;
 
+        public uint StatTotal;
+        public ClientMonsterData ClientData;
+
         public MonsterInfo()
         {
         }
@@ -115,6 +118,29 @@ namespace Server.MirDatabase
 
             if (Envir.LoadVersion < 87) return;
             CanCullingStrike = reader.ReadBoolean();
+
+
+            //After loading
+            StatTotal = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility;
+            ClientData = new ClientMonsterData()
+            {
+                Index = Index,
+                Level = Level,
+                Experience = Experience,
+                MinAC = MinAC,
+                MaxAC = MaxAC,
+                MinMAC = MinMAC,
+                MaxMAC = MaxMAC,
+                MinDC = MinDC,
+                MaxDC = MaxDC,
+                MinMC = MinMC,
+                MaxMC = MaxMC,
+                MinSC = MinSC,
+                MaxSC = MaxSC,
+                Accuracy = Accuracy,
+                Agility = Agility,
+                IsTameable = CanTame
+            };
         }
 
         public string GameName
