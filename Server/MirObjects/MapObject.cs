@@ -288,12 +288,6 @@ namespace Server.MirObjects
                 NPC.CheckVisible(player, true);
                 return;
             }
-
-            if (Race == ObjectType.Monster)
-            {
-                MonsterObject monster = (MonsterObject)this;
-                player.CheckMonsterInfo(monster.Info);
-            }
             
             player.Enqueue(GetInfo());
 

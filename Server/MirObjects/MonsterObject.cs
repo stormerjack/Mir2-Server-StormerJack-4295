@@ -3074,6 +3074,7 @@ namespace Server.MirObjects
 
         public override void Add(PlayerObject player)
         {
+            player.CheckMonsterInfo(Info);
             player.Enqueue(GetInfo());
             SendHealth(player);
         }
