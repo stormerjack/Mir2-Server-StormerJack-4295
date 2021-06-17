@@ -4707,6 +4707,9 @@ namespace Client.MirScenes
                 case 8:
                     MirMessageBox.Show("You cannot hold enough gold to get your sale");
                     break;
+                case 9:
+                    MirMessageBox.Show("This item is no longer for sale.");
+                    break;
             }
 
         }

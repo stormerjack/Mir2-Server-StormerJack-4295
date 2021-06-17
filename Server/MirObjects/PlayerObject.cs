@@ -16182,6 +16182,12 @@ namespace Server.MirObjects
                             return;
                         }
 
+                        if (auction.GotBack)
+                        {
+                            Enqueue(new S.MarketFail { Reason = 9 });
+                            return;
+                        }
+
                         if (!CanGainItem(auction.Item))
                         {
                             Enqueue(new S.MarketFail { Reason = 5 });
@@ -16278,6 +16284,7 @@ namespace Server.MirObjects
                         Account.Auctions.Remove(auction);
                         Envir.Auctions.Remove(auction);
                         GainItem(auction.Item);
+                        auction.GotBack = true;
                         MarketSearch(MatchName, MatchType);
                         return;
                     }

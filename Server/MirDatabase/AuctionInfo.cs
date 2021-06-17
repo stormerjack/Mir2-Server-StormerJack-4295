@@ -23,7 +23,7 @@ namespace Server.MirDatabase
         public int SellerIndex, CurrentBuyerIndex;
         public CharacterInfo SellerInfo, CurrentBuyerInfo;
 
-        public bool Expired, Sold;
+        public bool Expired, Sold, GotBack;
 
         public MarketItemType ItemType;
 
@@ -71,6 +71,9 @@ namespace Server.MirDatabase
 
                 CurrentBuyerIndex = reader.ReadInt32();
             }
+
+            if (version > 90)
+                GotBack = reader.ReadBoolean();
         }
 
         public void Save(BinaryWriter writer)
@@ -89,6 +92,8 @@ namespace Server.MirDatabase
             writer.Write((byte)ItemType);
             writer.Write(CurrentBid);
             writer.Write(CurrentBuyerIndex);
+
+            writer.Write(GotBack);
         }
 
         private string GetSellerLabel(bool userMatch)
