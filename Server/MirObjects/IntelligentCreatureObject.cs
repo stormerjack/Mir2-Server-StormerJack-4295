@@ -218,7 +218,7 @@ namespace Server.MirObjects
 
             if (Master != null)
             {
-                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly))
+                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.FocusTarget))
                 {
                     if (!Functions.InRange(CurrentLocation, Master.CurrentLocation, Globals.DataRange) || CurrentMap != Master.CurrentMap)
                     {

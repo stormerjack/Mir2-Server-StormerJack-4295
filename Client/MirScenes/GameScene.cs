@@ -680,6 +680,9 @@ namespace Client.MirScenes
                     Network.Enqueue(new C.ChangePMode { Mode = PetMode.AttackOnly });
                     return;
                 case PetMode.AttackOnly:
+                    Network.Enqueue(new C.ChangePMode { Mode = PetMode.FocusTarget });
+                    return;
+                case PetMode.FocusTarget:
                     Network.Enqueue(new C.ChangePMode { Mode = PetMode.None });
                     return;
                 case PetMode.None:
@@ -2674,6 +2677,9 @@ namespace Client.MirScenes
                     break;
                 case PetMode.None:
                     ChatDialog.ReceiveChat(GameLanguage.PetMode_None, ChatType.Hint);
+                    break;
+                case PetMode.FocusTarget:
+                    ChatDialog.ReceiveChat(GameLanguage.PetMode_FocusTarget, ChatType.Hint);
                     break;
             }
         }

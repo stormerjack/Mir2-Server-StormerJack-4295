@@ -11207,6 +11207,12 @@ namespace Server.MirObjects
                 AddBuff(new Buff { Type = BuffType.MagicShield, Caster = this, ExpireTime = MagicShieldTime, Values = new int[] { MagicShieldLv } });
             }
 
+            if (attacker.PMode == PetMode.FocusTarget)
+            {
+                for (int i = 0; i < attacker.Pets.Count; i++)
+                    attacker.Pets[i].Target = this;
+            }
+
             ElementalBarrierTime -= (damage - armour) * 60;
 
             if (attacker.LifeOnHit > 0)

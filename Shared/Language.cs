@@ -7,6 +7,7 @@ public class GameLanguage
                          PetMode_MoveOnly = "[Pet: Do Not Attack]",
                          PetMode_AttackOnly = "[Pet: Do Not Move]",
                          PetMode_None = "[Pet: Do Not Attack or Move]",
+                         PetMode_FocusTarget = "[Pet: Focus Target]",
 
                          AttackMode_Peace = "[Mode: Peaceful]",
                          AttackMode_Group = "[Mode: Group]",
@@ -280,6 +281,7 @@ public class GameLanguage
         GameLanguage.PetMode_MoveOnly = reader.ReadString("Language", "PetMode_MoveOnly", GameLanguage.PetMode_MoveOnly);
         GameLanguage.PetMode_AttackOnly = reader.ReadString("Language", "PetMode_AttackOnly", GameLanguage.PetMode_AttackOnly);
         GameLanguage.PetMode_None = reader.ReadString("Language", "PetMode_None", GameLanguage.PetMode_None);
+        GameLanguage.PetMode_FocusTarget = reader.ReadString("Language", "PetMode_FocusTarget", GameLanguage.PetMode_FocusTarget);
 
         GameLanguage.AttackMode_Peace = reader.ReadString("Language", "AttackMode_Peace", GameLanguage.AttackMode_Peace);
         GameLanguage.AttackMode_Group = reader.ReadString("Language", "AttackMode_Group", GameLanguage.AttackMode_Group);
@@ -517,6 +519,7 @@ public class GameLanguage
         reader.Write("Language", "PetMode_MoveOnly", GameLanguage.PetMode_MoveOnly);
         reader.Write("Language", "PetMode_AttackOnly", GameLanguage.PetMode_AttackOnly);
         reader.Write("Language", "PetMode_None", GameLanguage.PetMode_None);
+        reader.Write("Language", "PetMode_FocusTarget", GameLanguage.PetMode_FocusTarget);
 
         reader.Write("Language", "AttackMode_Peace", GameLanguage.AttackMode_Peace);
         reader.Write("Language", "AttackMode_Group", GameLanguage.AttackMode_Group);

@@ -435,6 +435,9 @@ namespace Client.MirScenes.Dialogs
                 case PetMode.None:
                     PModeLabel.Text = GameLanguage.PetMode_None;
                     break;
+                case PetMode.FocusTarget:
+                    PModeLabel.Text = GameLanguage.PetMode_FocusTarget;
+                    break;
             }
 
             if ((CMain.PingTime) > 100)
@@ -5436,6 +5439,9 @@ namespace Client.MirScenes.Dialogs
                     break;
                 case PetMode.None:
                     PMode = "[Mode: Do Not Attack or Move]";
+                    break;
+                case PetMode.FocusTarget:
+                    PMode = "[Mode: Focus Target]";
                     break;
             }
 

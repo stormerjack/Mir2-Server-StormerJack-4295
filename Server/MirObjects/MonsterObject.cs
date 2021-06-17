@@ -349,7 +349,7 @@ namespace Server.MirObjects
             get
             {
                 return !Dead && Envir.Time > MoveTime && Envir.Time > ActionTime && Envir.Time > ShockTime &&
-                       (Master == null || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.Both) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
+                       (Master == null || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.Both || Master.PMode == PetMode.FocusTarget) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
                        && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Stun) && !CurrentPoison.HasFlag(PoisonType.Frozen);
             }
         }
@@ -358,7 +358,7 @@ namespace Server.MirObjects
             get
             {
                 return !Dead && Envir.Time > AttackTime && Envir.Time > ActionTime &&
-                     (Master == null || Master.PMode == PetMode.AttackOnly || Master.PMode == PetMode.Both || !CurrentMap.Info.NoFight) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
+                     (Master == null || Master.PMode == PetMode.AttackOnly || Master.PMode == PetMode.Both || Master.PMode == PetMode.FocusTarget || !CurrentMap.Info.NoFight) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
                        && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Stun) && !CurrentPoison.HasFlag(PoisonType.Frozen);
             }
         }
@@ -1389,7 +1389,7 @@ namespace Server.MirObjects
 
             if (Master != null)
             {
-                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly))
+                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.FocusTarget))
                 {
                     if (!Functions.InRange(CurrentLocation, Master.CurrentLocation, Globals.DataRange) || CurrentMap != Master.CurrentMap)
                         PetRecall();
@@ -2172,7 +2172,7 @@ namespace Server.MirObjects
             if (attacker.LifeOnHit > 0)
                 attacker.ChangeHP(attacker.LifeOnHit);
 
-            if (Target != this && attacker.IsAttackTarget(this))
+            if (Target != this && attacker.IsAttackTarget(this) && !((Master != null) && (Master.PMode == PetMode.FocusTarget)))
             {
                 if (attacker.Info.MentalState == 2)
                 {
@@ -2185,6 +2185,12 @@ namespace Server.MirObjects
 
             if (BindingShotCenter) ReleaseBindingShot();
             ShockTime = 0;
+
+            if (attacker.PMode == PetMode.FocusTarget)
+            {
+                for (int i = 0; i < attacker.Pets.Count; i++)
+                    attacker.Pets[i].Target = this;
+            }
 
             for (int i = PoisonList.Count - 1; i >= 0; i--)
             {
@@ -2285,8 +2291,9 @@ namespace Server.MirObjects
                 return 0;
             }
 
-            if (Target != this && attacker.IsAttackTarget(this))
+            if (Target != this && attacker.IsAttackTarget(this) && !((Master != null) && (Master.PMode == PetMode.FocusTarget)))
                 Target = attacker;
+
 
             if (BindingShotCenter) ReleaseBindingShot();
             ShockTime = 0;
