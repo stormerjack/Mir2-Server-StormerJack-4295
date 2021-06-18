@@ -3291,6 +3291,21 @@ namespace ServerPackets
             writer.Write(Name);
         }
     }
+    public sealed class SetGroupLootMode : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupLootMode; } }
+
+        public GroupLootMode Mode;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Mode = (GroupLootMode)reader.ReadByte();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Mode);
+        }
+    }
     public sealed class Revived : Packet
     {
         public override short Index { get { return (short)ServerPacketIds.Revived; } }

@@ -188,6 +188,8 @@ public abstract class Packet
                 return new C.DelMember();
             case (short)ClientPacketIds.GroupInvite:
                 return new C.GroupInvite();
+            case (short)ClientPacketIds.SetGroupLootMode:
+                return new C.SetGroupLootMode();
             case (short)ClientPacketIds.TownRevive:
                 return new C.TownRevive();
             case (short)ClientPacketIds.SpellToggle:
@@ -595,6 +597,8 @@ public abstract class Packet
                 return new S.GroupInvite();
             case (short)ServerPacketIds.AddMember:
                 return new S.AddMember();
+            case (short)ServerPacketIds.GroupLootMode:
+                return new S.SetGroupLootMode();
             case (short)ServerPacketIds.Revived:
                 return new S.Revived();
             case (short)ServerPacketIds.ObjectRevived:

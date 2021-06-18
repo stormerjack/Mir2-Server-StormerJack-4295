@@ -18,10 +18,12 @@ namespace Client.MirScenes.Dialogs
     {
         public static bool AllowGroup;
         public static List<string> GroupList = new List<string>();
+        public GroupLootMode LootMode;
 
         public MirImageControl TitleLabel;
         public MirButton SwitchButton, CloseButton, AddButton, DelButton;
         public MirLabel[] GroupMembers;
+        public MirDropDownBox LootModeDropDown;
 
         public GroupDialog()
         {
@@ -51,8 +53,6 @@ namespace Client.MirScenes.Dialogs
                     NotControl = true,
                 };
             }
-
-
 
             TitleLabel = new MirImageControl
             {
@@ -115,6 +115,21 @@ namespace Client.MirScenes.Dialogs
 
             BeforeDraw += GroupPanel_BeforeDraw;
 
+            LootModeDropDown = new MirDropDownBox()
+            {
+                ForeColour = Color.White,
+                Parent = this,
+                Size = new Size(100, 14),
+                Location = new Point(80, Size.Height - 50),
+                Visible = true,
+                Enabled = true
+            };
+            LootModeDropDown.Items.Add("Free for all");
+            LootModeDropDown.Items.Add("Leader only");
+            LootModeDropDown.SelectedIndex = 0;
+
+            LootModeDropDown.ValueChanged += (o, e) => OnLootModeSelect(LootModeDropDown._WantedIndex);
+
             GroupList.Clear();
         }
 
@@ -136,11 +151,13 @@ namespace Client.MirScenes.Dialogs
             {
                 AddButton.Visible = false;
                 DelButton.Visible = false;
+                LootModeDropDown.Enabled = false;
             }
             else
             {
                 AddButton.Visible = true;
                 DelButton.Visible = true;
+                LootModeDropDown.Enabled = true;
             }
 
             if (AllowGroup)
@@ -185,7 +202,6 @@ namespace Client.MirScenes.Dialogs
             }
             if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
             {
-
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
                 return;
             }
@@ -216,6 +232,25 @@ namespace Client.MirScenes.Dialogs
                 inputBox.Dispose();
             };
             inputBox.Show();
+        }
+        public void SetLootMode(GroupLootMode mode)
+        {
+            LootMode = mode;
+
+            switch (mode)
+            {
+                case GroupLootMode.FreeForAll:
+                    LootModeDropDown.SelectedIndex = 0;
+                    break;
+                case GroupLootMode.MasterLoot:
+                    LootModeDropDown.SelectedIndex = 1;
+                    break;
+            }
+        }
+        public void OnLootModeSelect(int Index)
+        {
+            GroupLootMode mode = Index == 0 ? GroupLootMode.FreeForAll : GroupLootMode.MasterLoot;
+            Network.Enqueue(new C.SetGroupLootMode { Mode = mode });
         }
     }
 }

@@ -319,6 +319,19 @@ namespace Server.MirObjects
         public PlayerObject GroupInvitation;
         public PlayerObject TradeInvitation;
 
+        private GroupLootMode groupLootMode;
+        public GroupLootMode GroupLootMode
+        {
+            get { return groupLootMode; }
+            set
+            {
+                if (groupLootMode == value) return;
+
+                groupLootMode = value;
+                Enqueue(new S.SetGroupLootMode { Mode = value });
+            }
+        }
+
         public PlayerObject TradePartner = null;
         public bool TradeLocked = false;
         public uint TradeGoldAmount = 0;
@@ -13840,6 +13853,12 @@ namespace Server.MirObjects
                     sendFail = true;
                     continue;
                 }
+                if (ob.Owner != null && GroupMembers != null && GroupMembers[0] != this && GroupLootMode == GroupLootMode.MasterLoot)
+                {
+                    sendFail = true;
+                    continue;
+                }
+
                 ItemObject item = (ItemObject)ob;
 
                 if (item.Item != null)
@@ -16946,11 +16965,13 @@ namespace Server.MirObjects
             if (GroupInvitation.GroupMembers == null)
             {
                 GroupInvitation.GroupMembers = new List<PlayerObject> { GroupInvitation };
+                GroupInvitation.GroupLootMode = GroupLootMode.FreeForAll;
                 GroupInvitation.Enqueue(new S.AddMember { Name = GroupInvitation.Name });
             }
 
             Packet p = new S.AddMember { Name = Name };
             GroupMembers = GroupInvitation.GroupMembers;
+            GroupLootMode = GroupInvitation.GroupLootMode;
             GroupInvitation = null;
 
             for (int i = 0; i < GroupMembers.Count; i++)
@@ -17008,6 +17029,24 @@ namespace Server.MirObjects
                 Pets[j].BroadcastHealthChange();
 
             Enqueue(p);
+        }
+        public void SetGroupLootMode(GroupLootMode mode)
+        {
+            if (GroupMembers == null) return;
+
+            if (GroupMembers[0] != this)
+            {
+                ReceiveChat(GroupInvitation.Name + " You are not group leader.", ChatType.System);
+                return;
+            }
+
+            GroupLootMode = mode;
+
+            for (int i = 0; i < GroupMembers.Count; i++)
+            {
+                PlayerObject member = GroupMembers[i];
+                member.GroupLootMode = mode;
+            }
         }
 
         #endregion

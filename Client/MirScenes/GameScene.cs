@@ -1380,6 +1380,9 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.AddMember:
                     AddMember((S.AddMember)p);
                     break;
+                case (short)ServerPacketIds.GroupLootMode:
+                    SetGroupLootMode((S.SetGroupLootMode)p);
+                    break;
                 case (short)ServerPacketIds.Revived:
                     Revived();
                     break;
@@ -4054,6 +4057,11 @@ namespace Client.MirScenes
         {
             GroupDialog.GroupList.Add(p.Name);
             ChatDialog.ReceiveChat(string.Format("-{0} has joined the group.", p.Name), ChatType.Group);
+        }
+        private void SetGroupLootMode(S.SetGroupLootMode p)
+        {
+            GroupDialog.SetLootMode(p.Mode);
+            ChatDialog.ReceiveChat($"Group looting mode changed to: {(p.Mode == GroupLootMode.FreeForAll ? "Free for all" : "Leader only")}", ChatType.Group);
         }
         private void Revived()
         {

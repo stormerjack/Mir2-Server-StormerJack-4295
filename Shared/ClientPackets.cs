@@ -976,6 +976,21 @@ namespace ClientPackets
             writer.Write(AcceptInvite);
         }
     }
+    public sealed class SetGroupLootMode : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.SetGroupLootMode; } }
+
+        public GroupLootMode Mode;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Mode = (GroupLootMode)reader.ReadByte();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Mode);
+        }
+    }
 
     public sealed class MarriageRequest : Packet
     {

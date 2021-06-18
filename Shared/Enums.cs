@@ -1407,6 +1407,12 @@ public enum AttackMode : byte
     All = 5
 }
 
+public enum GroupLootMode: byte
+{
+    MasterLoot = 0,
+    FreeForAll = 1,
+}
+
 public enum PetMode : byte
 {
     Both = 0,
@@ -1929,6 +1935,7 @@ public enum ServerPacketIds : short
     DeleteMember,
     GroupInvite,
     AddMember,
+    GroupLootMode,
     Revived,
     ObjectRevived,
     SpellToggle,
@@ -2113,6 +2120,7 @@ public enum ClientPacketIds : short
     AddMember,
     DellMember,
     GroupInvite,
+    SetGroupLootMode,
     TownRevive,
     SpellToggle,
     ConsignItem,
