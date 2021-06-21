@@ -331,6 +331,7 @@ namespace Server.MirObjects
                 Enqueue(new S.SetGroupLootMode { Mode = value });
             }
         }
+        public string GroupPassword = string.Empty;
 
         public PlayerObject TradePartner = null;
         public bool TradeLocked = false;
@@ -3908,6 +3909,34 @@ namespace Server.MirObjects
                 }
 
                 message = ProcessChatItems(message, new List<PlayerObject> { player }, linkedItems);
+
+                string s = message.Remove(0, parts[0].Length).Replace(" ", string.Empty);
+                if (player != this && (GroupMembers == null || GroupMembers.Count == 0) && player.GroupPassword != string.Empty && s == player.GroupPassword)
+                {
+                    if (GroupInvitation != null)
+                        return;
+
+                    if (!player.AllowGroup)
+                    {
+                        ReceiveChat($"{player.Name} is not allowing group.", ChatType.System);
+                        return;
+                    }
+
+                    if (player.GroupMembers != null && player.GroupMembers[0] != player)
+                    {
+                        ReceiveChat($"{player.Name} is not the group leader.", ChatType.System);
+                        return;
+                    }
+
+                    if (player.GroupMembers != null && player.GroupMembers.Count >= Globals.MaxGroup)
+                    {
+                        ReceiveChat($"{player.Name}'s group already has the maximum number of members.", ChatType.System);
+                        return;
+                    }
+
+                    GroupInvitation = player;
+                    GroupInvite(true);
+                }
 
                 ReceiveChat(string.Format("/{0}", message), ChatType.WhisperOut);
                 player.ReceiveChat(string.Format("{0}=>{1}", Name, message.Remove(0, parts[0].Length)), ChatType.WhisperIn);
@@ -16864,7 +16893,6 @@ namespace Server.MirObjects
             SwitchGroup(true);
             player.Enqueue(new S.GroupInvite { Name = Name });
             player.GroupInvitation = this;
-
         }
         public void DelMember(string name)
         {
@@ -17047,6 +17075,19 @@ namespace Server.MirObjects
                 PlayerObject member = GroupMembers[i];
                 member.GroupLootMode = mode;
             }
+        }
+
+        public void SetGroupPassword(string password)
+        {
+            password.Replace(" ", string.Empty);
+            if (GroupPassword == password) return;
+
+            GroupPassword = password;
+
+            if (password == string.Empty)
+                ReceiveChat("Auto invite Password removed.", ChatType.System);
+            else
+                ReceiveChat($"Auto invite Password: {password}", ChatType.System);
         }
 
         #endregion

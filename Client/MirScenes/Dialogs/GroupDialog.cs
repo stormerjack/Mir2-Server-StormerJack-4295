@@ -21,7 +21,7 @@ namespace Client.MirScenes.Dialogs
         public GroupLootMode LootMode;
 
         public MirImageControl TitleLabel;
-        public MirButton SwitchButton, CloseButton, AddButton, DelButton;
+        public MirButton SwitchButton, CloseButton, AddButton, DelButton, PasswordButton;
         public MirLabel[] GroupMembers;
         public MirDropDownBox LootModeDropDown;
 
@@ -87,11 +87,24 @@ namespace Client.MirScenes.Dialogs
             };
             SwitchButton.Click += (o, e) => Network.Enqueue(new C.SwitchGroup { AllowGroup = !AllowGroup });
 
+            PasswordButton = new MirButton
+            {
+                HoverIndex = 115,
+                Index = 114,
+                Location = new Point(180, 219),
+                Library = Libraries.Prguse,
+                Parent = this,
+                PressedIndex = 116,
+                Sound = SoundList.ButtonA,
+                Hint = "Auto-Invite"
+            };
+            PasswordButton.Click += (o, e) => SetAutoInvitePassword();
+
             AddButton = new MirButton
             {
                 HoverIndex = 134,
                 Index = 133,
-                Location = new Point(70, 219),
+                Location = new Point(54, 219),
                 Library = Libraries.Title,
                 Parent = this,
                 PressedIndex = 135,
@@ -104,7 +117,7 @@ namespace Client.MirScenes.Dialogs
             {
                 HoverIndex = 137,
                 Index = 136,
-                Location = new Point(140, 219),
+                Location = new Point(117, 219),
                 Library = Libraries.Title,
                 Parent = this,
                 PressedIndex = 138,
@@ -131,6 +144,17 @@ namespace Client.MirScenes.Dialogs
             LootModeDropDown.ValueChanged += (o, e) => OnLootModeSelect(LootModeDropDown._WantedIndex);
 
             GroupList.Clear();
+        }
+
+        private void SetAutoInvitePassword()
+        {
+            MirInputBox inputBox = new MirInputBox("Please enter password");
+            inputBox.OKButton.Click += (o, e) =>
+            {
+                Network.Enqueue(new C.SetGroupPassword { Password = inputBox.InputTextBox.Text });
+                inputBox.Dispose();
+            };
+            inputBox.Show();
         }
 
         private void GroupPanel_BeforeDraw(object sender, EventArgs e)

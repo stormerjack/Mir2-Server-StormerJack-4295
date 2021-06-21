@@ -2121,6 +2121,7 @@ public enum ClientPacketIds : short
     DellMember,
     GroupInvite,
     SetGroupLootMode,
+    SetGroupPassword,
     TownRevive,
     SpellToggle,
     ConsignItem,

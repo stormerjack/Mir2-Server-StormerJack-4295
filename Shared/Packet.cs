@@ -190,6 +190,8 @@ public abstract class Packet
                 return new C.GroupInvite();
             case (short)ClientPacketIds.SetGroupLootMode:
                 return new C.SetGroupLootMode();
+            case (short)ClientPacketIds.SetGroupPassword:
+                return new C.SetGroupPassword();
             case (short)ClientPacketIds.TownRevive:
                 return new C.TownRevive();
             case (short)ClientPacketIds.SpellToggle:

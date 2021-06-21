@@ -449,6 +449,9 @@ namespace Server.MirNetwork
                 case (short)ClientPacketIds.GuildWarReturn:
                     GuildWarReturn((C.GuildWarReturn)p);
                     return;
+                case (short)ClientPacketIds.SetGroupPassword:
+                    SetGroupPassword((C.SetGroupPassword)p);
+                    return;
                 case (short)ClientPacketIds.MarriageRequest:
                     MarriageRequest((C.MarriageRequest)p);
                     return;
@@ -1230,6 +1233,11 @@ namespace Server.MirNetwork
             if (Stage != GameStage.Game) return;
 
             Player.SetGroupLootMode(p.Mode);
+        }
+        private void SetGroupPassword(C.SetGroupPassword p)
+        {
+            if (Stage != GameStage.Game) return;
+            Player.SetGroupPassword(p.Password);
         }
 
         private void TownRevive()

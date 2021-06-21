@@ -991,6 +991,24 @@ namespace ClientPackets
             writer.Write((byte)Mode);
         }
     }
+    public sealed class SetGroupPassword : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ClientPacketIds.SetGroupPassword; }
+        }
+
+        public string Password;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Password = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Password);
+        }
+    }
 
     public sealed class MarriageRequest : Packet
     {
