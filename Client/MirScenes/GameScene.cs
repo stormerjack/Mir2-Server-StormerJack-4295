@@ -9715,7 +9715,7 @@ namespace Client.MirScenes
                 {
 
                     light = ob.Light;
-                    int LightRange = light % 15;
+                    int LightRange = light;
                     if (LightRange >= DXManager.Lights.Count)
                         LightRange = DXManager.Lights.Count - 1;
 
@@ -9725,7 +9725,8 @@ namespace Client.MirScenes
 
                     if (ob.Race == ObjectType.Player)
                     {
-                        switch (light / 15)
+                        lightColour = Color.FromArgb(255, 255, 255, 255);
+                        /*switch (light / 16)
                         {
                             case 0://no light source
                                 lightColour = Color.FromArgb(255, 60, 60, 60);
@@ -9742,7 +9743,7 @@ namespace Client.MirScenes
                             default://Peddler Torch
                                 lightColour = Color.FromArgb(255, 255, 255, 255);
                                 break;
-                        }
+                        }*/
                     }
                     else if (ob.Race == ObjectType.Merchant)
                     {

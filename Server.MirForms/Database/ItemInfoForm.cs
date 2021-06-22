@@ -225,8 +225,8 @@ namespace Server
             RAmountTextBox.Text = info.RequiredAmount.ToString();
             RClassComboBox.SelectedItem = info.RequiredClass;
             RGenderComboBox.SelectedItem = info.RequiredGender;
-            LightTextBox.Text = (info.Light % 15).ToString();
-            LightIntensitytextBox.Text = (info.Light / 15).ToString();
+            LightTextBox.Text = info.Light.ToString();
+            LightIntensitytextBox.Text = info.Light.ToString();
 
             MinACTextBox.Text = info.MinAC.ToString();
             MaxACTextBox.Text = info.MaxAC.ToString();
@@ -335,8 +335,8 @@ namespace Server
                 if (RAmountTextBox.Text != info.RequiredAmount.ToString()) RAmountTextBox.Text = string.Empty;
                 if (RClassComboBox.SelectedItem == null || (RequiredClass)RClassComboBox.SelectedItem != info.RequiredClass) RClassComboBox.SelectedItem = null;
                 if (RGenderComboBox.SelectedItem == null || (RequiredGender)RGenderComboBox.SelectedItem != info.RequiredGender) RGenderComboBox.SelectedItem = null;
-                if (LightTextBox.Text != (info.Light % 15).ToString()) LightTextBox.Text = string.Empty;
-                if (LightIntensitytextBox.Text != (info.Light / 15).ToString()) LightIntensitytextBox.Text = string.Empty;
+                if (LightTextBox.Text != (info.Light).ToString()) LightTextBox.Text = string.Empty;
+                if (LightIntensitytextBox.Text != (info.Light).ToString()) LightIntensitytextBox.Text = string.Empty;
 
                 if (MinACTextBox.Text != info.MinAC.ToString()) MinACTextBox.Text = string.Empty;
                 if (MaxACTextBox.Text != info.MaxAC.ToString()) MaxACTextBox.Text = string.Empty;
@@ -664,15 +664,15 @@ namespace Server
                 ActiveControl.BackColor = Color.Red;
                 return;
             }
-            if (temp > 14)
+            if (temp > 15)
             {
                 ActiveControl.BackColor = Color.Red;
                 return;
             }
             ActiveControl.BackColor = SystemColors.Window;
-            
+
             for (int i = 0; i < _selectedItemInfos.Count; i++)
-                _selectedItemInfos[i].Light = (byte)(temp + (_selectedItemInfos[i].Light / 15)*15);
+                _selectedItemInfos[i].Light = temp;// (byte)(temp + (_selectedItemInfos[i].Light / 16)*16);
         }
         private void MinACTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -1665,7 +1665,7 @@ namespace Server
 
 
             for (int i = 0; i < _selectedItemInfos.Count; i++)
-                _selectedItemInfos[i].Light = (byte)((_selectedItemInfos[i].Light % 15) + (15 * temp));
+                _selectedItemInfos[i].Light = temp;
         }
 
         private void RandomStatstextBox_TextChanged(object sender, EventArgs e)

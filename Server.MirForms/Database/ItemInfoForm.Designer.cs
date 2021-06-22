@@ -83,7 +83,9 @@
             this.label35 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.DarkResistTextBox = new System.Windows.Forms.TextBox();
             this.label50 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
             this.label52 = new System.Windows.Forms.Label();
             this.label49 = new System.Windows.Forms.Label();
             this.ReflecttextBox = new System.Windows.Forms.TextBox();
@@ -196,8 +198,6 @@
             this.ImportButton = new System.Windows.Forms.Button();
             this.Gameshop_button = new System.Windows.Forms.Button();
             this.SearchTextBox = new System.Windows.Forms.TextBox();
-            this.DarkResistTextBox = new System.Windows.Forms.TextBox();
-            this.label58 = new System.Windows.Forms.Label();
             this.ItemInfoPanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -403,6 +403,7 @@
             this.LightIntensitytextBox.Name = "LightIntensitytextBox";
             this.LightIntensitytextBox.Size = new System.Drawing.Size(30, 20);
             this.LightIntensitytextBox.TabIndex = 112;
+            this.LightIntensitytextBox.Visible = false;
             this.LightIntensitytextBox.TextChanged += new System.EventHandler(this.LightIntensitytextBox_TextChanged);
             // 
             // label53
@@ -413,6 +414,7 @@
             this.label53.Size = new System.Drawing.Size(49, 13);
             this.label53.TabIndex = 113;
             this.label53.Text = "Intensity:";
+            this.label53.Visible = false;
             // 
             // NeedIdentifycheckbox
             // 
@@ -853,6 +855,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "New Stats";
             // 
+            // DarkResistTextBox
+            // 
+            this.DarkResistTextBox.Location = new System.Drawing.Point(406, 35);
+            this.DarkResistTextBox.MaxLength = 3;
+            this.DarkResistTextBox.Name = "DarkResistTextBox";
+            this.DarkResistTextBox.Size = new System.Drawing.Size(30, 20);
+            this.DarkResistTextBox.TabIndex = 125;
+            this.DarkResistTextBox.TextChanged += new System.EventHandler(this.DarkResistTextBox_TextChanged);
+            // 
             // label50
             // 
             this.label50.AutoSize = true;
@@ -861,6 +872,15 @@
             this.label50.Size = new System.Drawing.Size(62, 13);
             this.label50.TabIndex = 119;
             this.label50.Text = "Critical rate:";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(340, 39);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(65, 13);
+            this.label58.TabIndex = 124;
+            this.label58.Text = "Dark Resist:";
             // 
             // label52
             // 
@@ -1964,24 +1984,6 @@
             this.SearchTextBox.Size = new System.Drawing.Size(155, 20);
             this.SearchTextBox.TabIndex = 30;
             this.SearchTextBox.TextChanged += new System.EventHandler(this.SearchTextBox_TextChanged);
-            // 
-            // DarkResistTextBox
-            // 
-            this.DarkResistTextBox.Location = new System.Drawing.Point(406, 35);
-            this.DarkResistTextBox.MaxLength = 3;
-            this.DarkResistTextBox.Name = "DarkResistTextBox";
-            this.DarkResistTextBox.Size = new System.Drawing.Size(30, 20);
-            this.DarkResistTextBox.TabIndex = 125;
-            this.DarkResistTextBox.TextChanged += new System.EventHandler(this.DarkResistTextBox_TextChanged);
-            // 
-            // label58
-            // 
-            this.label58.AutoSize = true;
-            this.label58.Location = new System.Drawing.Point(340, 39);
-            this.label58.Name = "label58";
-            this.label58.Size = new System.Drawing.Size(65, 13);
-            this.label58.TabIndex = 124;
-            this.label58.Text = "Dark Resist:";
             // 
             // ItemInfoForm
             // 
