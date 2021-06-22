@@ -1220,6 +1220,38 @@ namespace Client.MirControls
                                 }
 
                                 break;
+                            #endregion
+                            #region From SkillSlot
+                            case MirGridType.SkillSlot:
+                                if (GameScene.SelectedCell.Item.Weight + MapObject.User.CurrentBagWeight > MapObject.User.MaxBagWeight)
+                                {
+                                    GameScene.Scene.ChatDialog.ReceiveChat("Too heavy to get back.", ChatType.System);
+                                    GameScene.SelectedCell = null;
+                                    return;
+                                }
+
+                                if (Item == null)
+                                {
+                                    Network.Enqueue(new C.RemoveSlotItem { Grid = MirGridType.SkillSlot, UniqueID = GameScene.SelectedCell.Item.UniqueID, To = ItemSlot, GridTo = MirGridType.Inventory, FromUniqueID = SkillSlotDialog.Item.UniqueID });
+                                    Locked = true;
+                                    GameScene.SelectedCell.Locked = true;
+                                    GameScene.SelectedCell = null;
+                                    return;
+                                }
+
+                                for (int x = 6; x < ItemArray.Length; x++)
+                                    if (ItemArray[x] == null)
+                                    {
+                                        Network.Enqueue(new C.RemoveSlotItem { Grid = MirGridType.SkillSlot, UniqueID = GameScene.SelectedCell.Item.UniqueID, To = x, GridTo = MirGridType.Inventory, FromUniqueID = SkillSlotDialog.Item.UniqueID });
+
+                                        MirItemCell temp = x < GameScene.User.BeltIdx ? GameScene.Scene.BeltDialog.Grid[x] : GameScene.Scene.InventoryDialog.Grid[x - GameScene.User.BeltIdx];
+
+                                        if (temp != null) temp.Locked = true;
+                                        GameScene.SelectedCell.Locked = true;
+                                        GameScene.SelectedCell = null;
+                                        return;
+                                    }
+                                break;
                                 #endregion
                         }
                         break;
