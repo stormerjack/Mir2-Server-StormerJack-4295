@@ -89,12 +89,12 @@ namespace Client.MirScenes.Dialogs
 
             PasswordButton = new MirButton
             {
-                HoverIndex = 115,
-                Index = 114,
+                HoverIndex = 2449,
+                Index = 2448,
+                PressedIndex = 2450,
                 Location = new Point(180, 219),
                 Library = Libraries.Prguse,
                 Parent = this,
-                PressedIndex = 116,
                 Sound = SoundList.ButtonA,
                 Hint = "Auto-Invite"
             };
