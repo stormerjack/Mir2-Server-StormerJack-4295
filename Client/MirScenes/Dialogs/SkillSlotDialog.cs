@@ -32,6 +32,7 @@ namespace Client.MirScenes.Dialogs
 
             CloseButton = new MirButton
             {
+                Location = new Point(Size.Width - 27, 3),
                 HoverIndex = 361,
                 Index = 360,
                 Library = Libraries.Prguse2,
