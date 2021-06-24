@@ -1968,7 +1968,7 @@ namespace Server.MirObjects
             switch (attacker.AMode)
             {
                 case AttackMode.Group:
-                    return Master.GroupMembers == null || !Master.GroupMembers.Contains(attacker);
+                    return Master is PlayerObject player && (player.Group == null || !player.Group.GroupMembers.Contains(attacker));
                 case AttackMode.Guild:
                     {
                         if (!(Master is PlayerObject)) return false;
@@ -2020,7 +2020,7 @@ namespace Server.MirObjects
                 switch (attacker.Master.AMode)
                 {
                     case AttackMode.Group:
-                        if (Master.GroupMembers != null && Master.GroupMembers.Contains((PlayerObject)attacker.Master)) return false;
+                        if (Master is PlayerObject player && (player.GroupMembers != null && player.GroupMembers.Contains((PlayerObject)attacker.Master))) return false;
                         break;
                     case AttackMode.Guild:
                         break;
@@ -2071,7 +2071,7 @@ namespace Server.MirObjects
             switch (ally.AMode)
             {
                 case AttackMode.Group:
-                    return Master.GroupMembers != null && Master.GroupMembers.Contains(ally);
+                    return Master is PlayerObject player && player.GroupMembers != null && player.GroupMembers.Contains(ally);
                 case AttackMode.Guild:
                     return false;
                 case AttackMode.EnemyGuild:

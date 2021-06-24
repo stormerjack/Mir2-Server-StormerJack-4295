@@ -1409,8 +1409,9 @@ public enum AttackMode : byte
 
 public enum GroupLootMode: byte
 {
-    MasterLoot = 0,
-    FreeForAll = 1,
+    FreeForAll = 0,
+    MasterLoot = 1,
+    
 }
 
 public enum PetMode : byte
@@ -1936,6 +1937,8 @@ public enum ServerPacketIds : short
     GroupInvite,
     AddMember,
     GroupLootMode,
+    GroupConnect,
+    GroupDisconnect,
     Revived,
     ObjectRevived,
     SpellToggle,

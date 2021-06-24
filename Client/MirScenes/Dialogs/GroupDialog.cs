@@ -14,10 +14,16 @@ using C = ClientPackets;
 
 namespace Client.MirScenes.Dialogs
 {
+    public class GroupMember
+    {
+        public string Name;
+        public bool Online;
+    }
+
     public sealed class GroupDialog : MirImageControl
     {
         public static bool AllowGroup;
-        public static List<string> GroupList = new List<string>();
+        public static List<GroupMember> GroupList = new List<GroupMember>();
         public GroupLootMode LootMode;
 
         public MirImageControl TitleLabel;
@@ -171,7 +177,7 @@ namespace Client.MirScenes.Dialogs
                 AddButton.HoverIndex = 134;
                 AddButton.PressedIndex = 135;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
                 AddButton.Visible = false;
                 DelButton.Visible = false;
@@ -198,7 +204,11 @@ namespace Client.MirScenes.Dialogs
             }
 
             for (int i = 0; i < GroupMembers.Length; i++)
-                GroupMembers[i].Text = i >= GroupList.Count ? string.Empty : GroupList[i];
+            {
+                GroupMembers[i].Text = i >= GroupList.Count ? string.Empty : GroupList[i].Name;
+                if (i >= GroupList.Count) continue;
+                GroupMembers[i].ForeColour = GroupList[i].Online ? Color.White : Color.Gray;
+            }
         }
 
         public void AddMember(string name)
@@ -208,7 +218,7 @@ namespace Client.MirScenes.Dialogs
                 GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                 return;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
                 return;
@@ -224,7 +234,7 @@ namespace Client.MirScenes.Dialogs
                 GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                 return;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
                 return;
@@ -241,7 +251,7 @@ namespace Client.MirScenes.Dialogs
         }
         private void DelMember()
         {
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
 
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);

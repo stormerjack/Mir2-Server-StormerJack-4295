@@ -3282,13 +3282,17 @@ namespace ServerPackets
         public override short Index { get { return (short)ServerPacketIds.AddMember; } }
 
         public string Name = string.Empty;
+        public bool Online;
+
         protected override void ReadPacket(BinaryReader reader)
         {
             Name = reader.ReadString();
+            Online = reader.ReadBoolean();
         }
         protected override void WritePacket(BinaryWriter writer)
         {
             writer.Write(Name);
+            writer.Write(Online);
         }
     }
     public sealed class SetGroupLootMode : Packet
@@ -3304,6 +3308,36 @@ namespace ServerPackets
         protected override void WritePacket(BinaryWriter writer)
         {
             writer.Write((byte)Mode);
+        }
+    }
+    public sealed class GroupConnect : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupConnect; } }
+
+        public string Name;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
+        }
+    }
+    public sealed class GroupDisconnect : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupDisconnect; } }
+
+        public string Name;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
         }
     }
     public sealed class Revived : Packet

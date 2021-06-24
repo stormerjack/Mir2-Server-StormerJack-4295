@@ -54,7 +54,7 @@ namespace Server.MirEnvir
         public static object LoadLock = new object();
 
         public const int MinVersion = 60;
-        public const int Version = 90;
+        public const int Version = 91;
         public const int CustomVersion = 0;
         public static readonly string DatabasePath = Path.Combine(".", "Server.MirDB");
         public static readonly string AccountPath = Path.Combine(".", "Server.MirADB");
@@ -156,6 +156,7 @@ namespace Server.MirEnvir
 
         public List<GuildAtWar> GuildsAtWar = new List<GuildAtWar>();
         public List<MapRespawn> SavedSpawns = new List<MapRespawn>();
+        public List<GroupObject> Groups = new List<GroupObject>();
 
         public List<RankCharacterInfo> RankTop = new List<RankCharacterInfo>();
         public List<RankCharacterInfo>[] RankClass = new List<RankCharacterInfo>[5];
@@ -673,7 +674,6 @@ namespace Server.MirEnvir
                 SaveAccounts();
                 SaveGuilds(true);
                 SaveConquests(true);
-
             }
             catch (Exception ex)
             {
@@ -1006,6 +1006,10 @@ namespace Server.MirEnvir
                     var Save = new RespawnSave { RespawnIndex = Spawn.Info.RespawnIndex, NextSpawnTick = Spawn.NextSpawnTick, Spawned = Spawn.Count >= Spawn.Info.Count * SpawnMultiplier };
                     Save.Save(writer);
                 }
+
+                writer.Write(Groups.Count);
+                foreach (GroupObject group in Groups)
+                    group.Save(writer);
             }
         }
 
@@ -1426,6 +1430,13 @@ namespace Server.MirEnvir
                                 }
                             }
                         }
+                    }
+
+                    if (LoadVersion > 90)
+                    {
+                        int groupCount = reader.ReadInt32();
+                        for (int i = 0; i < groupCount; i++)
+                            Groups.Add(new GroupObject(reader));
                     }
                 }
             }

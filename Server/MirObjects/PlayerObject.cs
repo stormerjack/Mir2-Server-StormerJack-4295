@@ -319,6 +319,22 @@ namespace Server.MirObjects
         public PlayerObject GroupInvitation;
         public PlayerObject TradeInvitation;
 
+        public GroupObject Group
+        {
+            get { return Info.Group; }
+            set { Info.Group = value; }
+        }
+
+        public List<PlayerObject> GroupMembers
+        {
+            get
+            {
+                if (Group == null) return null;
+
+                return Group.GroupMembers;
+            }
+        }
+
         private GroupLootMode groupLootMode;
         public GroupLootMode GroupLootMode
         {
@@ -460,24 +476,10 @@ namespace Server.MirObjects
             CurrentMap.RemoveObject(this);
             Despawn();
 
-            if (GroupMembers != null)
+            if (Group != null)
             {
-                GroupMembers.Remove(this);
-                RemoveGroupBuff();
-
-                if (GroupMembers.Count > 1)
-                {
-                    Packet p = new S.DeleteMember { Name = Name };
-
-                    for (int i = 0; i < GroupMembers.Count; i++)
-                        GroupMembers[i].Enqueue(p);
-                }
-                else
-                {
-                    GroupMembers[0].Enqueue(new S.DeleteGroup());
-                    GroupMembers[0].GroupMembers = null;
-                }
-                GroupMembers = null;
+                Group.Disconnect(this);
+                RemoveGroupBuff();                
             }
 
             for (int i = 0; i < Buffs.Count; i++)
@@ -2280,6 +2282,12 @@ namespace Server.MirObjects
             GetMail();
             GetFriends();
             GetRelationship();
+
+            if (Group != null)
+            {
+                Group.Connect(this);
+                GroupLootMode = Group.GroupMembers[0].GroupLootMode;
+            }
 
             if ((Info.Mentor != 0) && (Info.MentorDate.AddDays(Settings.MentorLength) < DateTime.Now))
                 MentorBreak();
@@ -16787,22 +16795,7 @@ namespace Server.MirObjects
 
             RemoveGroupBuff();
 
-            GroupMembers.Remove(this);
-            Enqueue(new S.DeleteGroup());
-
-            if (GroupMembers.Count > 1)
-            {
-                Packet p = new S.DeleteMember { Name = Name };
-
-                for (int i = 0; i < GroupMembers.Count; i++)
-                    GroupMembers[i].Enqueue(p);
-            }
-            else
-            {
-                GroupMembers[0].Enqueue(new S.DeleteGroup());
-                GroupMembers[0].GroupMembers = null;
-            }
-            GroupMembers = null;
+            Group.Remove(this);
         }
 
         public void RemoveGroupBuff()
@@ -16916,31 +16909,30 @@ namespace Server.MirObjects
                 break;
             }
 
-
-            if (player == null)
+            if (player != null)
             {
-                ReceiveChat(name + " is not in your group.", ChatType.System);
-                return;
-            }
-
-            player.RemoveGroupBuff();
-
-            GroupMembers.Remove(player);
-            player.Enqueue(new S.DeleteGroup());
-
-            if (GroupMembers.Count > 1)
-            {
-                Packet p = new S.DeleteMember { Name = player.Name };
-
-                for (int i = 0; i < GroupMembers.Count; i++)
-                    GroupMembers[i].Enqueue(p);
+                player.RemoveGroupBuff();
+                Group.Remove(player);
             }
             else
             {
-                GroupMembers[0].Enqueue(new S.DeleteGroup());
-                GroupMembers[0].GroupMembers = null;
-            }
-            player.GroupMembers = null;
+                CharacterInfo character = null;
+
+                for (int i = 0; i < Group.GroupMemberCharacters.Count; i++)
+                {
+                    if (String.Compare(Group.GroupMemberCharacters[i].Name, name, StringComparison.OrdinalIgnoreCase) != 0) continue;
+                    character = Group.GroupMemberCharacters[i];
+                    break;
+                }
+
+                if (character == null)
+                {
+                    ReceiveChat(name + " is not in your group.", ChatType.System);
+                    return;
+                }
+
+                Group.Remove(character);
+            }            
         }
         public void GroupInvite(bool accept)
         {
@@ -16990,41 +16982,18 @@ namespace Server.MirObjects
                 return;
             }
 
-            if (GroupInvitation.GroupMembers == null)
+            if (GroupInvitation.Group == null)
             {
-                GroupInvitation.GroupMembers = new List<PlayerObject> { GroupInvitation };
+                GroupObject group = new GroupObject();
+                group.Add(GroupInvitation);
                 GroupInvitation.GroupLootMode = GroupLootMode.FreeForAll;
-                GroupInvitation.Enqueue(new S.AddMember { Name = GroupInvitation.Name });
+                Envir.Groups.Add(group);
             }
 
-            Packet p = new S.AddMember { Name = Name };
-            GroupMembers = GroupInvitation.GroupMembers;
+            Group = GroupInvitation.Group;
+            Group.Add(this);
             GroupLootMode = GroupInvitation.GroupLootMode;
-            GroupInvitation = null;
-
-            for (int i = 0; i < GroupMembers.Count; i++)
-            {
-                PlayerObject member = GroupMembers[i];
-
-                member.Enqueue(p);
-                Enqueue(new S.AddMember { Name = member.Name });
-
-                if (CurrentMap != member.CurrentMap || !Functions.InRange(CurrentLocation, member.CurrentLocation, Globals.DataRange)) continue;
-
-                byte time = Math.Min(byte.MaxValue, (byte)Math.Max(5, (RevTime - Envir.Time) / 1000));
-
-                member.Enqueue(new S.ObjectHealth { ObjectID = ObjectID, Percent = PercentHealth, Expire = time });
-                Enqueue(new S.ObjectHealth { ObjectID = member.ObjectID, Percent = member.PercentHealth, Expire = time });
-
-                for (int j = 0; j < member.Pets.Count; j++)
-                {
-                    MonsterObject pet = member.Pets[j];
-
-                    Enqueue(new S.ObjectHealth { ObjectID = pet.ObjectID, Percent = pet.PercentHealth, Expire = time });
-                }
-            }
-
-            GroupMembers.Add(this);
+            GroupInvitation = null;            
 
             //Adding Buff on for marriage
             if (GroupMembers != null)
@@ -17055,8 +17024,6 @@ namespace Server.MirObjects
 
             for (int j = 0; j < Pets.Count; j++)
                 Pets[j].BroadcastHealthChange();
-
-            Enqueue(p);
         }
         public void SetGroupLootMode(GroupLootMode mode)
         {

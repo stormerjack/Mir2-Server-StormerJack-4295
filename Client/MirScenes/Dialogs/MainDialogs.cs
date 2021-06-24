@@ -3192,7 +3192,7 @@ namespace Client.MirScenes.Dialogs
 
                 Color colour;
 
-                if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
+                if ((GroupDialog.GroupList.Any(gx => gx.Name == ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
                     colour = Color.FromArgb(0, 0, 255);
                 else
                     if (ob is PlayerObject)
@@ -3488,7 +3488,7 @@ namespace Client.MirScenes.Dialogs
                     GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                     return;
                 }
-                if (GroupDialog.GroupList.Count > 0 && GroupDialog.GroupList[0] != MapObject.User.Name)
+                if (GroupDialog.GroupList.Count > 0 && GroupDialog.GroupList[0].Name != MapObject.User.Name)
                 {
 
                     GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
@@ -4981,7 +4981,7 @@ namespace Client.MirScenes.Dialogs
 
                     Color colour;
 
-                    if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
+                    if ((GroupDialog.GroupList.Any(gx => gx.Name == ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
                         colour = Color.FromArgb(0, 0, 255);
                     else
                         if (ob is PlayerObject)

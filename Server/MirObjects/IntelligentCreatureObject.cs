@@ -581,8 +581,7 @@ namespace Server.MirObjects
                     if (!((PlayerObject)Master).CanGainItem(item.Item)) continue;
 
                     if (item.Item.Info.ShowGroupPickup && IsMasterGroupMember(Master))
-                        for (int j = 0; j < Master.GroupMembers.Count; j++)
-                            Master.GroupMembers[j].ReceiveChat(Name + " Picked up: {" + item.Item.FriendlyName + "}", ChatType.Hint);
+                        ((PlayerObject)Master).Group?.SendMessage(Name + " Picked up: {" + item.Item.FriendlyName + "}", ChatType.Hint);
 
                     if (item.Item.Info.Grade == ItemGrade.Mythical || item.Item.Info.Grade == ItemGrade.Legendary)
                     {
@@ -784,7 +783,7 @@ namespace Server.MirObjects
         private bool IsMasterGroupMember(MapObject player)
         {
             if (player.Race != ObjectType.Player || Master == null) return false;
-            return ((PlayerObject)Master).GroupMembers != null && ((PlayerObject)Master).GroupMembers.Contains((PlayerObject)player);
+            return ((PlayerObject)Master).Group != null && ((PlayerObject)Master).Group.GroupMembers.Contains((PlayerObject)player);
         }
 
 

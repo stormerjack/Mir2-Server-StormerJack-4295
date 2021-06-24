@@ -170,8 +170,6 @@ namespace Server.MirObjects
         public List<MonsterObject> Pets = new List<MonsterObject>();
         public List<Buff> Buffs = new List<Buff>();
 
-        public List<PlayerObject> GroupMembers;
-
         public virtual AttackMode AMode { get; set; }
 
         public virtual PetMode PMode { get; set; }
@@ -703,11 +701,12 @@ namespace Server.MirObjects
 
             if (Race == ObjectType.Player)
             {
-                if (GroupMembers != null) //Send HP to group
+                PlayerObject player = (PlayerObject)this;
+                if (player.GroupMembers != null) //Send HP to group
                 {
-                    for (int i = 0; i < GroupMembers.Count; i++)
+                    for (int i = 0; i < player.GroupMembers.Count; i++)
                     {
-                        PlayerObject member = GroupMembers[i];
+                        PlayerObject member = player.GroupMembers[i];
 
                         if (this == member) continue;
                         if (member.CurrentMap != CurrentMap || !Functions.InRange(member.CurrentLocation, CurrentLocation, Globals.DataRange)) continue;
@@ -779,11 +778,13 @@ namespace Server.MirObjects
 
         public bool IsMember(MapObject member)
         {
+            if (Race != ObjectType.Player) return false;
+            PlayerObject player = (PlayerObject)this;
             if (member == this) return true;
-            if (GroupMembers == null || member == null) return false;
+            if (player.GroupMembers == null || member == null) return false;
 
-            for (int i = 0; i < GroupMembers.Count; i++)
-                if (GroupMembers[i] == member) return true;
+            for (int i = 0; i < player.GroupMembers.Count; i++)
+                if (player.GroupMembers[i] == member) return true;
 
             return false;
         }

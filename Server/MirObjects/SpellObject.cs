@@ -262,7 +262,7 @@ namespace Server.MirObjects
 
                 case Spell.Portal:
                     if (ob.Race != ObjectType.Player) return;
-                    if (Caster != ob && (Caster == null || (Caster.GroupMembers == null) || (!Caster.GroupMembers.Contains((PlayerObject)ob)))) return;
+                    if (Caster != ob && (Caster == null || (Caster.Group == null) || (!Caster.Group.GroupMembers.Contains((PlayerObject)ob)))) return;
 
                     if (ExitMap == null) return;
 

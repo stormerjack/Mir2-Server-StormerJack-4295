@@ -601,6 +601,10 @@ public abstract class Packet
                 return new S.AddMember();
             case (short)ServerPacketIds.GroupLootMode:
                 return new S.SetGroupLootMode();
+            case (short)ServerPacketIds.GroupConnect:
+                return new S.GroupConnect();
+            case (short)ServerPacketIds.GroupDisconnect:
+                return new S.GroupDisconnect();
             case (short)ServerPacketIds.Revived:
                 return new S.Revived();
             case (short)ServerPacketIds.ObjectRevived:

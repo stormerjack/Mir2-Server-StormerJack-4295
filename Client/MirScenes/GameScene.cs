@@ -1383,6 +1383,12 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.GroupLootMode:
                     SetGroupLootMode((S.SetGroupLootMode)p);
                     break;
+                case (short)ServerPacketIds.GroupConnect:
+                    GroupConnect((S.GroupConnect)p);
+                    break;
+                case (short)ServerPacketIds.GroupDisconnect:
+                    GroupDisconnect((S.GroupDisconnect)p);
+                    break;
                 case (short)ServerPacketIds.Revived:
                     Revived();
                     break;
@@ -4041,7 +4047,7 @@ namespace Client.MirScenes
         }
         private void DeleteMember(S.DeleteMember p)
         {
-            GroupDialog.GroupList.Remove(p.Name);
+            GroupDialog.GroupList.RemoveAll(x => x.Name == p.Name);
             ChatDialog.ReceiveChat(string.Format("-{0} has left the group.", p.Name), ChatType.Group);
         }
         private void GroupInvite(S.GroupInvite p)
@@ -4055,7 +4061,7 @@ namespace Client.MirScenes
         }
         private void AddMember(S.AddMember p)
         {
-            GroupDialog.GroupList.Add(p.Name);
+            GroupDialog.GroupList.Add(new GroupMember() {Name = p.Name, Online = p.Online });
             ChatDialog.ReceiveChat(string.Format("-{0} has joined the group.", p.Name), ChatType.Group);
         }
         private void SetGroupLootMode(S.SetGroupLootMode p)
@@ -4063,6 +4069,22 @@ namespace Client.MirScenes
             GroupDialog.SetLootMode(p.Mode);
             ChatDialog.ReceiveChat($"Group looting mode changed to: {(p.Mode == GroupLootMode.FreeForAll ? "Free for all" : "Leader only")}", ChatType.Group);
         }
+        private void GroupConnect(S.GroupConnect p)
+        {
+            GroupMember member = GroupDialog.GroupList.FirstOrDefault(x => x.Name == p.Name);
+            if (member == null) return;
+            member.Online = true;
+        }
+        private void GroupDisconnect(S.GroupDisconnect p)
+        {
+            GroupMember member = GroupDialog.GroupList.FirstOrDefault(x => x.Name == p.Name);
+            if (member == null) return;
+            member.Online = false;
+
+            GroupDialog.GroupList.Remove(member);
+            GroupDialog.GroupList.Add(member);
+        }
+
         private void Revived()
         {
             User.SetAction();

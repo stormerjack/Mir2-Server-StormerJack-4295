@@ -24,6 +24,8 @@ namespace Server.MirDatabase
         public byte Hair;
         public int GuildIndex = -1;
 
+        public GroupObject Group;        
+
         public string CreationIP;
         public DateTime CreationDate;
 
