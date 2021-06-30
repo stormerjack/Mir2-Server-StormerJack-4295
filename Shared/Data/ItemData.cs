@@ -700,6 +700,8 @@ public class UserItem
                         size = 4;
                     else if (Info.Shape < 12)
                         size = 5;
+                    else
+                        size = 4;
                     break;
                 case ItemType.Weapon:
                     if (Info.Shape == 49 || Info.Shape == 50)
