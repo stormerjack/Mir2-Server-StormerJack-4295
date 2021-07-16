@@ -8418,7 +8418,7 @@ namespace Server.MirObjects
                 LevelMagic(support);
             }
 
-            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, curseTime, location, 1 + ((magic.Level + 1) * 2));
+            DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + delay, this, magic, (int)curseTime, location, 1 + ((magic.Level + 1) * 2));
             CurrentMap.ActionList.Add(action);
         }
 
