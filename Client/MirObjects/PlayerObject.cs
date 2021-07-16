@@ -765,6 +765,7 @@ namespace Client.MirObjects
                 case MirAction.Walking:
                 case MirAction.Running:
                 case MirAction.MountWalking:
+                case MirAction.MountWalking2:
                 case MirAction.MountRunning:
                 case MirAction.Pushed:
                 case MirAction.DashL:
@@ -893,6 +894,7 @@ namespace Client.MirObjects
                     case MirAction.Walking:
                     case MirAction.Running:
                     case MirAction.MountWalking:
+                    case MirAction.MountWalking2:
                     case MirAction.MountRunning:
                     case MirAction.Pushed:
                     case MirAction.DashL:
@@ -926,9 +928,12 @@ namespace Client.MirObjects
                             CurrentAction = MirAction.MountStanding;
                             break;
                         case MirAction.Walking:
-                            CurrentAction = MirAction.MountWalking;
+                            if (MountType >= 12)
+                                CurrentAction = MirAction.MountWalking2;
+                            else
+                                CurrentAction = MirAction.MountWalking;
                             break;
-                        case MirAction.Running:
+                        case MirAction.Running:                            
                             CurrentAction = MirAction.MountRunning;
                             break;
                         case MirAction.Struck:
@@ -987,7 +992,10 @@ namespace Client.MirObjects
                             CurrentAction = MirAction.MountStanding;
                             break;
                         case MirAction.Walking:
-                            CurrentAction = MirAction.MountWalking;
+                            if (MountType >= 12)
+                                CurrentAction = MirAction.MountWalking2;
+                            else
+                                CurrentAction = MirAction.MountWalking;
                             break;
                         case MirAction.Running:
                             CurrentAction = MirAction.MountRunning;
@@ -1011,6 +1019,7 @@ namespace Client.MirObjects
                     case MirAction.Walking:
                     case MirAction.Running:
                     case MirAction.MountWalking:
+                    case MirAction.MountWalking2:
                     case MirAction.MountRunning:
                     case MirAction.Pushed:
                     case MirAction.DashL:
@@ -1331,6 +1340,7 @@ namespace Client.MirObjects
                             break;
                         case MirAction.Walking:
                         case MirAction.MountWalking:
+                        case MirAction.MountWalking2:
                         case MirAction.Sneek:
                             GameScene.LastRunTime = CMain.Time;
                             Network.Enqueue(new C.Walk { Direction = Direction });
@@ -1518,6 +1528,7 @@ namespace Client.MirObjects
                     case MirAction.Walking:
                     case MirAction.Running:
                     case MirAction.MountWalking:
+                    case MirAction.MountWalking2:
                     case MirAction.MountRunning:
                     case MirAction.Sneek:
                         GameScene.Scene.Redraw();
@@ -2303,6 +2314,7 @@ namespace Client.MirObjects
                 case MirAction.Walking:
                 case MirAction.Running:
                 case MirAction.MountWalking:
+                case MirAction.MountWalking2:
                 case MirAction.MountRunning:
                 case MirAction.Sneek:
                 case MirAction.DashAttack:

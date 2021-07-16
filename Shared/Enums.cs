@@ -1193,6 +1193,7 @@ public enum MirAction : byte
 
     MountStanding,
     MountWalking,
+    MountWalking2,
     MountRunning,
     MountStruck,
     MountAttack,
