@@ -169,6 +169,7 @@
     <Compile Include="MirScenes\Dialogs\FishingDialog.cs" />
     <Compile Include="MirScenes\Dialogs\FriendDialog.cs" />
     <Compile Include="MirScenes\Dialogs\GameshopDialog.cs" />
+    <Compile Include="MirScenes\Dialogs\DuelDialog.cs" />
     <Compile Include="MirScenes\Dialogs\GroupDialog.cs" />
     <Compile Include="MirScenes\Dialogs\GuildDialog.cs" />
     <Compile Include="MirScenes\Dialogs\HelpDialog.cs" />

@@ -2028,6 +2028,23 @@ public sealed class AwakeningNeedMaterials : Packet
         }
     }
 
+    public sealed class DuelRule : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelRule; } }
+
+        public DuelRules Rule;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Rule = (DuelRules)reader.ReadByte();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Rule);
+        }
+    }
+
     public sealed class AddFriend : Packet
     {
         public override short Index { get { return (short)ClientPacketIds.AddFriend; } }

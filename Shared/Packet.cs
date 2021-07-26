@@ -310,6 +310,8 @@ public abstract class Packet
                 return new C.UpdateIntelligentCreature();
             case (short)ClientPacketIds.IntelligentCreaturePickup://IntelligentCreature
                 return new C.IntelligentCreaturePickup();
+            case (short)ClientPacketIds.DuelRule:
+                return new C.DuelRule();
             case (short)ClientPacketIds.AddFriend:
                 return new C.AddFriend();
             case (short)ClientPacketIds.RemoveFriend:
@@ -859,6 +861,10 @@ public abstract class Packet
                 return new S.ExpireTimer();
             case (short)ServerPacketIds.UpdateNotice:
                 return new S.UpdateNotice();
+            case (short)ServerPacketIds.OpenDuelDialog:
+                return new S.OpenDuelDialog();
+            case (short)ServerPacketIds.DuelRuleChanged:
+                return new S.DuelRuleChanged();
             default:
                 return null;
         }

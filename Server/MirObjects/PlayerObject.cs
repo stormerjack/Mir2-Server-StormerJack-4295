@@ -211,6 +211,8 @@ namespace Server.MirObjects
         public bool HasElemental;
         public int ElementsLevel;
 
+        public bool[] ActiveDuelRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
+
         private bool _concentrating;
         public bool Concentrating
         {
@@ -19674,6 +19676,17 @@ namespace Server.MirObjects
 
         #endregion
 
+        public void ChangeDuelRule(DuelRules rule)
+        {
+            ActiveDuelRules[(int)rule] = !ActiveDuelRules[(int)rule];
+
+            Enqueue(new S.DuelRuleChanged
+            {
+                Rule = rule,
+                Active = ActiveDuelRules[(int)rule]
+            });
+        }
+
         #region Friends
 
         public void AddFriend(string name, bool blocked = false)
@@ -21757,6 +21770,11 @@ namespace Server.MirObjects
         public void ExpireTimer(string key)
         {
             Enqueue(new S.ExpireTimer { Key = key });
+        }
+
+        public void OpenDuelDialog()
+        {
+            Enqueue(new S.OpenDuelDialog { });
         }
 
         public void MagicRemoved(Spell spell)

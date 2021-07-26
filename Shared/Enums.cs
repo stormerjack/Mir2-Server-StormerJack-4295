@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 public enum PanelType : byte
 {
@@ -2065,7 +2066,23 @@ public enum ServerPacketIds : short
     PlaySound,
     SetTimer,
     ExpireTimer,
-    UpdateNotice
+    UpdateNotice,
+    OpenDuelDialog,
+    DuelRuleChanged
+}
+
+public enum DuelRules : byte
+{
+    [Description("No Pets")]
+    NoPets,
+    [Description("No Firewall")]
+    NoFireWall,
+    [Description("No Healing Skills")]
+    NoHealingSkill,
+    [Description("Can Death Drop")]
+    CanDeathDrop,
+    [Description("Time Limited")]
+    TimeLimit
 }
 
 public enum ClientPacketIds : short
@@ -2189,6 +2206,8 @@ public enum ClientPacketIds : short
 
     UpdateIntelligentCreature,
     IntelligentCreaturePickup,
+
+    DuelRule,
 
     AddFriend,
     RemoveFriend,

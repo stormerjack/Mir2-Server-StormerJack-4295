@@ -1058,6 +1058,9 @@ namespace Server.MirObjects
 
                     acts.Add(new NPCActions(ActionType.ExpireTimer, parts[1]));
                     break;
+                case "OPENDUELDIALOG":
+                    acts.Add(new NPCActions(ActionType.OpenDuelDialog));
+                    break;
             }
         }
 
@@ -3673,6 +3676,9 @@ namespace Server.MirObjects
                         break;
                     case ActionType.ExpireTimer:
                         player.ExpireTimer(param[0]);
+                        break;
+                    case ActionType.OpenDuelDialog:
+                        player.OpenDuelDialog();
                         break;
                 }
             }

@@ -575,6 +575,9 @@ namespace Server.MirNetwork
                 case (short)ClientPacketIds.IntelligentCreaturePickup://IntelligentCreature
                     IntelligentCreaturePickup((C.IntelligentCreaturePickup)p);
                     break;
+                case (short)ClientPacketIds.DuelRule:
+                    ChangeDuelRule((C.DuelRule)p);
+                    break;
                 case (short)ClientPacketIds.AddFriend:
                     AddFriend((C.AddFriend)p);
                     break;
@@ -1690,6 +1693,13 @@ namespace Server.MirNetwork
             if (Stage != GameStage.Game) return;
 
             Player.IntelligentCreaturePickup(p.MouseMode, p.Location);
+        }
+
+        private void ChangeDuelRule(C.DuelRule p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.ChangeDuelRule(p.Rule);
         }
 
         private void AddFriend(C.AddFriend p)

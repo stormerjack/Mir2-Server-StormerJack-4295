@@ -116,6 +116,7 @@ namespace Client.MirScenes
 
         public KeyboardLayoutDialog KeyboardLayoutDialog;
         public NoticeDialog NoticeDialog;
+        public DuelDialog DuelDialog;
 
         public TimerDialog TimerControl;
 
@@ -208,6 +209,7 @@ namespace Client.MirScenes
             HelpDialog = new HelpDialog { Parent = this, Visible = false };
             KeyboardLayoutDialog = new KeyboardLayoutDialog { Parent = this, Visible = false };
             NoticeDialog = new NoticeDialog { Parent = this, Visible = false };
+            DuelDialog = new DuelDialog { Parent = this, Visible = true };
 
             MountDialog = new MountDialog { Parent = this, Visible = false };
             FishingDialog = new FishingDialog { Parent = this, Visible = false };
@@ -490,6 +492,7 @@ namespace Client.MirScenes
                         ItemRentalDialog.Hide();
                         NoticeDialog.Hide();
                         SkillSlotDialog.Hide();
+                        DuelDialog.Hide();
 
 
 
@@ -1756,6 +1759,12 @@ namespace Client.MirScenes
                     break;
                 case (short)ServerPacketIds.UpdateNotice:
                     ShowNotice((S.UpdateNotice)p);
+                    break;
+                case (short)ServerPacketIds.OpenDuelDialog:
+                    OpenDuelDialog((S.OpenDuelDialog)p);
+                    break;
+                case (short)ServerPacketIds.DuelRuleChanged:
+                    DuelRuleChanged((S.DuelRuleChanged)p);
                     break;
                 default:
                     base.ProcessPacket(p);
@@ -8960,6 +8969,16 @@ namespace Client.MirScenes
         public void ShowNotice(S.UpdateNotice p)
         {
             NoticeDialog.Update(p.Notice);
+        }
+
+        public void OpenDuelDialog(S.OpenDuelDialog p)
+        {
+            DuelDialog.Show();
+        }
+
+        public void DuelRuleChanged(S.DuelRuleChanged p)
+        {
+            DuelDialog.SetRule(p.Rule, p.Active);
         }
 
         #region Disposable

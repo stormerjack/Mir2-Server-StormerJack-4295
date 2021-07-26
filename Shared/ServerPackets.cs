@@ -5938,6 +5938,37 @@ namespace ServerPackets
         }
     }
 
+    public sealed class OpenDuelDialog : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.OpenDuelDialog; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelRuleChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelRuleChanged; } }
+
+        public DuelRules Rule;
+        public bool Active;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Rule = (DuelRules)reader.ReadByte();
+            Active = reader.ReadBoolean();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Rule);
+            writer.Write(Active);
+        }
+    }
+
     public sealed class UpdateNotice : Packet
     {
         public override short Index
