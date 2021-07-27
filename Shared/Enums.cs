@@ -2068,7 +2068,10 @@ public enum ServerPacketIds : short
     ExpireTimer,
     UpdateNotice,
     OpenDuelDialog,
-    DuelRuleChanged
+    DuelRuleChanged,
+    DuelStakeChanged,
+    DuelOpponentStakeChanged,
+    DuelInvitation,
 }
 
 public enum DuelRules : byte
@@ -2208,6 +2211,8 @@ public enum ClientPacketIds : short
     IntelligentCreaturePickup,
 
     DuelRule,
+    DuelStake,
+    DuelReply,
 
     AddFriend,
     RemoveFriend,

@@ -312,6 +312,10 @@ public abstract class Packet
                 return new C.IntelligentCreaturePickup();
             case (short)ClientPacketIds.DuelRule:
                 return new C.DuelRule();
+            case (short)ClientPacketIds.DuelStake:
+                return new C.DuelStake();
+            case (short)ClientPacketIds.DuelReply:
+                return new C.DuelReply();
             case (short)ClientPacketIds.AddFriend:
                 return new C.AddFriend();
             case (short)ClientPacketIds.RemoveFriend:
@@ -865,6 +869,12 @@ public abstract class Packet
                 return new S.OpenDuelDialog();
             case (short)ServerPacketIds.DuelRuleChanged:
                 return new S.DuelRuleChanged();
+            case (short)ServerPacketIds.DuelStakeChanged:
+                return new S.DuelStakeChanged();
+            case (short)ServerPacketIds.DuelInvitation:
+                return new S.DuelInvitation();
+            case (short)ServerPacketIds.DuelOpponentStakeChanged:
+                return new S.DuelOpponentStakeChanged();
             default:
                 return null;
         }

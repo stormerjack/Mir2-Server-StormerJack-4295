@@ -2045,6 +2045,38 @@ public sealed class AwakeningNeedMaterials : Packet
         }
     }
 
+    public sealed class DuelStake : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelStake; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
+        }
+    }
+
+    public sealed class DuelReply : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelReply; } }
+
+        public bool AcceptInvite;
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            AcceptInvite = reader.ReadBoolean();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(AcceptInvite);
+        }
+    }
+
     public sealed class AddFriend : Packet
     {
         public override short Index { get { return (short)ClientPacketIds.AddFriend; } }

@@ -5956,16 +5956,67 @@ namespace ServerPackets
 
         public DuelRules Rule;
         public bool Active;
+        public bool Opponent;
 
         protected override void ReadPacket(BinaryReader reader)
         {
             Rule = (DuelRules)reader.ReadByte();
             Active = reader.ReadBoolean();
+            Opponent = reader.ReadBoolean();
         }
         protected override void WritePacket(BinaryWriter writer)
         {
             writer.Write((byte)Rule);
             writer.Write(Active);
+            writer.Write(Opponent);
+        }
+    }
+
+    public sealed class DuelInvitation : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelInvitation; } }
+
+        public string Name;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
+        }
+    }
+
+    public sealed class DuelStakeChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelStakeChanged; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
+        }
+    }
+
+    public sealed class DuelOpponentStakeChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelOpponentStakeChanged; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
         }
     }
 

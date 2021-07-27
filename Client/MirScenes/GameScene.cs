@@ -209,7 +209,7 @@ namespace Client.MirScenes
             HelpDialog = new HelpDialog { Parent = this, Visible = false };
             KeyboardLayoutDialog = new KeyboardLayoutDialog { Parent = this, Visible = false };
             NoticeDialog = new NoticeDialog { Parent = this, Visible = false };
-            DuelDialog = new DuelDialog { Parent = this, Visible = true };
+            DuelDialog = new DuelDialog { Parent = this, Visible = false };
 
             MountDialog = new MountDialog { Parent = this, Visible = false };
             FishingDialog = new FishingDialog { Parent = this, Visible = false };
@@ -1765,6 +1765,15 @@ namespace Client.MirScenes
                     break;
                 case (short)ServerPacketIds.DuelRuleChanged:
                     DuelRuleChanged((S.DuelRuleChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelStakeChanged:
+                    DuelStakeChanged((S.DuelStakeChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelOpponentStakeChanged:
+                    DuelOpponentStakeChanged((S.DuelOpponentStakeChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelInvitation:
+                    DuelInvitation((S.DuelInvitation)p);
                     break;
                 default:
                     base.ProcessPacket(p);
@@ -8978,7 +8987,27 @@ namespace Client.MirScenes
 
         public void DuelRuleChanged(S.DuelRuleChanged p)
         {
-            DuelDialog.SetRule(p.Rule, p.Active);
+            DuelDialog.SetRule(p.Rule, p.Active, p.Opponent);
+        }
+
+        public void DuelStakeChanged(S.DuelStakeChanged p)
+        {
+            DuelDialog.SetStake(p.Amount);
+        }
+
+        public void DuelOpponentStakeChanged(S.DuelOpponentStakeChanged p)
+        {
+            DuelDialog.SetOpponentStake(p.Amount);
+        }
+
+        public void DuelInvitation(S.DuelInvitation p)
+        {
+            MirMessageBox messageBox = new MirMessageBox(string.Format("Do you want to duel with {0}?", p.Name), MirMessageBoxButtons.YesNo);
+
+            messageBox.YesButton.Click += (o, e) => Network.Enqueue(new C.DuelReply { AcceptInvite = true });
+            messageBox.NoButton.Click += (o, e) => Network.Enqueue(new C.DuelReply { AcceptInvite = false });
+
+            messageBox.Show();
         }
 
         #region Disposable

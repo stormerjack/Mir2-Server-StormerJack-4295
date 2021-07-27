@@ -212,6 +212,8 @@ namespace Server.MirObjects
         public int ElementsLevel;
 
         public bool[] ActiveDuelRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
+        public uint DuelStake;
+        public PlayerObject DuelInvitation;
 
         private bool _concentrating;
         public bool Concentrating
@@ -4348,6 +4350,27 @@ namespace Server.MirObjects
                         EnableGuildInvite = !EnableGuildInvite;
                         hintstring = EnableGuildInvite ? "Guild invites enabled." : "Guild invites disabled.";
                         ReceiveChat(hintstring, ChatType.Hint);
+                        break;
+                    case "DUEL":
+                        if (parts.Length < 2) return;
+                        player = Envir.GetPlayer(parts[1]);
+
+                        if (player == null) return;
+
+                        if (player.DuelInvitation != null)
+                        {
+                            ReceiveChat($"{player.Name} has already been invited to Duel.", ChatType.Hint);
+                            return;
+                        }
+
+                        if (!InSafeZone ||  !player.InSafeZone)
+                        {
+                            ReceiveChat("Both players must be in Safezone.", ChatType.Hint);
+                            return;
+                        }
+
+                        player.DuelInvitation = this;
+                        player.Enqueue(new S.DuelInvitation { Name = Name });
                         break;
                     case "RECALL":
                         if (!IsGM) return;
@@ -19676,6 +19699,11 @@ namespace Server.MirObjects
 
         #endregion
 
+        public void OpenDuelDialog()
+        {
+            Enqueue(new S.OpenDuelDialog { });
+        }
+
         public void ChangeDuelRule(DuelRules rule)
         {
             ActiveDuelRules[(int)rule] = !ActiveDuelRules[(int)rule];
@@ -19683,8 +19711,53 @@ namespace Server.MirObjects
             Enqueue(new S.DuelRuleChanged
             {
                 Rule = rule,
-                Active = ActiveDuelRules[(int)rule]
+                Active = ActiveDuelRules[(int)rule],
+                Opponent = false
             });
+
+            DuelInvitation?.Enqueue(new S.DuelRuleChanged
+            {
+                Rule = rule,
+                Active = ActiveDuelRules[(int)rule],
+                Opponent = true
+            });
+        }
+
+        public void ChangeDuelStake(uint amount)
+        {
+            DuelStake = amount;
+
+            Enqueue(new S.DuelStakeChanged
+            {
+                Amount = amount
+            });
+
+            DuelInvitation?.Enqueue(new S.DuelOpponentStakeChanged
+            {
+                Amount = amount
+            });
+        }
+
+        public void DuelReply(bool accept)
+        {
+            if (DuelInvitation == null || DuelInvitation.Node == null)
+            {
+                DuelInvitation = null;
+                return;
+            }
+
+            BeginDuel(DuelInvitation);
+            DuelInvitation.BeginDuel(this);
+        }
+
+        public void BeginDuel(PlayerObject player)
+        {
+            DuelInvitation = player;
+            for (int i = 0; i < ActiveDuelRules.Length; i++)
+                ActiveDuelRules[i] = false;
+            DuelStake = 0;
+
+            OpenDuelDialog();
         }
 
         #region Friends
@@ -21770,11 +21843,6 @@ namespace Server.MirObjects
         public void ExpireTimer(string key)
         {
             Enqueue(new S.ExpireTimer { Key = key });
-        }
-
-        public void OpenDuelDialog()
-        {
-            Enqueue(new S.OpenDuelDialog { });
         }
 
         public void MagicRemoved(Spell spell)

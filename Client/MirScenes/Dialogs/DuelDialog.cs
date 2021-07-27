@@ -19,10 +19,11 @@ namespace Client.MirScenes.Dialogs
     public sealed class DuelDialog : MirImageControl
     {
         public bool[] ActiveRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
+        public bool[] OpponentActiveRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
 
         public MirButton[] RuleButtons = new MirButton[Enum.GetNames(typeof(DuelRules)).Length];
-        public MirButton CloseButton;
-        public MirLabel RulesLabel, StakeLabel, OpponentStakeLabel;
+        public MirButton CloseButton, StakeButton;
+        public MirLabel RulesLabel, OpponentRulesLabel, StakeLabel, OpponentStakeLabel;
 
         public DuelDialog()
         {
@@ -43,6 +44,32 @@ namespace Client.MirScenes.Dialogs
                 Sound = SoundList.ButtonA,
             };
             CloseButton.Click += (o, e) => Hide();
+
+            StakeButton = new MirButton
+            {
+                HoverIndex = 12,
+                Index = 12,
+                Location = new Point(0, 297),
+                Library = Libraries.PrguseCustom,
+                Parent = this,
+                PressedIndex = 12,
+                Sound = SoundList.ButtonA,
+            };
+            StakeButton.Click += (o, e) =>
+            {
+                MirAmountBox amountBox = new MirAmountBox("Enter your stake", 116, GameScene.Gold, 0, 0);
+
+                amountBox.OKButton.Click += (oo, a) =>
+                {
+                    if (amountBox.Amount > 0)
+                    {
+                        Network.Enqueue(new C.DuelStake { Amount = amountBox.Amount });
+                        StakeButton.Enabled = true;
+                    }
+                };
+
+                amountBox.Show();
+            };
 
             RuleButtons[(int)DuelRules.NoPets] = new MirButton
             {
@@ -130,6 +157,7 @@ namespace Client.MirScenes.Dialogs
                 Parent = this,
                 Size = new Size(83, 17),
                 Location = new Point(57, 332),
+                NotControl = true,
             };
 
             RulesLabel = new MirLabel
@@ -138,6 +166,14 @@ namespace Client.MirScenes.Dialogs
                 Parent = this,
                 Size = new Size(110, 120),
                 Location = new Point(30, 53),
+            };
+
+            OpponentRulesLabel = new MirLabel
+            {
+                Text = "",
+                Parent = this,
+                Size = new Size(110, 120),
+                Location = new Point(370, 53),
             };
 
             OpponentStakeLabel = new MirLabel
@@ -158,22 +194,46 @@ namespace Client.MirScenes.Dialogs
                 RuleButtons[i].HoverIndex = 9;
                 RuleButtons[i].PressedIndex = 9;
             }
+            for (int i = 0; i < OpponentActiveRules.Length; i++)
+                OpponentActiveRules[i] = false;
+
+            StakeLabel.Text = "0";
+            RefreshLists();
+
+            Visible = true;
+        }
+
+        public void SetRule(DuelRules rule, bool active, bool opponent)
+        {
+            bool[] rulelist = opponent ? OpponentActiveRules : ActiveRules;
+
+            rulelist[(int)rule] = active;
+            if (!opponent)
+            {
+                RuleButtons[(int)rule].Enabled = true;
+                RuleButtons[(int)rule].Index = active ? 10 : 9;
+                RuleButtons[(int)rule].HoverIndex = active ? 10 : 9;
+                RuleButtons[(int)rule].PressedIndex = active ? 10 : 9;
+            }
+
             RefreshLists();
         }
 
-        public void SetRule(DuelRules rule, bool active)
+        public void SetStake(uint amount)
         {
-            ActiveRules[(int)rule] = active;
-            RuleButtons[(int)rule].Enabled = true;
-            RuleButtons[(int)rule].Index = active ? 10 : 9;
-            RuleButtons[(int)rule].HoverIndex = active ? 10 : 9;
-            RuleButtons[(int)rule].PressedIndex = active ? 10 : 9;
-            RefreshLists();
+            StakeLabel.Text = amount.ToString();
+            StakeButton.Enabled = true;
+        }
+
+        public void SetOpponentStake(uint amount)
+        {
+            OpponentStakeLabel.Text = amount.ToString();
         }
 
         private void RefreshLists()
         {
             RulesLabel.Text = string.Empty;
+            OpponentRulesLabel.Text = string.Empty;
 
             for (int i = 0; i < ActiveRules.Length; i++)
             {
@@ -184,6 +244,17 @@ namespace Client.MirScenes.Dialogs
                 DescriptionAttribute description = infos[0].GetCustomAttribute<DescriptionAttribute>();
 
                 RulesLabel.Text += description.Description + Environment.NewLine;
+            }
+
+            for (int i = 0; i < OpponentActiveRules.Length; i++)
+            {
+                if (!OpponentActiveRules[i]) continue;
+
+                Type type = ((DuelRules)i).GetType();
+                MemberInfo[] infos = type.GetMember(((DuelRules)i).ToString());
+                DescriptionAttribute description = infos[0].GetCustomAttribute<DescriptionAttribute>();
+
+                OpponentRulesLabel.Text += description.Description + Environment.NewLine;
             }
         }
     }
