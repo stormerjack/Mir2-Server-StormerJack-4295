@@ -2072,6 +2072,9 @@ public enum ServerPacketIds : short
     DuelStakeChanged,
     DuelOpponentStakeChanged,
     DuelInvitation,
+    DuelConfirmed,
+    DuelOpponentConfirmed,
+    DuelCancelled,
 }
 
 public enum DuelRules : byte
@@ -2213,6 +2216,8 @@ public enum ClientPacketIds : short
     DuelRule,
     DuelStake,
     DuelReply,
+    DuelConfirm,
+    DuelCancel,
 
     AddFriend,
     RemoveFriend,

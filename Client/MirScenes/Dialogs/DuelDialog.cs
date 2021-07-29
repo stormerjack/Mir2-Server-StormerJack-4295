@@ -22,7 +22,7 @@ namespace Client.MirScenes.Dialogs
         public bool[] OpponentActiveRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
 
         public MirButton[] RuleButtons = new MirButton[Enum.GetNames(typeof(DuelRules)).Length];
-        public MirButton CloseButton, StakeButton;
+        public MirButton CloseButton, StakeButton, ConfirmButton;
         public MirLabel RulesLabel, OpponentRulesLabel, StakeLabel, OpponentStakeLabel;
 
         public DuelDialog()
@@ -69,6 +69,21 @@ namespace Client.MirScenes.Dialogs
                 };
 
                 amountBox.Show();
+            };
+
+            ConfirmButton = new MirButton
+            {
+                HoverIndex = 11,
+                Index = 11,
+                Location = new Point(211, 289),
+                Library = Libraries.PrguseCustom,
+                Parent = this,
+                PressedIndex = 11,
+                Sound = SoundList.ButtonA,
+            };
+            ConfirmButton.Click += (o, e) =>
+            {
+                Network.Enqueue(new C.DuelConfirm { });
             };
 
             RuleButtons[(int)DuelRules.NoPets] = new MirButton
@@ -183,6 +198,34 @@ namespace Client.MirScenes.Dialogs
                 Size = new Size(83, 17),
                 Location = new Point(315, 332),
             };
+
+            BeforeDraw += DuelDialog_BeforeDraw;
+        }
+
+        public void DuelDialog_BeforeDraw(object sender, EventArgs e)
+        {
+            if (!StakeButton.Enabled) return;
+
+            bool same = true;
+            for (int i = 0; i < ActiveRules.Length; i++)
+            {
+                if (ActiveRules[i] != OpponentActiveRules[i])
+                {
+                    same = false;
+                    break;
+                }
+            }
+
+            if (same)
+            {
+                ConfirmButton.Index = 11;
+                ConfirmButton.Enabled = true;
+            }
+            else
+            {
+                ConfirmButton.Index = 13;
+                ConfirmButton.Enabled = false;
+            }
         }
 
         public void Show()
@@ -190,6 +233,7 @@ namespace Client.MirScenes.Dialogs
             for (int i = 0; i < ActiveRules.Length; i++)
             {
                 ActiveRules[i] = false;
+                RuleButtons[i].Enabled = true;
                 RuleButtons[i].Index = 9;
                 RuleButtons[i].HoverIndex = 9;
                 RuleButtons[i].PressedIndex = 9;
@@ -197,10 +241,17 @@ namespace Client.MirScenes.Dialogs
             for (int i = 0; i < OpponentActiveRules.Length; i++)
                 OpponentActiveRules[i] = false;
 
+            StakeButton.Enabled = true;
             StakeLabel.Text = "0";
             RefreshLists();
 
             Visible = true;
+        }
+
+        public override void Hide()
+        {
+            Visible = false;
+            Network.Enqueue(new C.DuelCancel { });
         }
 
         public void SetRule(DuelRules rule, bool active, bool opponent)
@@ -223,6 +274,22 @@ namespace Client.MirScenes.Dialogs
         {
             StakeLabel.Text = amount.ToString();
             StakeButton.Enabled = true;
+        }
+
+        public void Confirmed()
+        {
+            ConfirmButton.Enabled = false;
+            StakeButton.Enabled = false;
+            for (int i = 0; i < RuleButtons.Length; i++)
+                RuleButtons[i].Enabled = false;
+        }
+
+        public void OpponentConfirmed()
+        {
+            StakeButton.Enabled = false;
+            for (int i = 0; i < RuleButtons.Length; i++)
+                RuleButtons[i].Enabled = false;
+            GameScene.Scene.ChatDialog.ReceiveChat("Opponent has confirmed rules.", ChatType.Hint);
         }
 
         public void SetOpponentStake(uint amount)

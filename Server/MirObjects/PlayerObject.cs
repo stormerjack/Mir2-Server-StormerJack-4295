@@ -214,6 +214,7 @@ namespace Server.MirObjects
         public bool[] ActiveDuelRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
         public uint DuelStake;
         public PlayerObject DuelInvitation;
+        public bool DuelConfirmed;
 
         private bool _concentrating;
         public bool Concentrating
@@ -485,6 +486,9 @@ namespace Server.MirObjects
                 Group.Disconnect(this);
                 RemoveGroupBuff();                
             }
+
+            if (DuelInvitation != null)
+                CancelDuel();
 
             for (int i = 0; i < Buffs.Count; i++)
             {
@@ -19706,6 +19710,10 @@ namespace Server.MirObjects
 
         public void ChangeDuelRule(DuelRules rule)
         {
+            if (DuelInvitation == null || DuelInvitation.Node == null)
+                return;
+            if (DuelConfirmed || DuelInvitation.DuelConfirmed) return;
+
             ActiveDuelRules[(int)rule] = !ActiveDuelRules[(int)rule];
 
             Enqueue(new S.DuelRuleChanged
@@ -19725,29 +19733,60 @@ namespace Server.MirObjects
 
         public void ChangeDuelStake(uint amount)
         {
+            if (DuelInvitation == null || DuelInvitation.Node == null)
+                return;
+            if (DuelConfirmed || DuelInvitation.DuelConfirmed) return;
+
             DuelStake = amount;
 
-            Enqueue(new S.DuelStakeChanged
-            {
-                Amount = amount
-            });
-
-            DuelInvitation?.Enqueue(new S.DuelOpponentStakeChanged
-            {
-                Amount = amount
-            });
+            Enqueue(new S.DuelStakeChanged { Amount = amount });
+            DuelInvitation.Enqueue(new S.DuelOpponentStakeChanged{ Amount = amount });
         }
 
         public void DuelReply(bool accept)
         {
             if (DuelInvitation == null || DuelInvitation.Node == null)
-            {
-                DuelInvitation = null;
-                return;
-            }
+                return;            
 
             BeginDuel(DuelInvitation);
             DuelInvitation.BeginDuel(this);
+        }
+
+        public void DuelCancel()
+        {
+            DuelInvitation.CancelDuel();
+            CancelDuel();
+        }
+
+        public void CancelDuel()
+        {
+            DuelInvitation.Enqueue(new S.DuelCancelled { });
+            DuelInvitation = null;
+        }
+
+        public void DuelConfirm()
+        {
+            if (DuelInvitation == null || DuelInvitation.Node == null)
+                return;
+
+            if (!InSafeZone) return;
+
+            for (int i = 0; i < ActiveDuelRules.Length; i++)
+            {
+                if (ActiveDuelRules[i] != DuelInvitation.ActiveDuelRules[i])
+                    return;
+            }
+
+            DuelConfirmed = true;
+
+            if (DuelInvitation.DuelConfirmed)
+            {
+                //Start Duel
+                return;
+            }
+
+            Enqueue(new S.DuelConfirmed { });
+            DuelInvitation?.Enqueue(new S.DuelOpponentConfirmed { });
         }
 
         public void BeginDuel(PlayerObject player)
@@ -19756,6 +19795,7 @@ namespace Server.MirObjects
             for (int i = 0; i < ActiveDuelRules.Length; i++)
                 ActiveDuelRules[i] = false;
             DuelStake = 0;
+            DuelConfirmed = false;
 
             OpenDuelDialog();
         }

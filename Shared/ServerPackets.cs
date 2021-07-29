@@ -6020,6 +6020,42 @@ namespace ServerPackets
         }
     }
 
+    public sealed class DuelConfirmed : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelConfirmed; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelOpponentConfirmed : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelOpponentConfirmed; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelCancelled : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelCancelled; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
     public sealed class UpdateNotice : Packet
     {
         public override short Index

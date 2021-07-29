@@ -1775,6 +1775,15 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.DuelInvitation:
                     DuelInvitation((S.DuelInvitation)p);
                     break;
+                case (short)ServerPacketIds.DuelConfirmed:
+                    DuelConfirmed((S.DuelConfirmed)p);
+                    break;
+                case (short)ServerPacketIds.DuelOpponentConfirmed:
+                    DuelOpponentConfirmed((S.DuelOpponentConfirmed)p);
+                    break;
+                case (short)ServerPacketIds.DuelCancelled:
+                    DuelCancelled((S.DuelCancelled)p);
+                    break;
                 default:
                     base.ProcessPacket(p);
                     break;
@@ -9008,6 +9017,22 @@ namespace Client.MirScenes
             messageBox.NoButton.Click += (o, e) => Network.Enqueue(new C.DuelReply { AcceptInvite = false });
 
             messageBox.Show();
+        }
+
+        public void DuelConfirmed(S.DuelConfirmed p)
+        {
+            DuelDialog.Confirmed();
+        }
+
+        public void DuelOpponentConfirmed(S.DuelOpponentConfirmed p)
+        {
+            DuelDialog.OpponentConfirmed();
+        }
+
+        public void DuelCancelled(S.DuelCancelled p)
+        {
+            DuelDialog.Visible = false;
+            ChatDialog.ReceiveChat("Duel cancelled.", ChatType.Hint);
         }
 
         #region Disposable

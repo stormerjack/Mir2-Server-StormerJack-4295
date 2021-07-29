@@ -316,6 +316,10 @@ public abstract class Packet
                 return new C.DuelStake();
             case (short)ClientPacketIds.DuelReply:
                 return new C.DuelReply();
+            case (short)ClientPacketIds.DuelConfirm:
+                return new C.DuelConfirm();
+            case (short)ClientPacketIds.DuelCancel:
+                return new C.DuelCancel();
             case (short)ClientPacketIds.AddFriend:
                 return new C.AddFriend();
             case (short)ClientPacketIds.RemoveFriend:
@@ -875,6 +879,12 @@ public abstract class Packet
                 return new S.DuelInvitation();
             case (short)ServerPacketIds.DuelOpponentStakeChanged:
                 return new S.DuelOpponentStakeChanged();
+            case (short)ServerPacketIds.DuelConfirmed:
+                return new S.DuelConfirmed();
+            case (short)ServerPacketIds.DuelOpponentConfirmed:
+                return new S.DuelOpponentConfirmed();
+            case (short)ServerPacketIds.DuelCancelled:
+                return new S.DuelCancelled();
             default:
                 return null;
         }

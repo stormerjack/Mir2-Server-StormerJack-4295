@@ -584,6 +584,12 @@ namespace Server.MirNetwork
                 case (short)ClientPacketIds.DuelReply:
                     DuelReply((C.DuelReply)p);
                     break;
+                case (short)ClientPacketIds.DuelConfirm:
+                    DuelConfirm((C.DuelConfirm)p);
+                    break;
+                case (short)ClientPacketIds.DuelCancel:
+                    DuelCancel((C.DuelCancel)p);
+                    break;
                 case (short)ClientPacketIds.AddFriend:
                     AddFriend((C.AddFriend)p);
                     break;
@@ -1720,6 +1726,20 @@ namespace Server.MirNetwork
             if (Stage != GameStage.Game) return;
 
             Player.DuelReply(p.AcceptInvite);
+        }
+
+        private void DuelConfirm(C.DuelConfirm p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.DuelConfirm();
+        }
+
+        private void DuelCancel(C.DuelCancel p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.DuelCancel();
         }
 
         private void AddFriend(C.AddFriend p)
