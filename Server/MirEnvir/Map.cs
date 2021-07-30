@@ -42,6 +42,8 @@ namespace Server.MirEnvir
         public List<ConquestObject> Conquest = new List<ConquestObject>();
         public ConquestObject tempConquest;
 
+        public DateTime DuelBeginTime;
+
         public Map(MapInfo info)
         {
             Info = info;

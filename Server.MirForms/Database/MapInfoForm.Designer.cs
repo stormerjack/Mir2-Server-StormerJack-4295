@@ -53,6 +53,8 @@ namespace Server
             this.FileNameTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.label26 = new System.Windows.Forms.Label();
+            this.DarknessTextBox = new System.Windows.Forms.TextBox();
             this.NoReincarnation = new System.Windows.Forms.CheckBox();
             this.NoTownTeleportCheckbox = new System.Windows.Forms.CheckBox();
             this.NoFightCheckbox = new System.Windows.Forms.CheckBox();
@@ -160,8 +162,7 @@ namespace Server
             this.ExportMongenButton = new System.Windows.Forms.Button();
             this.VisualizerButton = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label26 = new System.Windows.Forms.Label();
-            this.DarknessTextBox = new System.Windows.Forms.TextBox();
+            this.DuelCheckBox = new System.Windows.Forms.CheckBox();
             this.MapTabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage6.SuspendLayout();
@@ -362,6 +363,7 @@ namespace Server
             // 
             // tabPage6
             // 
+            this.tabPage6.Controls.Add(this.DuelCheckBox);
             this.tabPage6.Controls.Add(this.label26);
             this.tabPage6.Controls.Add(this.DarknessTextBox);
             this.tabPage6.Controls.Add(this.NoReincarnation);
@@ -395,6 +397,23 @@ namespace Server
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Attributes";
             this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(338, 93);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(52, 13);
+            this.label26.TabIndex = 47;
+            this.label26.Text = "Darkness";
+            // 
+            // DarknessTextBox
+            // 
+            this.DarknessTextBox.Location = new System.Drawing.Point(443, 90);
+            this.DarknessTextBox.Name = "DarknessTextBox";
+            this.DarknessTextBox.Size = new System.Drawing.Size(49, 20);
+            this.DarknessTextBox.TabIndex = 46;
+            this.DarknessTextBox.TextChanged += new System.EventHandler(this.DarknessTextBox_TextChanged);
             // 
             // NoReincarnation
             // 
@@ -1515,22 +1534,16 @@ namespace Server
             this.VisualizerButton.UseVisualStyleBackColor = true;
             this.VisualizerButton.Click += new System.EventHandler(this.VisualizerButton_Click);
             // 
-            // label26
+            // DuelCheckBox
             // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(338, 93);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(52, 13);
-            this.label26.TabIndex = 47;
-            this.label26.Text = "Darkness";
-            // 
-            // DarknessTextBox
-            // 
-            this.DarknessTextBox.Location = new System.Drawing.Point(443, 90);
-            this.DarknessTextBox.Name = "DarknessTextBox";
-            this.DarknessTextBox.Size = new System.Drawing.Size(49, 20);
-            this.DarknessTextBox.TabIndex = 46;
-            this.DarknessTextBox.TextChanged += new System.EventHandler(this.DarknessTextBox_TextChanged);
+            this.DuelCheckBox.AutoSize = true;
+            this.DuelCheckBox.Location = new System.Drawing.Point(340, 198);
+            this.DuelCheckBox.Name = "DuelCheckBox";
+            this.DuelCheckBox.Size = new System.Drawing.Size(72, 17);
+            this.DuelCheckBox.TabIndex = 48;
+            this.DuelCheckBox.Text = "Duel Map";
+            this.DuelCheckBox.UseVisualStyleBackColor = true;
+            this.DuelCheckBox.CheckedChanged += new System.EventHandler(this.DuelCheckBox_CheckedChanged);
             // 
             // MapInfoForm
             // 
@@ -1702,5 +1715,6 @@ namespace Server
         private CheckBox ShowMCheckBox;
         private Label label26;
         private TextBox DarknessTextBox;
+        private CheckBox DuelCheckBox;
     }
 }

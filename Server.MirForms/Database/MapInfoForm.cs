@@ -141,6 +141,7 @@ namespace Server
             //MineIndextextBox.Text = mi.MineIndex.ToString();
             NoTownTeleportCheckbox.Checked = mi.NoTownTeleport;
             NoReincarnation.Checked = mi.NoReincarnation;
+            DuelCheckBox.Checked = mi.DuelMap;
             for (int i = 1; i < _selectedMapInfos.Count; i++)
             {
                 mi = _selectedMapInfos[i];
@@ -180,6 +181,7 @@ namespace Server
                 if (NeedBridleCheckbox.Checked != mi.NeedBridle) NeedBridleCheckbox.Checked = false;
                 if (NoTownTeleportCheckbox.Checked != mi.NoTownTeleport) NoTownTeleportCheckbox.Checked = false;
                 if (NoReincarnation.Checked != mi.NoReincarnation) NoReincarnation.Checked = false;
+                if (DuelCheckBox.Checked != mi.DuelMap) DuelCheckBox.Checked = false;
             }
 
             UpdateSafeZoneInterface();
@@ -1739,6 +1741,14 @@ namespace Server
 
             for (int i = 0; i < _selectedMapInfos.Count; i++)
                 _selectedMapInfos[i].Darkness = temp;
+        }
+
+        private void DuelCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            for (int i = 0; i < _selectedMapInfos.Count; i++)
+                _selectedMapInfos[i].DuelMap = DuelCheckBox.Checked;
         }
     }
 }

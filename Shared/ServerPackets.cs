@@ -6056,6 +6056,22 @@ namespace ServerPackets
         }
     }
 
+    public sealed class DuelStartTime : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelStartTime; } }
+
+        public int Seconds;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Seconds = reader.ReadInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Seconds);
+        }
+    }
+
     public sealed class UpdateNotice : Packet
     {
         public override short Index

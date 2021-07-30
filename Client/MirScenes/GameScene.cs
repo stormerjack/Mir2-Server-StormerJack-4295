@@ -130,6 +130,8 @@ namespace Client.MirScenes
         public static List<ClientMapInfo> MapInfoList = new List<ClientMapInfo>();
         public static List<ClientMonsterData> MonsterInfoList = new List<ClientMonsterData>();
 
+        public static DateTime DuelBeginTime;
+
         public List<Buff> Buffs = new List<Buff>();
 
         public static UserItem[] Storage = new UserItem[80];
@@ -1783,6 +1785,9 @@ namespace Client.MirScenes
                     break;
                 case (short)ServerPacketIds.DuelCancelled:
                     DuelCancelled((S.DuelCancelled)p);
+                    break;
+                case (short)ServerPacketIds.DuelStartTime:
+                    DuelStartTime((S.DuelStartTime)p);
                     break;
                 default:
                     base.ProcessPacket(p);
@@ -9035,6 +9040,11 @@ namespace Client.MirScenes
             ChatDialog.ReceiveChat("Duel cancelled.", ChatType.Hint);
         }
 
+        public void DuelStartTime(S.DuelStartTime p)
+        {
+            GameScene.DuelBeginTime = CMain.Now.AddSeconds(p.Seconds);
+        }
+
         #region Disposable
 
         protected override void Dispose(bool disposing)
@@ -10129,7 +10139,7 @@ namespace Client.MirScenes
                     {
                         if (Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, Globals.MaxAttackRange))
                         {
-                            if (CMain.Time > GameScene.AttackTime)
+                            if (CMain.Time > GameScene.AttackTime && CMain.Now > GameScene.DuelBeginTime)
                             {
                                 User.QueuedAction = new QueuedAction { Action = MirAction.AttackRange1, Direction = Functions.DirectionFromPoint(User.CurrentLocation, MapObject.TargetObject.CurrentLocation), Location = User.CurrentLocation, Params = new List<object>() };
                                 User.QueuedAction.Params.Add(MapObject.TargetObject != null ? MapObject.TargetObject.ObjectID : (uint)0);
@@ -10151,7 +10161,7 @@ namespace Client.MirScenes
 
                     else if (Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 1))
                     {
-                        if (CMain.Time > GameScene.AttackTime && CanRideAttack())
+                        if (CMain.Time > GameScene.AttackTime && CanRideAttack() && CMain.Now > GameScene.DuelBeginTime)
                         {
                             User.QueuedAction = new QueuedAction { Action = MirAction.Attack1, Direction = Functions.DirectionFromPoint(User.CurrentLocation, MapObject.TargetObject.CurrentLocation), Location = User.CurrentLocation };
                             return;
@@ -10216,7 +10226,7 @@ namespace Client.MirScenes
                         }
                         if (CMain.Shift)
                         {
-                            if (CMain.Time > GameScene.AttackTime && CanRideAttack()) //ArcherTest - shift click
+                            if (CMain.Time > GameScene.AttackTime && CanRideAttack() && CMain.Now > GameScene.DuelBeginTime) //ArcherTest - shift click
                             {
                                 MapObject target = null;
                                 if (MapObject.MouseObject is MonsterObject || MapObject.MouseObject is PlayerObject) target = MapObject.MouseObject;
@@ -10254,7 +10264,7 @@ namespace Client.MirScenes
                         {
                             if (Functions.InRange(MapObject.MouseObject.CurrentLocation, User.CurrentLocation, Globals.MaxAttackRange))
                             {
-                                if (CMain.Time > GameScene.AttackTime)
+                                if (CMain.Time > GameScene.AttackTime && CMain.Now > GameScene.DuelBeginTime)
                                 {
                                     User.QueuedAction = new QueuedAction { Action = MirAction.AttackRange1, Direction = direction, Location = User.CurrentLocation, Params = new List<object>() };
                                     User.QueuedAction.Params.Add(MapObject.TargetObject.ObjectID);
@@ -10373,7 +10383,7 @@ namespace Client.MirScenes
 
         private void UseMagic(ClientMagic magic)
         {
-            if (CMain.Time < GameScene.SpellTime || User.Poison.HasFlag(PoisonType.Stun))
+            if (CMain.Time < GameScene.SpellTime || User.Poison.HasFlag(PoisonType.Stun) || CMain.Now <= GameScene.DuelBeginTime)
             {
                 User.ClearMagic();
                 return;
@@ -10654,7 +10664,7 @@ namespace Client.MirScenes
 
         private bool CanWalk(MirDirection dir)
         {
-            return EmptyCell(Functions.PointMove(User.CurrentLocation, dir, 1)) && !User.InTrapRock;
+            return EmptyCell(Functions.PointMove(User.CurrentLocation, dir, 1)) && !User.InTrapRock && CMain.Now > GameScene.DuelBeginTime;
         }
 
         private bool CheckDoorOpen(Point p)

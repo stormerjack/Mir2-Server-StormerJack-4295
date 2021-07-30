@@ -885,6 +885,8 @@ public abstract class Packet
                 return new S.DuelOpponentConfirmed();
             case (short)ServerPacketIds.DuelCancelled:
                 return new S.DuelCancelled();
+            case (short)ServerPacketIds.DuelStartTime:
+                return new S.DuelStartTime();
             default:
                 return null;
         }

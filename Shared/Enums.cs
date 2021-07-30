@@ -2075,6 +2075,7 @@ public enum ServerPacketIds : short
     DuelConfirmed,
     DuelOpponentConfirmed,
     DuelCancelled,
+    DuelStartTime,
 }
 
 public enum DuelRules : byte

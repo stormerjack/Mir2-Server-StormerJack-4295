@@ -161,7 +161,7 @@ namespace Server.MirObjects
 
         public bool CanMove
         {
-            get { return !Dead && Envir.Time >= ActionTime && !Fishing && !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Frozen); }
+            get { return !Dead && Envir.Time >= ActionTime && !Fishing && !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Frozen) && (!CurrentMap.Info.DuelMap || Envir.Now > CurrentMap.DuelBeginTime); }
         }
         public bool CanWalk
         {
@@ -175,7 +175,7 @@ namespace Server.MirObjects
         {
             get
             {
-                return !Dead && Envir.Time >= ActionTime && Envir.Time >= AttackTime && !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Frozen) && Mount.CanAttack && !Fishing;
+                return !Dead && Envir.Time >= ActionTime && Envir.Time >= AttackTime && !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Frozen) && Mount.CanAttack && !Fishing && (!CurrentMap.Info.DuelMap || Envir.Now > CurrentMap.DuelBeginTime);
             }
         }
 
@@ -188,7 +188,7 @@ namespace Server.MirObjects
             get
             {
                 return !Dead && Envir.Time >= ActionTime && Envir.Time >= SpellTime && !CurrentPoison.HasFlag(PoisonType.Stun) &&
-                    !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.Frozen) && Mount.CanAttack && !Fishing;
+                    !CurrentPoison.HasFlag(PoisonType.Paralysis) && !CurrentPoison.HasFlag(PoisonType.Frozen) && Mount.CanAttack && !Fishing && (!CurrentMap.Info.DuelMap || Envir.Now > CurrentMap.DuelBeginTime);
             }
         }
 
@@ -19731,6 +19731,9 @@ namespace Server.MirObjects
             });
         }
 
+        const int DuelTeleportX = 21, DuelTeleportY = 19;
+        const int DuelOpponentTeleportX = 16, DuelOpponentTeleportY = 23;
+
         public void ChangeDuelStake(uint amount)
         {
             if (DuelInvitation == null || DuelInvitation.Node == null)
@@ -19769,7 +19772,7 @@ namespace Server.MirObjects
             if (DuelInvitation == null || DuelInvitation.Node == null)
                 return;
 
-            if (!InSafeZone) return;
+            if (!InSafeZone || !DuelInvitation.InSafeZone) return;
 
             for (int i = 0; i < ActiveDuelRules.Length; i++)
             {
@@ -19781,7 +19784,27 @@ namespace Server.MirObjects
 
             if (DuelInvitation.DuelConfirmed)
             {
-                //Start Duel
+                Map teleportMap = null;
+                foreach (Map map in Envir.MapList.Where(x => x.Info.DuelMap))
+                {
+                    if (map.Players.Count > 0) continue;
+                    teleportMap = map;
+                    break;
+                }
+
+                if (teleportMap == null)
+                {
+                    ReceiveChat("No slots available. Please try again.", ChatType.System);
+                    DuelInvitation.ReceiveChat("No slots available. Please try again.", ChatType.System);
+                    return;
+                }
+
+                int StartSeconds = 5;
+
+                teleportMap.DuelBeginTime = Envir.Now.AddSeconds(StartSeconds);
+                Teleport(teleportMap, new Point(DuelTeleportX, DuelTeleportY));
+                DuelInvitation.Teleport(teleportMap, new Point(DuelOpponentTeleportX, DuelOpponentTeleportY));
+                Enqueue(new S.DuelStartTime { Seconds = StartSeconds });
                 return;
             }
 

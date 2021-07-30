@@ -27,7 +27,7 @@ namespace Server.MirDatabase
 
         public bool NoTeleport, NoReconnect, NoRandom, NoEscape, NoRecall, NoDrug, NoPosition, NoFight,
             NoThrowItem, NoDropPlayer, NoDropMonster, NoNames, NoMount, NeedBridle, Fight, NeedHole, Fire, Lightning, 
-            NoTownTeleport, NoReincarnation;
+            NoTownTeleport, NoReincarnation, DuelMap;
 
         public string NoReconnectMap = string.Empty;
         public int FireDamage, LightningDamage;
@@ -102,6 +102,8 @@ namespace Server.MirDatabase
             NoReincarnation = reader.ReadBoolean();
             if (Envir.LoadVersion > 87)
                 Darkness = reader.ReadByte();
+            if (Envir.LoadVersion > 91)
+                DuelMap = reader.ReadBoolean();
         }
 
         public void Save(BinaryWriter writer)
@@ -157,6 +159,7 @@ namespace Server.MirDatabase
             writer.Write(NoTownTeleport);
             writer.Write(NoReincarnation);
             writer.Write(Darkness);
+            writer.Write(DuelMap);
         }
 
 
