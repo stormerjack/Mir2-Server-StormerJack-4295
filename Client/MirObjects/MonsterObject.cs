@@ -80,7 +80,7 @@ namespace Client.MirObjects
             if (info.Data != null)
                 Data = info.Data;
             else
-                Data = GameScene.MonsterInfoList.First(x => x.Index == info.MonsterIndex);
+                Data = GameScene.MonsterInfoList.FirstOrDefault(x => x.Index == info.MonsterIndex);
 
             OldNameColor = NameColour;
 
