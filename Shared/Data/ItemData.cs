@@ -29,6 +29,7 @@ public class ItemInfo
 
     public bool StartItem;
     public byte Effect;
+    public bool DuelItem;
 
     public byte Strong;
     public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, HPrate, MPrate;
@@ -175,6 +176,9 @@ public class ItemInfo
 
         if (version > 88)
             DarkResist = reader.ReadByte();
+
+        if (version > 92)
+            DuelItem = reader.ReadBoolean();
     }
 
 
@@ -263,6 +267,7 @@ public class ItemInfo
             writer.Write(ToolTip);
 
         writer.Write(DarkResist);
+        writer.Write(DuelItem);
     }
 
     public static ItemInfo FromText(string text)

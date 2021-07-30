@@ -250,6 +250,7 @@ namespace Server
             BWeightText.Text = info.BagWeight.ToString();
 
             StartItemCheckBox.Checked = info.StartItem;
+            DuelItemCheckBox.Checked = info.DuelItem;
             EffectTextBox.Text = info.Effect.ToString();
             SlotsTextBox.Text = info.Slots.ToString();
 
@@ -360,6 +361,7 @@ namespace Server
                 if (BWeightText.Text != info.BagWeight.ToString()) BWeightText.Text = string.Empty;
 
                 if (StartItemCheckBox.Checked != info.StartItem) StartItemCheckBox.CheckState = CheckState.Indeterminate;
+                if (DuelItemCheckBox.Checked != info.DuelItem) DuelItemCheckBox.CheckState = CheckState.Indeterminate;
                 if (EffectTextBox.Text != info.Effect.ToString()) EffectTextBox.Text = string.Empty;
                 if (SlotsTextBox.Text != info.Slots.ToString()) SlotsTextBox.Text = string.Empty;
 
@@ -1841,6 +1843,14 @@ namespace Server
 
             for (int i = 0; i < _selectedItemInfos.Count; i++)
                 _selectedItemInfos[i].DarkResist = temp;
+        }
+
+        private void DuelItemCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            for (int i = 0; i < _selectedItemInfos.Count; i++)
+                _selectedItemInfos[i].DuelItem = DuelItemCheckBox.Checked;
         }
     }
 }

@@ -131,6 +131,7 @@ namespace Client.MirScenes
         public static List<ClientMonsterData> MonsterInfoList = new List<ClientMonsterData>();
 
         public static DateTime DuelBeginTime;
+        public bool DuelNeedGo;
 
         public List<Buff> Buffs = new List<Buff>();
 
@@ -3360,7 +3361,7 @@ namespace Client.MirScenes
             User.ClearMagic();
             User.SetAction();
 
-            GameScene.CanRun = false;
+            CanRun = false;
 
             MapControl.FloorValid = false;
             MapControl.InputDelay = CMain.Time + 400;
@@ -9042,7 +9043,9 @@ namespace Client.MirScenes
 
         public void DuelStartTime(S.DuelStartTime p)
         {
-            GameScene.DuelBeginTime = CMain.Now.AddSeconds(p.Seconds);
+            DuelBeginTime = CMain.Now.AddSeconds(p.Seconds);
+            DuelNeedGo = true;
+            DuelDialog.Visible = false;
         }
 
         #region Disposable
@@ -9167,6 +9170,8 @@ namespace Client.MirScenes
 
         public long OutputDelay;
 
+        public MirImageControl ThreeImage, TwoImage, OneImage, GoImage;
+
         private static bool _awakeningAction;
         public static bool AwakeningAction
         {
@@ -9214,6 +9219,33 @@ namespace Client.MirScenes
             MouseDown += OnMouseDown;
             MouseMove += (o, e) => MouseLocation = e.Location;
             Click += OnMouseClick;
+
+            ThreeImage = new MirImageControl
+            {
+                Index = 16,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene, 
+                Visible = false,
+            };
+            ThreeImage.Location = new Point(Settings.ScreenWidth / 2 - ThreeImage.Size.Width / 2, 10);
+
+            TwoImage = new MirImageControl
+            {
+                Index = 15,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene,
+                Visible = false,
+            };
+            TwoImage.Location = new Point(Settings.ScreenWidth / 2 - TwoImage.Size.Width / 2, 10);
+
+            OneImage = new MirImageControl
+            {
+                Index = 14,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene,
+                Visible = false,
+            };
+            OneImage.Location = new Point(Settings.ScreenWidth / 2 - OneImage.Size.Width / 2, 10);
         }
 
         public void LoadMap()
@@ -9418,7 +9450,41 @@ namespace Client.MirScenes
             if (MapObject.User.MouseOver(MouseLocation))
                 MapObject.User.DrawName();
 
+            if (GameScene.DuelBeginTime > CMain.Now)
+            {
+                TimeSpan ts = GameScene.DuelBeginTime - CMain.Now;
 
+                ThreeImage.Visible = false;
+                TwoImage.Visible = false;
+                OneImage.Visible = false;
+
+                if (ts < TimeSpan.FromSeconds(3))
+                {
+                    if (ts > TimeSpan.FromSeconds(2))
+                        ThreeImage.Visible = true;
+                    else if (ts > TimeSpan.FromSeconds(1) && ts < TimeSpan.FromSeconds(2))
+                        TwoImage.Visible = true;
+                    else
+                        OneImage.Visible = true;
+                }
+            }
+            else if (GameScene.Scene.DuelNeedGo)
+            {
+                GameScene.Scene.DuelNeedGo = false;
+                ThreeImage.Visible = false;
+                TwoImage.Visible = false;
+                OneImage.Visible = false;
+
+                GoImage = new MirImageControl
+                {
+                    Index = 17,
+                    Library = Libraries.PrguseCustom,
+                    Parent = GameScene.Scene,
+                    Visible = true,
+                    DestroyTime = CMain.Now.AddSeconds(1)
+                };
+                GoImage.Location = new Point(Settings.ScreenWidth / 2 - GoImage.Size.Width / 2, 10);
+            }
 
 
             DXManager.SetSurface(oldSurface);

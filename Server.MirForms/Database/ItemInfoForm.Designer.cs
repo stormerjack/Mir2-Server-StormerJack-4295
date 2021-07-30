@@ -31,6 +31,7 @@
             this.ItemInfoPanel = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.DuelItemCheckBox = new System.Windows.Forms.CheckBox();
             this.label57 = new System.Windows.Forms.Label();
             this.SlotsTextBox = new System.Windows.Forms.TextBox();
             this.globalDropNotify_CheckBox = new System.Windows.Forms.CheckBox();
@@ -233,6 +234,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.DuelItemCheckBox);
             this.tabPage1.Controls.Add(this.label57);
             this.tabPage1.Controls.Add(this.SlotsTextBox);
             this.tabPage1.Controls.Add(this.globalDropNotify_CheckBox);
@@ -290,6 +292,17 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // DuelItemCheckBox
+            // 
+            this.DuelItemCheckBox.AutoSize = true;
+            this.DuelItemCheckBox.Location = new System.Drawing.Point(365, 317);
+            this.DuelItemCheckBox.Name = "DuelItemCheckBox";
+            this.DuelItemCheckBox.Size = new System.Drawing.Size(71, 17);
+            this.DuelItemCheckBox.TabIndex = 127;
+            this.DuelItemCheckBox.Text = "Duel Item";
+            this.DuelItemCheckBox.UseVisualStyleBackColor = true;
+            this.DuelItemCheckBox.CheckedChanged += new System.EventHandler(this.DuelItemCheckBox_CheckedChanged);
             // 
             // label57
             // 
@@ -2195,5 +2208,6 @@
         private System.Windows.Forms.TextBox SearchTextBox;
         private System.Windows.Forms.TextBox DarkResistTextBox;
         private System.Windows.Forms.Label label58;
+        private System.Windows.Forms.CheckBox DuelItemCheckBox;
     }
 }

@@ -215,6 +215,7 @@ namespace Server.MirObjects
         public uint DuelStake;
         public PlayerObject DuelInvitation;
         public bool DuelConfirmed;
+        public uint CurrentDuelPrize;
 
         private bool _concentrating;
         public bool Concentrating
@@ -434,6 +435,9 @@ namespace Server.MirObjects
         public void StopGame(byte reason)
         {
             if (Node == null) return;
+
+            if (CurrentMap.Info.DuelMap)
+                RemoveDuelItems(false);
 
             for (int i = 0; i < Pets.Count; i++)
             {
@@ -2450,6 +2454,20 @@ namespace Server.MirObjects
             }
         }
 
+        public void RemoveDuelItems(bool check = true)
+        {
+            if (check && CurrentMap.Info.DuelMap) return;
+
+            for (int i = 0; i < Info.Inventory.Length; i++)
+            {
+                if (Info.Inventory[i] == null) continue;
+                if (!Info.Inventory[i].Info.DuelItem) continue;
+
+                Enqueue(new S.DeleteItem { UniqueID = Info.Inventory[i].UniqueID, Count = Info.Inventory[i].Count });
+                Info.Inventory[i] = null;
+            }
+        }
+
         public void Revive(uint hp, bool effect)
         {
             if (!Dead) return;
@@ -2479,6 +2497,7 @@ namespace Server.MirObjects
                 Music = CurrentMap.Info.Music,
             });
 
+            RemoveDuelItems();
             
             CheckMapInfo(CurrentMap.Info);
             CheckMapDarkness();
@@ -2538,6 +2557,7 @@ namespace Server.MirObjects
                 Music = CurrentMap.Info.Music
             });
 
+            RemoveDuelItems();
             CheckMapInfo(CurrentMap.Info);
             CheckMapDarkness();
             GetObjects();
@@ -4370,6 +4390,18 @@ namespace Server.MirObjects
                         if (!InSafeZone ||  !player.InSafeZone)
                         {
                             ReceiveChat("Both players must be in Safezone.", ChatType.Hint);
+                            return;
+                        }
+
+                        if (Info.Inventory[0] != null || Info.Inventory[1] != null)
+                        {
+                            ReceiveChat("Potion slots 1 & 2 must be empty.", ChatType.Hint);
+                            return;
+                        }
+
+                        if (player.Info.Inventory[0] != null || player.Info.Inventory[1] != null)
+                        {
+                            ReceiveChat("Opponents Potion slots 1 & 2 must be empty.", ChatType.Hint);
                             return;
                         }
 
@@ -10866,7 +10898,7 @@ namespace Server.MirObjects
                 MapDarkLight = CurrentMap.Info.MapDarkLight,
                 Music = CurrentMap.Info.Music
             });
-
+            RemoveDuelItems();
             CheckMapInfo(CurrentMap.Info);
             CheckMapDarkness();
 
@@ -10924,6 +10956,7 @@ namespace Server.MirObjects
                 Music = CurrentMap.Info.Music
             });
 
+            RemoveDuelItems();
             CheckMapInfo(CurrentMap.Info);
             CheckMapDarkness();
 
@@ -12555,6 +12588,12 @@ namespace Server.MirObjects
             switch (item.Info.Type)
             {
                 case ItemType.Potion:
+                    if (CurrentMap.Info.DuelMap && !item.Info.DuelItem)
+                    {
+                        Enqueue(p);
+                        return;
+                    }
+
                     switch (item.Info.Shape)
                     {
                         case 0: //NormalPotion
@@ -19757,6 +19796,8 @@ namespace Server.MirObjects
 
         public void DuelCancel()
         {
+            if (DuelInvitation == null) return;
+
             DuelInvitation.CancelDuel();
             CancelDuel();
         }
@@ -19764,7 +19805,7 @@ namespace Server.MirObjects
         public void CancelDuel()
         {
             DuelInvitation.Enqueue(new S.DuelCancelled { });
-            DuelInvitation = null;
+            DuelInvitation = null;            
         }
 
         public void DuelConfirm()
@@ -19779,6 +19820,18 @@ namespace Server.MirObjects
                 if (ActiveDuelRules[i] != DuelInvitation.ActiveDuelRules[i])
                     return;
             }
+
+            if (Account.Gold < DuelStake)
+                return;
+
+            if (DuelInvitation.Account.Gold < DuelInvitation.DuelStake)
+                return;
+
+            if (Info.Inventory[0] != null || Info.Inventory[1] != null)
+                return;
+
+            if (DuelInvitation.Info.Inventory[0] != null || DuelInvitation.Info.Inventory[1] != null)
+                return;
 
             DuelConfirmed = true;
 
@@ -19801,10 +19854,32 @@ namespace Server.MirObjects
 
                 int StartSeconds = 5;
 
-                teleportMap.DuelBeginTime = Envir.Now.AddSeconds(StartSeconds);
+                teleportMap.DuelBeginTime = Envir.Now.AddSeconds(StartSeconds);                
+
                 Teleport(teleportMap, new Point(DuelTeleportX, DuelTeleportY));
                 DuelInvitation.Teleport(teleportMap, new Point(DuelOpponentTeleportX, DuelOpponentTeleportY));
+
+                uint prize = DuelStake + DuelInvitation.DuelStake;
+                Account.Gold -= DuelStake;
+                Enqueue(new S.LoseGold { Gold = DuelStake });
+                CurrentDuelPrize = prize;
+                DuelInvitation.Account.Gold -= DuelInvitation.DuelStake;
+                DuelInvitation.Enqueue(new S.LoseGold { Gold = DuelInvitation.DuelStake });
+                DuelInvitation.CurrentDuelPrize = prize;
+
+                foreach (ItemInfo info in Envir.ItemInfoList.Where(x => x.DuelItem))
+                {
+                    UserItem item = Envir.CreateFreshItem(info);
+                    item.Count = info.StackSize;
+                    GainItem(item);
+
+                    item = Envir.CreateFreshItem(info);
+                    item.Count = info.StackSize;
+                    DuelInvitation.GainItem(item);
+                }
+
                 Enqueue(new S.DuelStartTime { Seconds = StartSeconds });
+                DuelInvitation.Enqueue(new S.DuelStartTime { Seconds = StartSeconds });
                 return;
             }
 
