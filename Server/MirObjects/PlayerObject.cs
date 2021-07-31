@@ -437,7 +437,11 @@ namespace Server.MirObjects
             if (Node == null) return;
 
             if (CurrentMap.Info.DuelMap)
+            {             
+                EndDuel(DuelInvitation.CurrentMap);
                 RemoveDuelItems(false);
+                DuelInvitation = null;
+            }
 
             for (int i = 0; i < Pets.Count; i++)
             {
@@ -1465,6 +1469,9 @@ namespace Server.MirObjects
             HP = 0;
             Dead = true;
 
+            if (CurrentMap.Info.DuelMap)
+                EndDuel(CurrentMap);
+
             LogTime = Envir.Time;
             BrownTime = Envir.Time;
 
@@ -1494,6 +1501,7 @@ namespace Server.MirObjects
 
             if (CurrentMap.Info.NoDropPlayer && Race == ObjectType.Player)
                 return;
+            if (!CurrentMap.ActiveDuelRules[(int)DuelRules.CanDeathDrop]) return;
 
             if ((killer == null) || ((pkbodydrop) || (killer.Race != ObjectType.Player)))
             {
@@ -1661,6 +1669,7 @@ namespace Server.MirObjects
         }
         private void RedDeathDrop(MapObject killer)
         {
+            if (!CurrentMap.ActiveDuelRules[(int)DuelRules.CanDeathDrop]) return;
             if (killer == null || killer.Race != ObjectType.Player)
             {
                 for (var i = 0; i < Info.Equipment.Length; i++)
@@ -4380,6 +4389,7 @@ namespace Server.MirObjects
                         player = Envir.GetPlayer(parts[1]);
 
                         if (player == null) return;
+                        if (player == this) return;
 
                         if (player.DuelInvitation != null)
                         {
@@ -7785,6 +7795,7 @@ namespace Server.MirObjects
         }
         private void FireWall(UserMagic magic, Point location)
         {
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoFireWall]) return;
             int damageBase = GetAttackPower(MinMC, MaxMC);
             UserMagic support = magic.GetSupportMagic(Spell.AddedMagicalDamage);
             if (support != null)
@@ -7882,6 +7893,7 @@ namespace Server.MirObjects
                 CurrentMap.ActionList.Add(action);
                 return;
             }
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoPets]) return;
 
             MonsterInfo info = Envir.GetMonsterInfo(Settings.CloneName);
             if (info == null) return;
@@ -7976,6 +7988,7 @@ namespace Server.MirObjects
         private void Healing(MapObject target, UserMagic magic)
         {
             if (target == null || !target.IsFriendlyTarget(this)) return;
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoHealingSkill]) return;
 
             int health = magic.GetDamage(GetAttackPower(MinSC, MaxSC) * 2) + Level;
 
@@ -8042,6 +8055,7 @@ namespace Server.MirObjects
                 monster.ActionList.Add(new DelayedAction(DelayedType.Recall, Envir.Time + 500));
                 return;
             }
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoPets]) return;
 
             if (Pets.Where(x => x.Race == ObjectType.Monster).Count() > 1) return;
 
@@ -8086,6 +8100,7 @@ namespace Server.MirObjects
                 monster.ActionList.Add(new DelayedAction(DelayedType.Recall, Envir.Time + 500));
                 return;
             }
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoPets]) return;
 
             if (Pets.Where(x => x.Race == ObjectType.Monster).Count() > 1) return;
 
@@ -8169,6 +8184,7 @@ namespace Server.MirObjects
         }
         private void MassHealing(UserMagic magic, Point location)
         {
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoHealingSkill]) return;
             int value = magic.GetDamage(GetAttackPower(MinSC, MaxSC));
 
             DelayedAction action = new DelayedAction(DelayedType.Magic, Envir.Time + 500, this, magic, value, location);
@@ -8332,7 +8348,7 @@ namespace Server.MirObjects
                 monster.ActionList.Add(new DelayedAction(DelayedType.Recall, Envir.Time + 500));
                 return;
             }
-
+            if (CurrentMap.ActiveDuelRules[(int)DuelRules.NoPets]) return;
             if (Pets.Where(x => x.Race == ObjectType.Monster).Count() > 1) return;
 
             UserItem item = GetAmulet(2);
@@ -10956,6 +10972,7 @@ namespace Server.MirObjects
                 Music = CurrentMap.Info.Music
             });
 
+            EndDuel(oldMap);
             RemoveDuelItems();
             CheckMapInfo(CurrentMap.Info);
             CheckMapDarkness();
@@ -19788,10 +19805,15 @@ namespace Server.MirObjects
         public void DuelReply(bool accept)
         {
             if (DuelInvitation == null || DuelInvitation.Node == null)
-                return;            
+                return;
 
-            BeginDuel(DuelInvitation);
-            DuelInvitation.BeginDuel(this);
+            if (accept)
+            {
+                BeginDuel(DuelInvitation);
+                DuelInvitation.BeginDuel(this);
+            }
+            else
+                DuelInvitation = null;
         }
 
         public void DuelCancel()
@@ -19804,6 +19826,8 @@ namespace Server.MirObjects
 
         public void CancelDuel()
         {
+            if (DuelInvitation == null) return;
+
             DuelInvitation.Enqueue(new S.DuelCancelled { });
             DuelInvitation = null;            
         }
@@ -19854,10 +19878,10 @@ namespace Server.MirObjects
 
                 int StartSeconds = 5;
 
-                teleportMap.DuelBeginTime = Envir.Now.AddSeconds(StartSeconds);                
-
-                Teleport(teleportMap, new Point(DuelTeleportX, DuelTeleportY));
-                DuelInvitation.Teleport(teleportMap, new Point(DuelOpponentTeleportX, DuelOpponentTeleportY));
+                teleportMap.DuelBeginTime = Envir.Now.AddSeconds(StartSeconds);
+                teleportMap.ActiveDuelRules = ActiveDuelRules;
+                teleportMap.DuelExitTime = DateTime.MaxValue;
+                teleportMap.DuelFinished = false;                
 
                 uint prize = DuelStake + DuelInvitation.DuelStake;
                 Account.Gold -= DuelStake;
@@ -19880,6 +19904,9 @@ namespace Server.MirObjects
 
                 Enqueue(new S.DuelStartTime { Seconds = StartSeconds });
                 DuelInvitation.Enqueue(new S.DuelStartTime { Seconds = StartSeconds });
+
+                Teleport(teleportMap, new Point(DuelTeleportX, DuelTeleportY));
+                DuelInvitation.Teleport(teleportMap, new Point(DuelOpponentTeleportX, DuelOpponentTeleportY));
                 return;
             }
 
@@ -19896,6 +19923,25 @@ namespace Server.MirObjects
             DuelConfirmed = false;
 
             OpenDuelDialog();
+        }
+
+        public void EndDuel(Map map)
+        {
+            if (!map.Info.DuelMap) return;
+            if (DuelInvitation == null) return;
+
+            if  (map.DuelFinished)
+            {
+                DuelInvitation = null;
+                return;
+            }
+
+            map.DuelFinished = true;
+            DuelInvitation.GainGold(CurrentDuelPrize);
+            ReceiveChat("You have lost the duel.", ChatType.Hint);
+            DuelInvitation.ReceiveChat("You have won the duel", ChatType.Hint);
+            map.DuelExitTime = Envir.Now.AddSeconds(5);
+            DuelInvitation = null;
         }
 
         #region Friends

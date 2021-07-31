@@ -1920,6 +1920,7 @@ namespace Server.MirEnvir
             StartPoints.Clear();
             StartItems.Clear();
             MapList.Clear();
+            Groups.Clear();
             GameshopLog.Clear();
             CustomCommands.Clear();
             MonsterCount = 0;

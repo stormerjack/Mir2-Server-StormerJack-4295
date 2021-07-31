@@ -706,6 +706,7 @@ namespace Server.MirObjects
         public override bool Teleport(Map temp, Point location, bool effects = true, byte effectnumber = 0)
         {
             if (temp == null || !temp.ValidPoint(location)) return false;
+            if (temp.ActiveDuelRules[(int)DuelRules.NoPets]) return false;
 
             CurrentMap.RemoveObject(this);
             if (effects) Broadcast(new S.ObjectTeleportOut { ObjectID = ObjectID, Type = effectnumber });

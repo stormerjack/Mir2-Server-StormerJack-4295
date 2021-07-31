@@ -42,7 +42,9 @@ namespace Server.MirEnvir
         public List<ConquestObject> Conquest = new List<ConquestObject>();
         public ConquestObject tempConquest;
 
-        public DateTime DuelBeginTime;
+        public bool DuelFinished;
+        public DateTime DuelBeginTime, DuelExitTime;
+        public bool[] ActiveDuelRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
 
         public Map(MapInfo info)
         {
@@ -642,6 +644,20 @@ namespace Server.MirEnvir
                     Doors[i].DoorState = 0;
 
                     Broadcast(new S.Opendoor() { DoorIndex = Doors[i].index, Close = true }, Doors[i].Location);
+                }
+            }
+
+            if (Info.DuelMap && Envir.Now > DuelExitTime)
+            {
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    PlayerObject player = Players[i];
+                    if (player == null) continue;
+
+                    if (player.Dead)
+                        player.TownRevive();
+                    else
+                        player.Teleport(Envir.GetMap(player.BindMapIndex), player.BindLocation);
                 }
             }
 
