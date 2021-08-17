@@ -1,6 +1,7 @@
 ﻿public static class Globals
 {
     public const string ProductCodename = "Crystal";
+    public const string ProductVersion = "Release";
 
     public const int
         MinAccountIDLength = 3,
