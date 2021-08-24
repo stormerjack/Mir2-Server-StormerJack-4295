@@ -1,22 +1,21 @@
-using System;
+﻿using Server.MirDatabase;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Server.MirDatabase;
 using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class DarkDevourer : MonsterObject
+    public class AvengingWarrior : MonsterObject
     {
-        protected internal DarkDevourer(MonsterInfo info)
+        public byte AttackRange = 6;
+
+        protected internal AvengingWarrior(MonsterInfo info)
             : base(info)
         {
         }
 
         protected override bool InAttackRange()
         {
-            return CurrentMap == Target.CurrentMap && Functions.InRange(CurrentLocation, Target.CurrentLocation, Info.ViewRange);
+            return CurrentMap == Target.CurrentMap && CanFly(Target.CurrentLocation) && Functions.InRange(CurrentLocation, Target.CurrentLocation, AttackRange);
         }
 
         protected override void Attack()
@@ -27,32 +26,32 @@ namespace Server.MirObjects.Monsters
                 return;
             }
 
+            ShockTime = 0;
+
             Direction = Functions.DirectionFromPoint(CurrentLocation, Target.CurrentLocation);
             bool ranged = CurrentLocation == Target.CurrentLocation || !Functions.InRange(CurrentLocation, Target.CurrentLocation, 1);
 
-            if (!ranged)
+            ActionTime = Envir.Time + 300;
+            AttackTime = Envir.Time + AttackSpeed;
+
+            if (!ranged && Envir.Random.Next(5) > 0)
             {
                 Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation });
-
-                ActionTime = Envir.Time + AttackSpeed + 300;
-
                 int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
-                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, Target, damage, DefenceType.AC);
+                
+                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 400, Target, damage, DefenceType.ACAgility, false);
                 ActionList.Add(action);
             }
             else
             {
-                Broadcast(new S.ObjectRangeAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, TargetID = Target.ObjectID });
+                Broadcast(new S.ObjectRangeAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, TargetID = Target.ObjectID, Type = 0 });
+                int damage = GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]);
+                if (damage == 0) return;
 
-                AttackTime = Envir.Time + AttackSpeed + 500;
-
-                int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
-                DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + 500, Target, damage, DefenceType.MACAgility);
+                int delay = Functions.MaxDistance(CurrentLocation, Target.CurrentLocation) * 50 + 500; //50 MS per Step
+                DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + delay, Target, damage, DefenceType.MACAgility);
                 ActionList.Add(action);
             }
-
-            ShockTime = 0;
-            AttackTime = Envir.Time + AttackSpeed;
         }
 
         protected override void CompleteRangeAttack(IList<object> data)
@@ -65,10 +64,7 @@ namespace Server.MirObjects.Monsters
 
             if (target.Attacked(this, damage, defence) <= 0) return;
 
-            if (Info.Effect == 1)
-            {
-                PoisonTarget(target, 1, 5, PoisonType.Green, 1000);
-            }
+            PoisonTarget(Target, 5, 8, PoisonType.Red);
         }
 
         protected override void ProcessTarget()
@@ -88,7 +84,6 @@ namespace Server.MirObjects.Monsters
             }
 
             MoveTo(Target.CurrentLocation);
-
         }
     }
 }

@@ -1,42 +1,42 @@
-﻿using Server.MirDatabase;
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using Server.MirDatabase;
+using Server.MirEnvir;
 using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class FlameAssassin : RightGuard
+    public class Doe : MonsterObject
     {
         public long FearTime;
+        public long teleportTime = 5000;
 
-        protected internal FlameAssassin(MonsterInfo info)
+        protected internal Doe(MonsterInfo info)
             : base(info)
         {
-        }
-
-        protected override void CompleteRangeAttack(IList<object> data)
-        {
-            MapObject target = (MapObject)data[0];
-            int damage = (int)data[1];
-            DefenceType defence = (DefenceType)data[2];
-
-            if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
-
-            if (target.Attacked(this, damage, defence) <= 0) return;
-
-            PoisonTarget(target, 1, GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]), PoisonType.Slow, 1000);
         }
 
         protected override void ProcessTarget()
         {
             if (Target == null || !CanAttack) return;
 
-            if (InAttackRange() && Envir.Time < FearTime)
+            if (Envir.Time < FearTime)
             {
                 Attack();
                 return;
             }
 
             FearTime = Envir.Time + 5000;
+
+
+            var hpPercent = (HP * 100) / Stats[Stat.HP];
+            bool halfHealth = hpPercent <= 50;
+
+            if(halfHealth == true && Envir.Time > teleportTime)
+            {
+                TeleportRandom(1, 5, CurrentMap);
+            }
 
             if (Envir.Time < ShockTime)
             {
@@ -46,7 +46,7 @@ namespace Server.MirObjects.Monsters
 
             int dist = Functions.MaxDistance(CurrentLocation, Target.CurrentLocation);
 
-            if (dist >= AttackRange)
+            if (dist >= Info.ViewRange)
                 MoveTo(Target.CurrentLocation);
             else
             {
@@ -75,8 +75,28 @@ namespace Server.MirObjects.Monsters
                         }
                         break;
                 }
-                
+
             }
         }
+
+
+        public override bool TeleportRandom(int attempts, int distance, Map temp = null)
+        {
+            for (int i = 0; i < attempts; i++)
+            {
+                Point location;
+
+                if (distance <= 0)
+                    location = new Point(Envir.Random.Next(CurrentMap.Width), Envir.Random.Next(CurrentMap.Height));
+                else
+                    location = new Point(CurrentLocation.X + Envir.Random.Next(-distance, distance + 1),
+                                         CurrentLocation.Y + Envir.Random.Next(-distance, distance + 1));
+
+                if (Teleport(CurrentMap, location, true, 9)) return true;
+            }
+
+            return false;
+        }
+
     }
 }

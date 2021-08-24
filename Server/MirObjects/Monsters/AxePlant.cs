@@ -6,9 +6,9 @@ using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class BoneSpearman : MonsterObject
+    public class AxePlant : MonsterObject
     {
-        protected internal BoneSpearman(MonsterInfo info)
+        protected internal AxePlant(MonsterInfo info)
             : base(info)
         {
         }
@@ -21,7 +21,7 @@ namespace Server.MirObjects.Monsters
             int x = Math.Abs(Target.CurrentLocation.X - CurrentLocation.X);
             int y = Math.Abs(Target.CurrentLocation.Y - CurrentLocation.Y);
 
-            if (x > 2 || y > 2) return false;
+            if (x > 3 || y > 3) return false;
 
             return (x <= 1 && y <= 1) || (x == y || x % 2 == y % 2);
         }
@@ -34,17 +34,18 @@ namespace Server.MirObjects.Monsters
                 return;
             }
 
+            Direction = Functions.DirectionFromPoint(CurrentLocation, Target.CurrentLocation);
+
             ActionTime = Envir.Time + 300;
             AttackTime = Envir.Time + AttackSpeed;
             ShockTime = 0;
 
-            Direction = Functions.DirectionFromPoint(CurrentLocation, Target.CurrentLocation);
             Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation });
 
-            int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
+            var damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
             if (damage == 0) return;
 
-            LineAttack(damage, 2, 250);
-        }        
+            TriangleAttack(damage, 3, 1, 800);
+        }
     }
 }

@@ -1,15 +1,12 @@
-﻿using System;
+﻿using Server.MirDatabase;
 using System.Collections.Generic;
-using System.Drawing;
-using Server.MirDatabase;
-using Server.MirEnvir;
 using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class FlamingMutant : MonsterObject
+    public class ElementGuard : MonsterObject
     {
-        protected internal FlamingMutant(MonsterInfo info)
+        protected internal ElementGuard(MonsterInfo info)
             : base(info)
         {
         }
@@ -28,32 +25,31 @@ namespace Server.MirObjects.Monsters
             }
 
             ShockTime = 0;
-            ActionTime = Envir.Time + 300;
-            AttackTime = Envir.Time + AttackSpeed;
 
             Direction = Functions.DirectionFromPoint(CurrentLocation, Target.CurrentLocation);
             bool ranged = CurrentLocation == Target.CurrentLocation || !Functions.InRange(CurrentLocation, Target.CurrentLocation, 1);
 
+            ActionTime = Envir.Time + 300;
+            AttackTime = Envir.Time + AttackSpeed;
+
             if (!ranged)
             {
                 Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation });
-
                 int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
                 if (damage == 0) return;
 
-                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.ACAgility, true);
+                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, Target, damage, DefenceType.MAC, true);
                 ActionList.Add(action);
             }
             else
             {
                 Broadcast(new S.ObjectRangeAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, TargetID = Target.ObjectID });
+                AttackTime = Envir.Time + AttackSpeed + 500;
 
                 int damage = GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]);
                 if (damage == 0) return;
 
-                int delay = Functions.MaxDistance(CurrentLocation, Target.CurrentLocation) * 20 + 500; //50 MS per Step
-
-                DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + delay, Target, damage, DefenceType.MACAgility);
+                DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + 500, Target, damage, DefenceType.MAC, false);
                 ActionList.Add(action);
             }
         }
@@ -63,21 +59,15 @@ namespace Server.MirObjects.Monsters
             MapObject target = (MapObject)data[0];
             int damage = (int)data[1];
             DefenceType defence = (DefenceType)data[2];
+            bool poison = (bool)data[3];
 
             if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
 
-            target.Attacked(this, damage, defence);
+            if (target.Attacked(this, damage, defence) <= 0) return;
 
-            List<MapObject> targets = FindAllTargets(3, CurrentLocation, false);
-
-            if (targets.Count == 0) return;
-
-            for (int i = 0; i < targets.Count; i++)
+            if (poison)
             {
-                MirDirection dir = Functions.DirectionFromPoint(targets[i].CurrentLocation, CurrentLocation);
-                int dist = Functions.MaxDistance(targets[i].CurrentLocation, CurrentLocation);
-
-                targets[i].Pushed(this, dir, dist - 1);
+                PoisonTarget(target, 5, 5, PoisonType.Red, 1000);
             }
         }
 
@@ -86,20 +76,15 @@ namespace Server.MirObjects.Monsters
             MapObject target = (MapObject)data[0];
             int damage = (int)data[1];
             DefenceType defence = (DefenceType)data[2];
+            bool poison = (bool)data[3];
 
             if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
 
-            var targets = FindAllTargets(3, target.CurrentLocation, false);
+            if (target.Attacked(this, damage, defence) <= 0) return;
 
-            for (int i = 0; i < targets.Count; i++)
+            if (poison)
             {
-                if (targets[i].Attacked(this, damage, defence) <= 0) continue;
-
-                if (Envir.Random.Next(2) == 0)
-                {
-                    PoisonTarget(targets[i], 1, 5, PoisonType.Paralysis, 1000);
-                    Broadcast(new S.ObjectEffect { ObjectID = targets[i].ObjectID, Effect = SpellEffect.FlamingMutantWeb, Time = 5000 });
-                }
+                PoisonTarget(target, 5, 3, PoisonType.Green, 1000);
             }
         }
 
@@ -120,7 +105,6 @@ namespace Server.MirObjects.Monsters
             }
 
             MoveTo(Target.CurrentLocation);
-
         }
     }
 }

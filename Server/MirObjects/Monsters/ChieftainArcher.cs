@@ -7,12 +7,21 @@ using System.Collections.Generic;
 
 namespace Server.MirObjects.Monsters
 {
-    public class FlameScythe : MonsterObject
+    //TODO - Has a retreat Animation, can't get motion accurate
+
+    public class ChieftainArcher : MonsterObject
     {
         public long FearTime;
-        public byte AttackRange = 2;
 
-        protected internal FlameScythe(MonsterInfo info)
+        protected virtual byte AttackRange
+        {
+            get
+            {
+                return 6;
+            }
+        }
+
+        protected internal ChieftainArcher(MonsterInfo info)
             : base(info)
         {
         }
@@ -24,44 +33,44 @@ namespace Server.MirObjects.Monsters
 
         protected override void Attack()
         {
-            ShockTime = 0;
-
             if (!Target.IsAttackTarget(this))
             {
                 Target = null;
                 return;
             }
 
+            ShockTime = 0;
+
+            byte level = (byte)Envir.Random.Next(0, 3);
+
             Direction = Functions.DirectionFromPoint(CurrentLocation, Target.CurrentLocation);
+            Broadcast(new S.ObjectRangeAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, TargetID = Target.ObjectID, Type = 0, Level = level });
 
-            if(Functions.InRange(Target.CurrentLocation, CurrentLocation, 1))
-            {
-                base.Attack();
-            }
-            else
-            {
-                Broadcast(new S.ObjectRangeAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, TargetID = Target.ObjectID });
-
-                //TODO - Fix this
-                List<MapObject> targets = FindAllTargets(2, Target.CurrentLocation, false);
-
-                int damage = GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]);
-
-                if (damage > 0 && targets.Count > 0)
-                {
-                    for (int i = 0; i < targets.Count; i++)
-                    {
-                        if (Envir.Random.Next(Settings.MagicResistWeight) >= targets[i].Stats[Stat.MagicResist])
-                        {
-                            DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + 500, targets[i], damage, DefenceType.MACAgility);
-                            ActionList.Add(action);
-                        }
-                    }
-                }
-            }
-
-            AttackTime = Envir.Time + AttackSpeed;
             ActionTime = Envir.Time + 300;
+            AttackTime = Envir.Time + AttackSpeed;
+
+            int damage = 0;
+
+            switch (level)
+            {
+                case 0:
+                default:
+                    damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
+                    break;
+                case 1:
+                    damage = GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]);
+                    break;
+                case 2:
+                    damage = GetAttackPower(Stats[Stat.MinSC], Stats[Stat.MaxSC]);
+                    break;
+            }
+
+            if (damage == 0) return;
+
+            int delay = Functions.MaxDistance(CurrentLocation, Target.CurrentLocation) * 50 + 500;
+
+            DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + delay, Target, damage, DefenceType.ACAgility, level);
+            ActionList.Add(action);
         }
 
         protected override void ProcessTarget()
@@ -113,6 +122,24 @@ namespace Server.MirObjects.Monsters
                         }
                         break;
                 }
+
+            }
+        }
+
+        protected override void CompleteRangeAttack(IList<object> data)
+        {
+            MapObject target = (MapObject)data[0];
+            int damage = (int)data[1];
+            DefenceType defence = (DefenceType)data[2];
+            byte level = (byte)data[3];
+
+            if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
+
+            if (target.Attacked(this, damage, defence) <= 0) return;
+
+            if (level == 2)
+            {
+                target.Pushed(this, Direction, 1);
             }
         }
     }
