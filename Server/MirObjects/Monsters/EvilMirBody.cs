@@ -3,7 +3,7 @@ using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class EvilMirBody : MonsterObject
+    class EvilMirBody : MonsterObject
     {
         private bool _dragonlink;
         public bool DragonLink
@@ -36,7 +36,7 @@ namespace Server.MirObjects.Monsters
 
         protected override void ProcessSearch() { }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (DragonLink)
             {
@@ -69,7 +69,7 @@ namespace Server.MirObjects.Monsters
             return 0;
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (DragonLink)
             {

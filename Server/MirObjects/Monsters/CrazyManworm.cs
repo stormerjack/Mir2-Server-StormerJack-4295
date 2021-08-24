@@ -22,23 +22,16 @@ namespace Server.MirObjects.Monsters
 
             if (Envir.Random.Next(3) > 0)
             {
-                Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, Type = 0 });
-
-                int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
-                if (damage == 0) return;
-
-                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, Target, damage, DefenceType.ACAgility);
-                ActionList.Add(action);
+                base.Attack();
             }
             else
             {
                 Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation, Type = 1 });
 
-                int damage = GetAttackPower(Stats[Stat.MinMC], Stats[Stat.MaxMC]);
+                int damage = GetAttackPower(MinDC, MaxDC);
                 if (damage == 0) return;
 
-                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, Target, damage, DefenceType.ACAgility);
-                ActionList.Add(action);
+                Target.Attacked(this, damage, DefenceType.ACAgility);
             }
 
             ShockTime = 0;

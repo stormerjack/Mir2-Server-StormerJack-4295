@@ -3,7 +3,7 @@ using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class BugBagMaggot : MonsterObject
+    class BugBagMaggot : MonsterObject
     {
         protected override bool CanMove { get { return false; } }
 
@@ -32,13 +32,15 @@ namespace Server.MirObjects.Monsters
                 return;
             }
 
-            if (SlaveList.Count >= 20) return;       
+            if (SlaveList.Count >= 20) return;
+            
             
             MonsterObject spawn = GetMonster(Envir.GetMonsterInfo(Settings.BugBatName));
 
             if (spawn == null) return;
 
             Broadcast(new S.ObjectAttack { ObjectID = ObjectID, Direction = Direction, Location = CurrentLocation });
+
 
             ActionTime = Envir.Time + 300;
             AttackTime = Envir.Time + 3000;

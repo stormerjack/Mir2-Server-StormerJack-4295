@@ -7,7 +7,7 @@ using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class BoneFamiliar : MonsterObject
+    class BoneFamiliar : MonsterObject
     {
         public bool Summoned;
 
@@ -23,10 +23,12 @@ namespace Server.MirObjects.Monsters
             Summoned = true;
         }
 
+
         public override Packet GetInfo()
         {
             return new S.ObjectMonster
             {
+                MonsterIndex = Info.Index,
                 ObjectID = ObjectID,
                 Name = Name,
                 NameColour = NameColour,
@@ -41,6 +43,7 @@ namespace Server.MirObjects.Monsters
                 Poison = CurrentPoison,
                 Hidden = Hidden,
                 Extra = Summoned,
+                Data = ClientData
             };
         }
     }

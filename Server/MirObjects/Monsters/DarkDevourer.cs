@@ -7,8 +7,10 @@ using S = ServerPackets;
 
 namespace Server.MirObjects.Monsters
 {
-    public class DarkDevourer : MonsterObject
+    class DarkDevourer : MonsterObject
     {
+        private const byte AttackRange = 9;
+
         protected internal DarkDevourer(MonsterInfo info)
             : base(info)
         {
@@ -16,7 +18,7 @@ namespace Server.MirObjects.Monsters
 
         protected override bool InAttackRange()
         {
-            return CurrentMap == Target.CurrentMap && Functions.InRange(CurrentLocation, Target.CurrentLocation, Info.ViewRange);
+            return CurrentMap == Target.CurrentMap && Functions.InRange(CurrentLocation, Target.CurrentLocation, AttackRange);
         }
 
         protected override void Attack()
@@ -36,7 +38,7 @@ namespace Server.MirObjects.Monsters
 
                 ActionTime = Envir.Time + AttackSpeed + 300;
 
-                int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
+                int damage = GetAttackPower(MinDC, MaxDC);
                 DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 300, Target, damage, DefenceType.AC);
                 ActionList.Add(action);
             }
@@ -46,29 +48,31 @@ namespace Server.MirObjects.Monsters
 
                 AttackTime = Envir.Time + AttackSpeed + 500;
 
-                int damage = GetAttackPower(Stats[Stat.MinDC], Stats[Stat.MaxDC]);
-                DelayedAction action = new DelayedAction(DelayedType.RangeDamage, Envir.Time + 500, Target, damage, DefenceType.MACAgility);
+                int damage = GetAttackPower(MinSC, MaxSC);
+                DelayedAction action = new DelayedAction(DelayedType.Damage, Envir.Time + 500, Target, damage, DefenceType.MACAgility);
                 ActionList.Add(action);
+
+                if(Info.Effect == 1)
+                {
+                    if (Envir.Random.Next(Settings.PoisonResistWeight) >= Target.PoisonResist)
+                    {
+                        Target.ApplyPoison(new Poison
+                        {
+                            Owner = this,
+                            Duration = 5,
+                            Value = damage,
+                            PType = PoisonType.Green,
+                            TickSpeed = 1000,
+                        }, this);
+                    }
+                }
             }
 
             ShockTime = 0;
             AttackTime = Envir.Time + AttackSpeed;
-        }
 
-        protected override void CompleteRangeAttack(IList<object> data)
-        {
-            MapObject target = (MapObject)data[0];
-            int damage = (int)data[1];
-            DefenceType defence = (DefenceType)data[2];
-
-            if (target == null || !target.IsAttackTarget(this) || target.CurrentMap != CurrentMap || target.Node == null) return;
-
-            if (target.Attacked(this, damage, defence) <= 0) return;
-
-            if (Info.Effect == 1)
-            {
-                PoisonTarget(target, 1, 5, PoisonType.Green, 1000);
-            }
+            if (Target.Dead)
+                FindTarget();
         }
 
         protected override void ProcessTarget()

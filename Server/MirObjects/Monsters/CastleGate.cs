@@ -53,13 +53,12 @@ namespace Server.MirObjects.Monsters
 
             MonsterInfo bInfo = new MonsterInfo
             {
+                HP = this.HP,
                 Image = Monster.EvilMirBody,
                 CanTame = false,
                 CanPush = false,
                 AutoRev = false
-            };
-
-            bInfo.Stats[Stat.HP] = this.Stats[Stat.HP];
+            };        
 
             foreach (var block in BlockArray)
             {
@@ -143,7 +142,7 @@ namespace Server.MirObjects.Monsters
             base.Die();
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             return base.Attacked(attacker, damage, type, damageWeapon);
         }
