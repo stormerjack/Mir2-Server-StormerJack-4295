@@ -22,7 +22,7 @@ namespace Server.MirObjects.Monsters
 
         public override bool IsAttackTarget(MonsterObject attacker) { return false; }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             int currentMoveDistance = 0;
 
@@ -51,7 +51,7 @@ namespace Server.MirObjects.Monsters
 
             return 0;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility) { throw new NotSupportedException(); }
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null) { throw new NotSupportedException(); }
 
         public override int Struck(int damage, DefenceType type = DefenceType.ACAgility)
         {

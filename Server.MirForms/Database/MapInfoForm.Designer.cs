@@ -53,6 +53,8 @@ namespace Server
             this.FileNameTextBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.label26 = new System.Windows.Forms.Label();
+            this.DarknessTextBox = new System.Windows.Forms.TextBox();
             this.NoReincarnation = new System.Windows.Forms.CheckBox();
             this.NoTownTeleportCheckbox = new System.Windows.Forms.CheckBox();
             this.NoFightCheckbox = new System.Windows.Forms.CheckBox();
@@ -120,6 +122,7 @@ namespace Server
             this.RemoveMButton = new System.Windows.Forms.Button();
             this.AddMButton = new System.Windows.Forms.Button();
             this.MovementInfoPanel = new System.Windows.Forms.Panel();
+            this.ShowMCheckBox = new System.Windows.Forms.CheckBox();
             this.label25 = new System.Windows.Forms.Label();
             this.ConquestComboBox = new System.Windows.Forms.ComboBox();
             this.NeedMoveMCheckBox = new System.Windows.Forms.CheckBox();
@@ -159,7 +162,7 @@ namespace Server
             this.ExportMongenButton = new System.Windows.Forms.Button();
             this.VisualizerButton = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.ShowMCheckBox = new System.Windows.Forms.CheckBox();
+            this.DuelCheckBox = new System.Windows.Forms.CheckBox();
             this.MapTabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage6.SuspendLayout();
@@ -360,6 +363,9 @@ namespace Server
             // 
             // tabPage6
             // 
+            this.tabPage6.Controls.Add(this.DuelCheckBox);
+            this.tabPage6.Controls.Add(this.label26);
+            this.tabPage6.Controls.Add(this.DarknessTextBox);
             this.tabPage6.Controls.Add(this.NoReincarnation);
             this.tabPage6.Controls.Add(this.NoTownTeleportCheckbox);
             this.tabPage6.Controls.Add(this.NoFightCheckbox);
@@ -392,6 +398,23 @@ namespace Server
             this.tabPage6.Text = "Attributes";
             this.tabPage6.UseVisualStyleBackColor = true;
             // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(338, 93);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(52, 13);
+            this.label26.TabIndex = 47;
+            this.label26.Text = "Darkness";
+            // 
+            // DarknessTextBox
+            // 
+            this.DarknessTextBox.Location = new System.Drawing.Point(443, 90);
+            this.DarknessTextBox.Name = "DarknessTextBox";
+            this.DarknessTextBox.Size = new System.Drawing.Size(49, 20);
+            this.DarknessTextBox.TabIndex = 46;
+            this.DarknessTextBox.TextChanged += new System.EventHandler(this.DarknessTextBox_TextChanged);
+            // 
             // NoReincarnation
             // 
             this.NoReincarnation.AutoSize = true;
@@ -406,7 +429,7 @@ namespace Server
             // NoTownTeleportCheckbox
             // 
             this.NoTownTeleportCheckbox.AutoSize = true;
-            this.NoTownTeleportCheckbox.Location = new System.Drawing.Point(340, 119);
+            this.NoTownTeleportCheckbox.Location = new System.Drawing.Point(340, 143);
             this.NoTownTeleportCheckbox.Name = "NoTownTeleportCheckbox";
             this.NoTownTeleportCheckbox.Size = new System.Drawing.Size(109, 17);
             this.NoTownTeleportCheckbox.TabIndex = 44;
@@ -450,7 +473,7 @@ namespace Server
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(338, 94);
+            this.label19.Location = new System.Drawing.Point(338, 118);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(80, 13);
             this.label19.TabIndex = 40;
@@ -458,7 +481,7 @@ namespace Server
             // 
             // MapDarkLighttextBox
             // 
-            this.MapDarkLighttextBox.Location = new System.Drawing.Point(443, 91);
+            this.MapDarkLighttextBox.Location = new System.Drawing.Point(443, 115);
             this.MapDarkLighttextBox.Name = "MapDarkLighttextBox";
             this.MapDarkLighttextBox.Size = new System.Drawing.Size(49, 20);
             this.MapDarkLighttextBox.TabIndex = 39;
@@ -1116,6 +1139,17 @@ namespace Server
             this.MovementInfoPanel.Size = new System.Drawing.Size(256, 205);
             this.MovementInfoPanel.TabIndex = 14;
             // 
+            // ShowMCheckBox
+            // 
+            this.ShowMCheckBox.AutoSize = true;
+            this.ShowMCheckBox.Location = new System.Drawing.Point(111, 122);
+            this.ShowMCheckBox.Name = "ShowMCheckBox";
+            this.ShowMCheckBox.Size = new System.Drawing.Size(107, 17);
+            this.ShowMCheckBox.TabIndex = 21;
+            this.ShowMCheckBox.Text = "Show on BigMap";
+            this.ShowMCheckBox.UseVisualStyleBackColor = true;
+            this.ShowMCheckBox.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // label25
             // 
             this.label25.AutoSize = true;
@@ -1500,16 +1534,16 @@ namespace Server
             this.VisualizerButton.UseVisualStyleBackColor = true;
             this.VisualizerButton.Click += new System.EventHandler(this.VisualizerButton_Click);
             // 
-            // ShowMCheckBox
+            // DuelCheckBox
             // 
-            this.ShowMCheckBox.AutoSize = true;
-            this.ShowMCheckBox.Location = new System.Drawing.Point(111, 122);
-            this.ShowMCheckBox.Name = "ShowMCheckBox";
-            this.ShowMCheckBox.Size = new System.Drawing.Size(107, 17);
-            this.ShowMCheckBox.TabIndex = 21;
-            this.ShowMCheckBox.Text = "Show on BigMap";
-            this.ShowMCheckBox.UseVisualStyleBackColor = true;
-            this.ShowMCheckBox.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.DuelCheckBox.AutoSize = true;
+            this.DuelCheckBox.Location = new System.Drawing.Point(340, 198);
+            this.DuelCheckBox.Name = "DuelCheckBox";
+            this.DuelCheckBox.Size = new System.Drawing.Size(72, 17);
+            this.DuelCheckBox.TabIndex = 48;
+            this.DuelCheckBox.Text = "Duel Map";
+            this.DuelCheckBox.UseVisualStyleBackColor = true;
+            this.DuelCheckBox.CheckedChanged += new System.EventHandler(this.DuelCheckBox_CheckedChanged);
             // 
             // MapInfoForm
             // 
@@ -1679,5 +1713,8 @@ namespace Server
         private CheckBox NoTownTeleportCheckbox;
         private CheckBox NoReincarnation;
         private CheckBox ShowMCheckBox;
+        private Label label26;
+        private TextBox DarknessTextBox;
+        private CheckBox DuelCheckBox;
     }
 }

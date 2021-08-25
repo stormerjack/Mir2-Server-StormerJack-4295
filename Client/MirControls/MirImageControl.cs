@@ -142,11 +142,14 @@ namespace Client.MirControls
 
         #endregion
 
+        public DateTime DestroyTime;
+
         public MirImageControl()
         {
             _drawImage = true;
             _index = -1;
             ForeColour = Color.White;
+            DestroyTime = DateTime.MaxValue;
         }
 
         protected internal override void DrawControl()
@@ -169,6 +172,9 @@ namespace Client.MirControls
 
                 if (GrayScale) DXManager.SetGrayscale(oldGray);
             }
+
+            if (CMain.Now > DestroyTime)
+                Dispose();
         }
 
         public override bool IsMouseOver(Point p)

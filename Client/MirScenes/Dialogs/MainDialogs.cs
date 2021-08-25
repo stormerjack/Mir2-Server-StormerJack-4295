@@ -435,6 +435,9 @@ namespace Client.MirScenes.Dialogs
                 case PetMode.None:
                     PModeLabel.Text = GameLanguage.PetMode_None;
                     break;
+                case PetMode.FocusTarget:
+                    PModeLabel.Text = GameLanguage.PetMode_FocusTarget;
+                    break;
             }
 
             if ((CMain.PingTime) > 100)
@@ -2283,7 +2286,7 @@ namespace Client.MirScenes.Dialogs
         public MirLabel NameLabel, GuildLabel, LoverLabel;
         public MirLabel ACLabel, MACLabel, DCLabel, MCLabel, SCLabel, HealthLabel, ManaLabel;
         public MirLabel CritRLabel, CritDLabel, LuckLabel, AttkSpdLabel, AccLabel, AgilLabel;
-        public MirLabel ExpPLabel, BagWLabel, WearWLabel, HandWLabel, MagicRLabel, PoisonRecLabel, HealthRLabel, ManaRLabel, PoisonResLabel, HolyTLabel, FreezeLabel, PoisonAtkLabel;
+        public MirLabel ExpPLabel, BagWLabel, WearWLabel, HandWLabel, MagicRLabel, PoisonRecLabel, HealthRLabel, ManaRLabel, PoisonResLabel, HolyTLabel, FreezeLabel, PoisonAtkLabel, DarkResistLabel;
         public MirLabel HeadingLabel, StatLabel;
         public MirButton NextButton, BackButton;
 
@@ -2395,6 +2398,7 @@ namespace Client.MirScenes.Dialogs
                 HolyTLabel.Text = string.Format("+{0}", MapObject.User.Holy);
                 FreezeLabel.Text = string.Format("+{0}", MapObject.User.Freezing);
                 PoisonAtkLabel.Text = string.Format("+{0}", MapObject.User.PoisonAttack);
+                DarkResistLabel.Text = string.Format("+{0}", MapObject.User.DarkResist);
             };
 
 
@@ -2824,6 +2828,13 @@ namespace Client.MirScenes.Dialogs
                 Location = new Point(126, 218),
                 NotControl = true
             };
+            DarkResistLabel = new MirLabel
+            {
+                AutoSize = true,
+                Parent = StatePage,
+                Location = new Point(126, 236),
+                NotControl = true
+            };
 
             Magics = new MagicButton[7];
 
@@ -3181,7 +3192,7 @@ namespace Client.MirScenes.Dialogs
 
                 Color colour;
 
-                if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
+                if ((GroupDialog.GroupList.Any(gx => gx.Name == ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
                     colour = Color.FromArgb(0, 0, 255);
                 else
                     if (ob is PlayerObject)
@@ -3477,7 +3488,7 @@ namespace Client.MirScenes.Dialogs
                     GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                     return;
                 }
-                if (GroupDialog.GroupList.Count > 0 && GroupDialog.GroupList[0] != MapObject.User.Name)
+                if (GroupDialog.GroupList.Count > 0 && GroupDialog.GroupList[0].Name != MapObject.User.Name)
                 {
 
                     GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
@@ -4970,7 +4981,7 @@ namespace Client.MirScenes.Dialogs
 
                     Color colour;
 
-                    if ((GroupDialog.GroupList.Contains(ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
+                    if ((GroupDialog.GroupList.Any(gx => gx.Name == ob.Name) && MapObject.User != ob) || ob.Name.EndsWith(string.Format("({0})", MapObject.User.Name)))
                         colour = Color.FromArgb(0, 0, 255);
                     else
                         if (ob is PlayerObject)
@@ -5428,6 +5439,9 @@ namespace Client.MirScenes.Dialogs
                     break;
                 case PetMode.None:
                     PMode = "[Mode: Do Not Attack or Move]";
+                    break;
+                case PetMode.FocusTarget:
+                    PMode = "[Mode: Focus Target]";
                     break;
             }
 

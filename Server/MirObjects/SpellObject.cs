@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Server.MirDatabase;
 using Server.MirEnvir;
 using S = ServerPackets;
 
@@ -39,6 +40,9 @@ namespace Server.MirObjects
         public int ExplosiveTrapID;
         public int ExplosiveTrapCount;
         public bool DetonatedTrap;
+
+        //Support Gems
+        public UserMagic Magic;
 
         //Portal
         public Map ExitMap;
@@ -113,7 +117,18 @@ namespace Server.MirObjects
                     if (ob.Dead) return;
 
                     if (!ob.IsAttackTarget(Caster)) return;
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+
+                    int cullingStrikeLevel = -1;
+                    if (Magic != null)
+                    {
+                        UserMagic support = Magic.GetSupportMagic(Spell.CullingStrike);
+                        if (support != null)
+                        {
+                            cullingStrikeLevel = support.Level;
+                            Caster.LevelMagic(support);
+                        }
+                    }
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel, Magic);
                     break;
                 case Spell.Healing: //SafeZone
                     if (ob.Race != ObjectType.Player && (ob.Race != ObjectType.Monster || ob.Master == null || ob.Master.Race != ObjectType.Player)) return;
@@ -127,7 +142,26 @@ namespace Server.MirObjects
                     if (ob.Dead) return;              
 
                     if (!ob.IsAttackTarget(Caster)) return;
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+
+                    cullingStrikeLevel = -1;
+                    if (Magic != null)
+                    {
+                        UserMagic support = Magic.GetSupportMagic(Spell.CullingStrike);
+                        if (support != null)
+                        {
+                            cullingStrikeLevel = support.Level;
+                            Caster.LevelMagic(support);
+                        }
+
+                        if (PlayerObject.FortifySpells.Contains(Magic.Spell))
+                        {
+                            support = Magic.GetSupportMagic(Spell.Fortify);
+                            if (support != null)
+                                Caster.Fortify(support);
+                        }
+                    }
+
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel, Magic);
                     if (!ob.Dead)
                     ob.ApplyPoison(new Poison
                         {
@@ -143,7 +177,26 @@ namespace Server.MirObjects
                     if (ob.Dead) return;
                     if (Caster != null && Caster.ActiveBlizzard == false) return;
                     if (!ob.IsAttackTarget(Caster)) return;
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+
+                    cullingStrikeLevel = -1;
+                    if (Magic != null)
+                    {
+                        UserMagic support = Magic.GetSupportMagic(Spell.CullingStrike);
+                        if (support != null)
+                        {
+                            cullingStrikeLevel = support.Level;
+                            Caster.LevelMagic(support);
+                        }
+
+                        if (PlayerObject.FortifySpells.Contains(Magic.Spell))
+                        {
+                            support = Magic.GetSupportMagic(Spell.Fortify);
+                            if (support != null)
+                                Caster.Fortify(support);
+                        }
+                    }
+
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel, Magic);
                     if (!ob.Dead && Envir.Random.Next(8) == 0)
                         ob.ApplyPoison(new Poison
                         {
@@ -158,7 +211,26 @@ namespace Server.MirObjects
                     if (ob.Dead) return;
                     if (Caster != null && Caster.ActiveBlizzard == false) return;
                     if (!ob.IsAttackTarget(Caster)) return;
-                    ob.Attacked(Caster, Value, DefenceType.MAC, false);
+
+                    cullingStrikeLevel = -1;
+                    if (Magic != null)
+                    {
+                        UserMagic support = Magic.GetSupportMagic(Spell.CullingStrike);
+                        if (support != null)
+                        {
+                            cullingStrikeLevel = support.Level;
+                            Caster.LevelMagic(support);
+                        }
+
+                        if (PlayerObject.FortifySpells.Contains(Magic.Spell))
+                        {
+                            support = Magic.GetSupportMagic(Spell.Fortify);
+                            if (support != null)
+                                Caster.Fortify(support);
+                        }
+                    }
+
+                    ob.Attacked(Caster, Value, DefenceType.MAC, false, cullingStrikeLevel, Magic);
                     break;
                 case Spell.ExplosiveTrap:
                     if (ob.Race != ObjectType.Player && ob.Race != ObjectType.Monster) return;
@@ -190,7 +262,7 @@ namespace Server.MirObjects
 
                 case Spell.Portal:
                     if (ob.Race != ObjectType.Player) return;
-                    if (Caster != ob && (Caster == null || (Caster.GroupMembers == null) || (!Caster.GroupMembers.Contains((PlayerObject)ob)))) return;
+                    if (Caster != ob && (Caster == null || (Caster.Group == null) || (!Caster.Group.GroupMembers.Contains((PlayerObject)ob)))) return;
 
                     if (ExitMap == null) return;
 
@@ -281,11 +353,11 @@ namespace Server.MirObjects
         {
             throw new NotSupportedException();
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             throw new NotSupportedException();
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             throw new NotSupportedException();
         }
@@ -394,6 +466,8 @@ namespace Server.MirObjects
                     Caster.PortalObjectsArray[1] = null;
                 }
             }
+
+            Magic = null;
         }
 
         public override void BroadcastInfo()

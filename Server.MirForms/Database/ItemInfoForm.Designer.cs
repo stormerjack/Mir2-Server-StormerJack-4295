@@ -31,6 +31,7 @@
             this.ItemInfoPanel = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.DuelItemCheckBox = new System.Windows.Forms.CheckBox();
             this.label57 = new System.Windows.Forms.Label();
             this.SlotsTextBox = new System.Windows.Forms.TextBox();
             this.globalDropNotify_CheckBox = new System.Windows.Forms.CheckBox();
@@ -83,7 +84,9 @@
             this.label35 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.DarkResistTextBox = new System.Windows.Forms.TextBox();
             this.label50 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
             this.label52 = new System.Windows.Forms.Label();
             this.label49 = new System.Windows.Forms.Label();
             this.ReflecttextBox = new System.Windows.Forms.TextBox();
@@ -231,6 +234,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.DuelItemCheckBox);
             this.tabPage1.Controls.Add(this.label57);
             this.tabPage1.Controls.Add(this.SlotsTextBox);
             this.tabPage1.Controls.Add(this.globalDropNotify_CheckBox);
@@ -288,6 +292,17 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // DuelItemCheckBox
+            // 
+            this.DuelItemCheckBox.AutoSize = true;
+            this.DuelItemCheckBox.Location = new System.Drawing.Point(365, 317);
+            this.DuelItemCheckBox.Name = "DuelItemCheckBox";
+            this.DuelItemCheckBox.Size = new System.Drawing.Size(71, 17);
+            this.DuelItemCheckBox.TabIndex = 127;
+            this.DuelItemCheckBox.Text = "Duel Item";
+            this.DuelItemCheckBox.UseVisualStyleBackColor = true;
+            this.DuelItemCheckBox.CheckedChanged += new System.EventHandler(this.DuelItemCheckBox_CheckedChanged);
             // 
             // label57
             // 
@@ -401,6 +416,7 @@
             this.LightIntensitytextBox.Name = "LightIntensitytextBox";
             this.LightIntensitytextBox.Size = new System.Drawing.Size(30, 20);
             this.LightIntensitytextBox.TabIndex = 112;
+            this.LightIntensitytextBox.Visible = false;
             this.LightIntensitytextBox.TextChanged += new System.EventHandler(this.LightIntensitytextBox_TextChanged);
             // 
             // label53
@@ -411,6 +427,7 @@
             this.label53.Size = new System.Drawing.Size(49, 13);
             this.label53.TabIndex = 113;
             this.label53.Text = "Intensity:";
+            this.label53.Visible = false;
             // 
             // NeedIdentifycheckbox
             // 
@@ -834,7 +851,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.DarkResistTextBox);
             this.groupBox1.Controls.Add(this.label50);
+            this.groupBox1.Controls.Add(this.label58);
             this.groupBox1.Controls.Add(this.label52);
             this.groupBox1.Controls.Add(this.label49);
             this.groupBox1.Controls.Add(this.ReflecttextBox);
@@ -844,10 +863,19 @@
             this.groupBox1.Controls.Add(this.label51);
             this.groupBox1.Location = new System.Drawing.Point(16, 277);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(304, 94);
+            this.groupBox1.Size = new System.Drawing.Size(480, 94);
             this.groupBox1.TabIndex = 123;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "New Stats";
+            // 
+            // DarkResistTextBox
+            // 
+            this.DarkResistTextBox.Location = new System.Drawing.Point(406, 35);
+            this.DarkResistTextBox.MaxLength = 3;
+            this.DarkResistTextBox.Name = "DarkResistTextBox";
+            this.DarkResistTextBox.Size = new System.Drawing.Size(30, 20);
+            this.DarkResistTextBox.TabIndex = 125;
+            this.DarkResistTextBox.TextChanged += new System.EventHandler(this.DarkResistTextBox_TextChanged);
             // 
             // label50
             // 
@@ -857,6 +885,15 @@
             this.label50.Size = new System.Drawing.Size(62, 13);
             this.label50.TabIndex = 119;
             this.label50.Text = "Critical rate:";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(340, 39);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(65, 13);
+            this.label58.TabIndex = 124;
+            this.label58.Text = "Dark Resist:";
             // 
             // label52
             // 
@@ -2169,5 +2206,8 @@
         private System.Windows.Forms.TextBox SlotsTextBox;
         private System.Windows.Forms.Label label57;
         private System.Windows.Forms.TextBox SearchTextBox;
+        private System.Windows.Forms.TextBox DarkResistTextBox;
+        private System.Windows.Forms.Label label58;
+        private System.Windows.Forms.CheckBox DuelItemCheckBox;
     }
 }

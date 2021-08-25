@@ -97,6 +97,7 @@
             this.ExportSelectedButton = new System.Windows.Forms.Button();
             this.DropBuilderButton = new System.Windows.Forms.Button();
             this.SearchTextBox = new System.Windows.Forms.TextBox();
+            this.CanCullCheckBox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.MonsterInfoPanel.SuspendLayout();
@@ -130,6 +131,7 @@
             this.MonsterInfoPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.MonsterInfoPanel.Controls.Add(this.CanCullCheckBox);
             this.MonsterInfoPanel.Controls.Add(this.fileNameLabel);
             this.MonsterInfoPanel.Controls.Add(this.label11);
             this.MonsterInfoPanel.Controls.Add(this.UndeadCheckBox);
@@ -803,6 +805,17 @@
             this.SearchTextBox.TabIndex = 27;
             this.SearchTextBox.TextChanged += new System.EventHandler(this.SearchTextBox_TextChanged);
             // 
+            // CanCullCheckBox
+            // 
+            this.CanCullCheckBox.AutoSize = true;
+            this.CanCullCheckBox.Location = new System.Drawing.Point(430, 165);
+            this.CanCullCheckBox.Name = "CanCullCheckBox";
+            this.CanCullCheckBox.Size = new System.Drawing.Size(106, 17);
+            this.CanCullCheckBox.TabIndex = 91;
+            this.CanCullCheckBox.Text = "Can CullingStrike";
+            this.CanCullCheckBox.UseVisualStyleBackColor = true;
+            this.CanCullCheckBox.CheckedChanged += new System.EventHandler(this.CanCullCheckBox_CheckedChanged);
+            // 
             // MonsterInfoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -902,5 +915,6 @@
         private System.Windows.Forms.Label fileNameLabel;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TextBox SearchTextBox;
+        private System.Windows.Forms.CheckBox CanCullCheckBox;
     }
 }

@@ -42,6 +42,10 @@ namespace Server.MirEnvir
         public List<ConquestObject> Conquest = new List<ConquestObject>();
         public ConquestObject tempConquest;
 
+        public bool DuelFinished;
+        public DateTime DuelBeginTime, DuelExitTime;
+        public bool[] ActiveDuelRules = new bool[Enum.GetNames(typeof(DuelRules)).Length];
+
         public Map(MapInfo info)
         {
             Info = info;
@@ -643,6 +647,20 @@ namespace Server.MirEnvir
                 }
             }
 
+            if (Info.DuelMap && Envir.Now > DuelExitTime)
+            {
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    PlayerObject player = Players[i];
+                    if (player == null) continue;
+
+                    if (player.Dead)
+                        player.TownRevive();
+                    else
+                        player.Teleport(Envir.GetMap(player.BindMapIndex), player.BindLocation);
+                }
+            }
+
             if ((Info.Lightning) && Envir.Time > LightningTime)
             {
                 LightningTime = Envir.Time + Envir.Random.Next(3000, 15000);
@@ -825,6 +843,25 @@ namespace Server.MirEnvir
             MirDirection dir;
             MonsterObject monster;
             Point front;
+            UserMagic support;
+
+            int culling = -1;
+            if (PlayerObject.CullingStrikeSpells.Contains(magic.Spell))
+            {
+                support = magic.GetSupportMagic(Spell.CullingStrike);
+                if (support != null)
+                {
+                    culling = support.Level;
+                    player.LevelMagic(support);
+                }
+            }
+            if (PlayerObject.FortifySpells.Contains(magic.Spell))
+            {
+                support = magic.GetSupportMagic(Spell.Fortify);
+                if (support != null)
+                    player.Fortify(support);
+            }
+
             switch (magic.Spell)
             {
 
@@ -883,6 +920,48 @@ namespace Server.MirEnvir
 
                     if (monster.Master.Dead) return;
 
+                    if (PlayerObject.MinionDamageSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionDamage);
+                        if (support != null)
+                        {
+                            monster.BonusMinDC = support.MinionDamageCalculation(monster.Info.MinDC);
+                            monster.BonusMaxDC = support.MinionDamageCalculation(monster.Info.MaxDC);
+                            player.LevelMagic(support);
+                        }
+                    }
+                    if (PlayerObject.MinionLifeSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionLife);
+                        if (support != null)
+                        {
+                            monster.BonusHealth = support.MinionLifeCalculation(monster.Info.HP);
+                            player.LevelMagic(support);
+                        }
+                    }
+                    if (PlayerObject.MinionDefenceSpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.MinionDefence);
+                        if (support != null)
+                        {
+                            ushort amount = support.MinionDefenceCalculation;
+                            monster.BonusMinAC = amount;
+                            monster.BonusMaxAC = amount;
+                            monster.BonusMinMAC = amount;
+                            monster.BonusMaxMAC = amount;
+                            player.LevelMagic(support);
+                        }
+                    }
+                    if (PlayerObject.FeedingFrenzySpells.Contains(magic.Spell))
+                    {
+                        support = magic.GetSupportMagic(Spell.FeedingFrenzy);
+                        if (support != null)
+                        {
+                            monster.BonusAttackSpeed = support.FeedingFrenzyCalculation;
+                            player.LevelMagic(support);
+                        }
+                    }
+
                     if (ValidPoint(front))
                         monster.Spawn(this, front);
                     else
@@ -924,7 +1003,7 @@ namespace Server.MirEnvir
                                         //Only targets
                                         if (target.IsAttackTarget(player))
                                         {
-                                            if (target.Attacked(player, value, DefenceType.MAC, false) > 0)
+                                            if (target.Attacked(player, value, DefenceType.MAC, false, culling) > 0)
                                                 train = true;
                                         }
                                         break;
@@ -1044,6 +1123,17 @@ namespace Server.MirEnvir
 
                     player.LevelMagic(magic);
 
+                    long expireTime = (10 + value / 2) * 1000;
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        expireTime = support.IncreaseDurationCalculation(expireTime);
+                        player.LevelMagic(support);
+                    }
+                    expireTime += Envir.Time;
+
+                    var cullingsupport = magic.GetSupportMagic(Spell.CullingStrike);
+
                     if (ValidPoint(location))
                     {
                         cell = GetCell(location);
@@ -1065,11 +1155,12 @@ namespace Server.MirEnvir
                                 {
                                     Spell = Spell.FireWall,
                                     Value = value,
-                                    ExpireTime = Envir.Time + (10 + value / 2) * 1000,
+                                    ExpireTime = expireTime,
                                     TickSpeed = 2000,
                                     Caster = player,
                                     CurrentLocation = location,
                                     CurrentMap = this,
+                                    Magic = magic
                                 };
                             AddObject(ob);
                             ob.Spawned();
@@ -1103,11 +1194,12 @@ namespace Server.MirEnvir
                         {
                             Spell = Spell.FireWall,
                             Value = value,
-                            ExpireTime = Envir.Time + (10 + value / 2) * 1000,
+                            ExpireTime = expireTime,
                             TickSpeed = 2000,
                             Caster = player,
                             CurrentLocation = location,
                             CurrentMap = this,
+                            Magic = magic
                         };
                         AddObject(ob);
                         ob.Spawned();
@@ -1140,7 +1232,7 @@ namespace Server.MirEnvir
                             if (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) continue;
 
                             if (!target.IsAttackTarget(player)) continue;
-                            if (target.Attacked(player, value, DefenceType.MAC, false) > 0)
+                            if (target.Attacked(player, value, DefenceType.MAC, false, culling) > 0)
                                 train = true;
                             break;
                         }
@@ -1262,7 +1354,7 @@ namespace Server.MirEnvir
                                         //Only targets
                                         if (!target.IsAttackTarget(player)) break;
 
-                                        if (target.Attacked(player, magic.Spell == Spell.ThunderStorm && !target.Undead ? value / 10 : value, DefenceType.MAC, false) <= 0)
+                                        if (target.Attacked(player, magic.Spell == Spell.ThunderStorm && !target.Undead ? value / 10 : value, DefenceType.MAC, false, culling) <= 0)
                                         {
                                             if (target.Undead)
                                             {
@@ -1288,6 +1380,14 @@ namespace Server.MirEnvir
                 case Spell.LionRoar:
                     location = (Point)data[2];
 
+                    long roarTime = magic.Level + 2;
+                    support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                    if (support != null)
+                    {
+                        roarTime = support.IncreaseDurationCalculation(roarTime);
+                        player.LevelMagic(support);
+                    }
+
                     for (int y = location.Y - 2; y <= location.Y + 2; y++)
                     {
                         if (y < 0) continue;
@@ -1308,7 +1408,7 @@ namespace Server.MirEnvir
                                 if (target.Race != ObjectType.Monster) continue;
                                 //Only targets
                                 if (!target.IsAttackTarget(player) || player.Level + 3 < target.Level) continue;
-                                target.ApplyPoison(new Poison { PType = PoisonType.LRParalysis, Duration = magic.Level + 2, TickSpeed = 1000 }, player);
+                                target.ApplyPoison(new Poison { PType = PoisonType.LRParalysis, Duration = roarTime, TickSpeed = 1000 }, player);
                                 target.OperateTime = 0;
                                 train = true;
                             }
@@ -1357,17 +1457,35 @@ namespace Server.MirEnvir
 
                             if (!cast) continue;
 
+                            long cloudTime = 6000;
+                            support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                            if (support != null)
+                            {
+                                cloudTime = support.IncreaseDurationCalculation(cloudTime);
+                                player.LevelMagic(support);
+                            }
+                            cloudTime += Envir.Time;
+
+                            value = value + bonusdmg;
+                            support = magic.GetSupportMagic(Spell.VileToxins);
+                            if (support != null)
+                            {
+                                value = support.VileToxinsCalculation(value);
+                                player.LevelMagic(support);
+                            }
+
                             SpellObject ob = new SpellObject
                                 {
                                     Spell = Spell.PoisonCloud,
-                                    Value = value + bonusdmg,
-                                    ExpireTime = Envir.Time + 6000,
+                                    Value = value,
+                                    ExpireTime = cloudTime,
                                     TickSpeed = 1000,
                                     Caster = player,
                                     CurrentLocation = new Point(x, y),
                                     CastLocation = location,
                                     Show = show,
                                     CurrentMap = this,
+                                    Magic = magic,
                                 };
 
                             show = false;
@@ -1422,7 +1540,7 @@ namespace Server.MirEnvir
                                             if (target.IsAttackTarget(player))
                                             {
                                                 //Only targets
-                                                if (target.Attacked(player, j <= 1 ? nearDamage : farDamage, DefenceType.MAC, false) > 0)
+                                                if (target.Attacked(player, j <= 1 ? nearDamage : farDamage, DefenceType.MAC, false, culling) > 0)
                                                 {
                                                     if (player.Level + (target.Race == ObjectType.Player ? 2 : 10) >= target.Level && Envir.Random.Next(target.Race == ObjectType.Player ? 100 : 20) <= magic.Level)
                                                     {
@@ -1486,8 +1604,19 @@ namespace Server.MirEnvir
                             if (target.Race != ObjectType.Player && target.Race != ObjectType.Monster) continue;
 
                             if (!target.IsAttackTarget(player)) continue;
+
+                            byte oldAccuracy = player.Accuracy;
+                            support = magic.GetSupportMagic(Spell.AdditionalAccuracy);
+                            if (support != null)
+                            {
+                                player.Accuracy = support.AdditionalAccuracyCalculation(player.Accuracy);
+                                player.LevelMagic(support);
+                            }
+
                             if (target.Attacked(player, value, DefenceType.AC, false) > 0)
                                 train = true;
+
+                            player.Accuracy = oldAccuracy;
                             break;
                         }
                     }
@@ -1564,6 +1693,7 @@ namespace Server.MirEnvir
                                     Show = show,
                                     CurrentMap = this,
                                     StartTime = Envir.Time + 800,
+                                    Magic = magic,
                                 };
 
                             show = false;
@@ -1625,6 +1755,7 @@ namespace Server.MirEnvir
                                 Show = show,
                                 CurrentMap = this,
                                 StartTime = Envir.Time + 800,
+                                Magic = magic,
                             };
 
                             show = false;
@@ -1868,19 +1999,28 @@ namespace Server.MirEnvir
                                                 poison = PoisonType.None;
 
                                             int tempValue = 0;
+                                            long duration = (2 * (magic.Level + 1)) + (value / 10);
 
                                             if (poison == PoisonType.Green)
                                             {
-                                                tempValue = value / 15 + magic.Level + 1;
+                                                tempValue = value / 15 + magic.Level + 1;                                                
                                             }
                                             else
                                             {
                                                 tempValue = value + (magic.Level + 1) * 2;
                                             }
 
+                                            support = magic.GetSupportMagic(Spell.IncreasedDuration);
+                                            if (support != null)
+                                            {
+                                                duration = support.IncreaseDurationCalculation(duration);
+                                                player.LevelMagic(support);
+                                            }
+                                            MessageQueue.Enqueue(duration.ToString());
+
                                             if (poison != PoisonType.None)
                                             {
-                                                target.ApplyPoison(new Poison { PType = poison, Duration = (2 * (magic.Level + 1)) + (value / 10), TickSpeed = 1000, Value = tempValue, Owner = player }, player, false, false);
+                                                target.ApplyPoison(new Poison { PType = poison, Duration = duration, TickSpeed = 1000, Value = tempValue, Owner = player }, player, false, false);
                                             }
                                             
                                             if (target.Race == ObjectType.Player)

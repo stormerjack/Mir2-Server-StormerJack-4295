@@ -134,12 +134,14 @@ namespace Server
             LightningCheckbox.Checked = mi.Lightning;
             LightningTextbox.Text = mi.LightningDamage.ToString();
             MapDarkLighttextBox.Text = mi.MapDarkLight.ToString();
+            DarknessTextBox.Text = mi.Darkness.ToString();
 
             NoMountCheckbox.Checked = mi.NoMount;
             NeedBridleCheckbox.Checked = mi.NeedBridle;
             //MineIndextextBox.Text = mi.MineIndex.ToString();
             NoTownTeleportCheckbox.Checked = mi.NoTownTeleport;
             NoReincarnation.Checked = mi.NoReincarnation;
+            DuelCheckBox.Checked = mi.DuelMap;
             for (int i = 1; i < _selectedMapInfos.Count; i++)
             {
                 mi = _selectedMapInfos[i];
@@ -173,11 +175,13 @@ namespace Server
                 if (LightningCheckbox.Checked != mi.Lightning) LightningCheckbox.Checked = false;
                 if (LightningTextbox.Text != mi.LightningDamage.ToString()) LightningTextbox.Text = string.Empty;
                 if (MapDarkLighttextBox.Text != mi.MapDarkLight.ToString()) MapDarkLighttextBox.Text = string.Empty;
+                if (DarknessTextBox.Text != mi.Darkness.ToString()) DarknessTextBox.Text = string.Empty;
 
                 if (NoMountCheckbox.Checked != mi.NoMount) NoMountCheckbox.Checked = false;
                 if (NeedBridleCheckbox.Checked != mi.NeedBridle) NeedBridleCheckbox.Checked = false;
                 if (NoTownTeleportCheckbox.Checked != mi.NoTownTeleport) NoTownTeleportCheckbox.Checked = false;
                 if (NoReincarnation.Checked != mi.NoReincarnation) NoReincarnation.Checked = false;
+                if (DuelCheckBox.Checked != mi.DuelMap) DuelCheckBox.Checked = false;
             }
 
             UpdateSafeZoneInterface();
@@ -1719,6 +1723,32 @@ namespace Server
 
             for (int i = 0; i < _selectedMovementInfos.Count; i++)
                 _selectedMovementInfos[i].Show = ShowMCheckBox.Checked;
+        }
+
+        private void DarknessTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            byte temp;
+
+            if (!byte.TryParse(ActiveControl.Text, out temp))
+            {
+                ActiveControl.BackColor = Color.Red;
+                return;
+            }
+            ActiveControl.BackColor = SystemColors.Window;
+
+
+            for (int i = 0; i < _selectedMapInfos.Count; i++)
+                _selectedMapInfos[i].Darkness = temp;
+        }
+
+        private void DuelCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ActiveControl != sender) return;
+
+            for (int i = 0; i < _selectedMapInfos.Count; i++)
+                _selectedMapInfos[i].DuelMap = DuelCheckBox.Checked;
         }
     }
 }

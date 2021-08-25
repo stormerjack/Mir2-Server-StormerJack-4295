@@ -76,7 +76,7 @@ namespace Server.MirObjects
         public ushort CurrentBagWeight,
                       MaxBagWeight;
 
-        public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, CriticalRate, CriticalDamage, Holy, Freezing, PoisonAttack;
+        public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, CriticalRate, CriticalDamage, Holy, Freezing, PoisonAttack, DarkResist;
 
         public long CellTime, BrownTime, PKPointTime, LastHitTime, EXPOwnerTime;
         public Color NameColour = Color.White;
@@ -169,8 +169,6 @@ namespace Server.MirObjects
 
         public List<MonsterObject> Pets = new List<MonsterObject>();
         public List<Buff> Buffs = new List<Buff>();
-
-        public List<PlayerObject> GroupMembers;
 
         public virtual AttackMode AMode { get; set; }
 
@@ -288,7 +286,7 @@ namespace Server.MirObjects
                 NPC.CheckVisible(player, true);
                 return;
             }
-
+            
             player.Enqueue(GetInfo());
 
             //if (Race == ObjectType.Player)
@@ -415,8 +413,8 @@ namespace Server.MirObjects
 
         public abstract bool IsAttackTarget(PlayerObject attacker);
         public abstract bool IsAttackTarget(MonsterObject attacker);
-        public abstract int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true);
-        public abstract int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility);
+        public abstract int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null);
+        public abstract int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null);
 
         public virtual int GetArmour(DefenceType type, MapObject attacker, out bool hit)
         {
@@ -467,7 +465,7 @@ namespace Server.MirObjects
             return armour;
         }
 
-        public virtual void ApplyNegativeEffects(PlayerObject attacker, DefenceType type, ushort LevelOffset)
+        public virtual void ApplyNegativeEffects(PlayerObject attacker, DefenceType type, ushort LevelOffset, UserMagic magic)
         {
             if (attacker.HasParalysisRing && type != DefenceType.MAC && type != DefenceType.MACAgility && 1 == Envir.Random.Next(1, 15))
             {
@@ -480,8 +478,19 @@ namespace Server.MirObjects
             }
             if (attacker.PoisonAttack > 0 && type != DefenceType.MAC && type != DefenceType.MACAgility)
             {
+                int value = Math.Min(10, 3 + Envir.Random.Next(attacker.PoisonAttack));
+                if (magic != null)
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.VileToxins);
+                    if (support != null)
+                    {
+                        value = support.VileToxinsCalculation(value);
+                        attacker.LevelMagic(support);
+                    }
+                }
+
                 if ((Envir.Random.Next(Settings.PoisonAttackWeight) < attacker.PoisonAttack) && (Envir.Random.Next(LevelOffset) == 0))
-                    ApplyPoison(new Poison { PType = PoisonType.Green, Duration = 5, TickSpeed = 1000, Value = Math.Min(10, 3 + Envir.Random.Next(attacker.PoisonAttack)) }, attacker);
+                    ApplyPoison(new Poison { PType = PoisonType.Green, Duration = 5, TickSpeed = 1000, Value = value }, attacker);
             }
         }
 
@@ -692,11 +701,12 @@ namespace Server.MirObjects
 
             if (Race == ObjectType.Player)
             {
-                if (GroupMembers != null) //Send HP to group
+                PlayerObject player = (PlayerObject)this;
+                if (player.GroupMembers != null) //Send HP to group
                 {
-                    for (int i = 0; i < GroupMembers.Count; i++)
+                    for (int i = 0; i < player.GroupMembers.Count; i++)
                     {
-                        PlayerObject member = GroupMembers[i];
+                        PlayerObject member = player.GroupMembers[i];
 
                         if (this == member) continue;
                         if (member.CurrentMap != CurrentMap || !Functions.InRange(member.CurrentLocation, CurrentLocation, Globals.DataRange)) continue;
@@ -768,11 +778,13 @@ namespace Server.MirObjects
 
         public bool IsMember(MapObject member)
         {
+            if (Race != ObjectType.Player) return false;
+            PlayerObject player = (PlayerObject)this;
             if (member == this) return true;
-            if (GroupMembers == null || member == null) return false;
+            if (player.GroupMembers == null || member == null) return false;
 
-            for (int i = 0; i < GroupMembers.Count; i++)
-                if (GroupMembers[i] == member) return true;
+            for (int i = 0; i < player.GroupMembers.Count; i++)
+                if (player.GroupMembers[i] == member) return true;
 
             return false;
         }
@@ -838,6 +850,7 @@ namespace Server.MirObjects
         public PoisonType PType;
         public int Value;
         public long Duration, Time, TickTime, TickSpeed;
+        public UserMagic Magic;
 
         public Poison() { }
 

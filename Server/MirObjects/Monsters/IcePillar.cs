@@ -29,7 +29,7 @@ namespace Server.MirObjects.Monsters
         protected override void ProcessSearch() { }
         protected override void ProcessRoam() { }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             int armour = 0;
 
@@ -81,7 +81,7 @@ namespace Server.MirObjects.Monsters
         
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             int armour = 0;
 

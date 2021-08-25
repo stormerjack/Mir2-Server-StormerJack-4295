@@ -77,7 +77,7 @@ namespace Server.MirObjects.Monsters
         {
             base.Despawn();
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             CheckDirection();
 
@@ -86,7 +86,7 @@ namespace Server.MirObjects.Monsters
             return base.Attacked(attacker, damage, type, damageWeapon);
         }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             CheckDirection();
 

@@ -21,7 +21,7 @@ namespace Launcher
 
         private FileInformation _currentFile;
         public bool Completed, Checked, CleanFiles, LabelSwitch, ErrorFound;
-        
+
         public List<FileInformation> OldList;
         public Queue<FileInformation> DownloadList;
 
@@ -107,10 +107,10 @@ namespace Launcher
             }
         }
 
-        
+
 
         private void BeginDownload()
-        {           
+        {
             if (DownloadList == null) return;
 
             if (DownloadList.Count == 0)
@@ -146,7 +146,7 @@ namespace Launcher
                     if (!NeedFile(fileNames[i]))
                         File.Delete(fileNames[i]);
                 }
-                catch{}
+                catch { }
             }
         }
         public bool NeedFile(string fileName)
@@ -201,32 +201,32 @@ namespace Launcher
                 using (WebClient client = new WebClient())
                 {
                     client.DownloadProgressChanged += (o, e) =>
-                        {
-                            _currentBytes = e.BytesReceived;
-                        };
+                    {
+                        _currentBytes = e.BytesReceived;
+                    };
                     client.DownloadDataCompleted += (o, e) =>
+                    {
+                        if (e.Error != null)
                         {
-                            if (e.Error != null)
-                            {
-                                File.AppendAllText(@".\Error.txt",
-                                       string.Format("[{0}] {1}{2}", DateTime.Now, info.FileName + " could not be downloaded. (" + e.Error.Message + ")", Environment.NewLine));
-                                ErrorFound = true;
-                            }
-                            else
-                            {
-                                _currentCount++;
-                                _completedBytes += _currentBytes;
-                                _currentBytes = 0;
-                                _stopwatch.Stop();
+                            File.AppendAllText(@".\Error.txt",
+                                   string.Format("[{0}] {1}{2}", DateTime.Now, info.FileName + " could not be downloaded. (" + e.Error.Message + ")", Environment.NewLine));
+                            ErrorFound = true;
+                        }
+                        else
+                        {
+                            _currentCount++;
+                            _completedBytes += _currentBytes;
+                            _currentBytes = 0;
+                            _stopwatch.Stop();
 
                             if (!Directory.Exists(Settings.P_Client + Path.GetDirectoryName(info.FileName)))
                                 Directory.CreateDirectory(Settings.P_Client + Path.GetDirectoryName(info.FileName));
 
                             File.WriteAllBytes(Settings.P_Client + info.FileName, e.Result);
                             File.SetLastWriteTime(Settings.P_Client + info.FileName, info.Creation);
-                            }
-                            BeginDownload();
-                        };
+                        }
+                        BeginDownload();
+                    };
 
                     if (Settings.P_NeedLogin) client.Credentials = new NetworkCredential(Settings.P_Login, Settings.P_Password);
 
@@ -469,7 +469,7 @@ namespace Launcher
             {
                 if (Completed)
                 {
-                    
+
                     ActionLabel.Text = "";
                     CurrentFile_label.Text = "Up to date.";
                     SpeedLabel.Text = "";
@@ -514,7 +514,7 @@ namespace Launcher
                 TotalPercent_label.Visible = true;
 
                 if (LabelSwitch) ActionLabel.Text = string.Format("{0} Files Remaining", _fileCount - _currentCount);
-                else ActionLabel.Text = string.Format("{0:#,##0}MB Remaining",  ((_totalBytes) - (_completedBytes + _currentBytes)) / 1024 / 1024);
+                else ActionLabel.Text = string.Format("{0:#,##0}MB Remaining", ((_totalBytes) - (_completedBytes + _currentBytes)) / 1024 / 1024);
 
                 //ActionLabel.Text = string.Format("{0:#,##0}MB / {1:#,##0}MB", (_completedBytes + _currentBytes) / 1024 / 1024, _totalBytes / 1024 / 1024);
 
@@ -524,14 +524,14 @@ namespace Launcher
                     CurrentFile_label.Text = string.Format("{0}", _currentFile.FileName);
                     SpeedLabel.Text = (_currentBytes / 1024F / _stopwatch.Elapsed.TotalSeconds).ToString("#,##0.##") + "KB/s";
                     CurrentPercent_label.Text = ((int)(100 * _currentBytes / _currentFile.Length)).ToString() + "%";
-                    ProgressCurrent_pb.Width = (int)( 5.5 * (100 * _currentBytes / _currentFile.Length));
+                    ProgressCurrent_pb.Width = (int)(5.5 * (100 * _currentBytes / _currentFile.Length));
                 }
                 TotalPercent_label.Text = ((int)(100 * (_completedBytes + _currentBytes) / _totalBytes)).ToString() + "%";
                 TotalProg_pb.Width = (int)(5.5 * (100 * (_completedBytes + _currentBytes) / _totalBytes));
             }
             catch (Exception ex)
             {
-                
+
             }
 
         }

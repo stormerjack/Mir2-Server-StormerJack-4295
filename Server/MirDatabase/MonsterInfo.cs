@@ -41,10 +41,13 @@ namespace Server.MirDatabase
         
         public List<DropInfo> Drops = new List<DropInfo>();
 
-        public bool CanTame = true, CanPush = true, AutoRev = true, Undead = false;
+        public bool CanTame = true, CanPush = true, AutoRev = true, Undead = false, CanCullingStrike = true;
 
         public bool HasSpawnScript;
         public bool HasDieScript;
+
+        public uint StatTotal;
+        public ClientMonsterData ClientData;
 
         public MonsterInfo()
         {
@@ -112,6 +115,34 @@ namespace Server.MirDatabase
             if (Envir.LoadVersion < 18) return;
             AutoRev = reader.ReadBoolean();
             Undead = reader.ReadBoolean();
+
+            if (Envir.LoadVersion < 87) return;
+            CanCullingStrike = reader.ReadBoolean();
+
+
+            //After loading
+            StatTotal = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility + HP;
+            ClientData = new ClientMonsterData()
+            {
+                Index = Index,
+                Level = Level,
+                Experience = Experience,
+                MinAC = MinAC,
+                MaxAC = MaxAC,
+                MinMAC = MinMAC,
+                MaxMAC = MaxMAC,
+                MinDC = MinDC,
+                MaxDC = MaxDC,
+                MinMC = MinMC,
+                MaxMC = MaxMC,
+                MinSC = MinSC,
+                MaxSC = MaxSC,
+                Accuracy = Accuracy,
+                Agility = Agility,
+                IsTameable = CanTame,
+                HP = HP,
+                Undead = Undead,
+            };
         }
 
         public string GameName
@@ -156,6 +187,7 @@ namespace Server.MirDatabase
             writer.Write(CanTame);
             writer.Write(AutoRev);
             writer.Write(Undead);
+            writer.Write(CanCullingStrike);
         }
 
         public void LoadDrops()

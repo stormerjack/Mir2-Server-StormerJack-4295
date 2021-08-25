@@ -188,6 +188,10 @@ public abstract class Packet
                 return new C.DelMember();
             case (short)ClientPacketIds.GroupInvite:
                 return new C.GroupInvite();
+            case (short)ClientPacketIds.SetGroupLootMode:
+                return new C.SetGroupLootMode();
+            case (short)ClientPacketIds.SetGroupPassword:
+                return new C.SetGroupPassword();
             case (short)ClientPacketIds.TownRevive:
                 return new C.TownRevive();
             case (short)ClientPacketIds.SpellToggle:
@@ -306,6 +310,16 @@ public abstract class Packet
                 return new C.UpdateIntelligentCreature();
             case (short)ClientPacketIds.IntelligentCreaturePickup://IntelligentCreature
                 return new C.IntelligentCreaturePickup();
+            case (short)ClientPacketIds.DuelRule:
+                return new C.DuelRule();
+            case (short)ClientPacketIds.DuelStake:
+                return new C.DuelStake();
+            case (short)ClientPacketIds.DuelReply:
+                return new C.DuelReply();
+            case (short)ClientPacketIds.DuelConfirm:
+                return new C.DuelConfirm();
+            case (short)ClientPacketIds.DuelCancel:
+                return new C.DuelCancel();
             case (short)ClientPacketIds.AddFriend:
                 return new C.AddFriend();
             case (short)ClientPacketIds.RemoveFriend:
@@ -411,6 +425,8 @@ public abstract class Packet
                 return new S.ObjectChat();
             case (short)ServerPacketIds.NewItemInfo:
                 return new S.NewItemInfo();
+            case (short)ServerPacketIds.NewMagicInfo:
+                return new S.NewMagicInfo();
             case (short)ServerPacketIds.NewChatItem:
                 return new S.NewChatItem();
             case (short)ServerPacketIds.MoveItem:
@@ -475,6 +491,8 @@ public abstract class Packet
                 return new S.LoseCredit();
             case (short)ServerPacketIds.ObjectMonster:
                 return new S.ObjectMonster();
+            case (short)ServerPacketIds.ObjectMonsterData:
+                return new S.ObjectMonsterData();
             case (short)ServerPacketIds.ObjectAttack:
                 return new S.ObjectAttack();
             case (short)ServerPacketIds.Struck:
@@ -493,6 +511,8 @@ public abstract class Packet
                 return new S.Death();
             case (short)ServerPacketIds.ObjectDied:
                 return new S.ObjectDied();
+            case (short)ServerPacketIds.FasterAttacksSupport:
+                return new S.FasterAttacksSupport();
             case (short)ServerPacketIds.ColourChanged:
                 return new S.ColourChanged();
             case (short)ServerPacketIds.ObjectColourChanged:
@@ -589,6 +609,12 @@ public abstract class Packet
                 return new S.GroupInvite();
             case (short)ServerPacketIds.AddMember:
                 return new S.AddMember();
+            case (short)ServerPacketIds.GroupLootMode:
+                return new S.SetGroupLootMode();
+            case (short)ServerPacketIds.GroupConnect:
+                return new S.GroupConnect();
+            case (short)ServerPacketIds.GroupDisconnect:
+                return new S.GroupDisconnect();
             case (short)ServerPacketIds.Revived:
                 return new S.Revived();
             case (short)ServerPacketIds.ObjectRevived:
@@ -709,6 +735,8 @@ public abstract class Packet
                 return new S.GainedQuestItem();
             case (short)ServerPacketIds.DeleteQuestItem:
                 return new S.DeleteQuestItem();
+            case (short)ServerPacketIds.NewMonsterInfo:
+                return new S.NewMonsterInfo();
             case (short)ServerPacketIds.CancelReincarnation:
                 return new S.CancelReincarnation();
             case (short)ServerPacketIds.RequestReincarnation:
@@ -841,6 +869,24 @@ public abstract class Packet
                 return new S.ExpireTimer();
             case (short)ServerPacketIds.UpdateNotice:
                 return new S.UpdateNotice();
+            case (short)ServerPacketIds.OpenDuelDialog:
+                return new S.OpenDuelDialog();
+            case (short)ServerPacketIds.DuelRuleChanged:
+                return new S.DuelRuleChanged();
+            case (short)ServerPacketIds.DuelStakeChanged:
+                return new S.DuelStakeChanged();
+            case (short)ServerPacketIds.DuelInvitation:
+                return new S.DuelInvitation();
+            case (short)ServerPacketIds.DuelOpponentStakeChanged:
+                return new S.DuelOpponentStakeChanged();
+            case (short)ServerPacketIds.DuelConfirmed:
+                return new S.DuelConfirmed();
+            case (short)ServerPacketIds.DuelOpponentConfirmed:
+                return new S.DuelOpponentConfirmed();
+            case (short)ServerPacketIds.DuelCancelled:
+                return new S.DuelCancelled();
+            case (short)ServerPacketIds.DuelStartTime:
+                return new S.DuelStartTime();
             default:
                 return null;
         }

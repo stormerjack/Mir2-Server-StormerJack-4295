@@ -42,7 +42,7 @@ namespace Client.MirObjects
             HasMuscleRing, HasParalysisRing, HasFireRing, HasHealRing, HasProbeNecklace, HasSkillNecklace, NoDuraLoss,
             HasBlinkSkill;
 
-        public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, CriticalRate, CriticalDamage, Holy, Freezing, PoisonAttack, HpDrainRate;
+        public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, CriticalRate, CriticalDamage, Holy, Freezing, PoisonAttack, HpDrainRate, DarkResist;
         public BaseStats CoreStats = new BaseStats(0);
 
 
@@ -200,6 +200,7 @@ namespace Client.MirObjects
             Holy = 0;
             Freezing = 0;
             PoisonAttack = 0;
+            DarkResist = 0;
 
             Accuracy = CoreStats.StartAccuracy;
             Agility = CoreStats.StartAgility;
@@ -334,9 +335,8 @@ namespace Client.MirObjects
                 Freezing = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, Freezing + temp.Freezing + RealItem.Freezing)));
                 PoisonAttack = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, PoisonAttack + temp.PoisonAttack + RealItem.PoisonAttack)));
                 HpDrainRate = (byte)Math.Max(100, Math.Min(byte.MaxValue, HpDrainRate + RealItem.HpDrainRate));
+                DarkResist = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, DarkResist + RealItem.DarkResist)));
 
-
-                
                 if (RealItem.Light > Light) Light = RealItem.Light;
                 if (RealItem.Unique != SpecialItemMode.None)
                 {
@@ -478,6 +478,7 @@ namespace Client.MirObjects
                 Freezing = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, Freezing + RealItem.Freezing)));
                 PoisonAttack = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, PoisonAttack + RealItem.PoisonAttack)));
                 HpDrainRate = (byte)Math.Max(100, Math.Min(byte.MaxValue, HpDrainRate + RealItem.HpDrainRate));
+                DarkResist = (byte)Math.Max(byte.MinValue, (Math.Min(byte.MaxValue, DarkResist + RealItem.DarkResist)));
 
 
                 if (RealItem.Light > Light) Light = RealItem.Light;
@@ -812,6 +813,10 @@ namespace Client.MirObjects
                         }
                         break;
                     case BuffType.ProtectionField:
+                        MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
+                        break;
+                    case BuffType.Fortify:
+                        MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + buff.Values[0]);
                         MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + buff.Values[0]);
                         break;
                     case BuffType.Rage:

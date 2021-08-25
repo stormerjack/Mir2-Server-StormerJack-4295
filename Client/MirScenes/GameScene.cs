@@ -61,6 +61,7 @@ namespace Client.MirScenes
         public FishingDialog FishingDialog;
         public FishingStatusDialog FishingStatusDialog;
         public RefineDialog RefineDialog;
+        public SkillSlotDialog SkillSlotDialog;
 
         public GroupDialog GroupDialog;
         public GuildDialog GuildDialog;
@@ -115,16 +116,22 @@ namespace Client.MirScenes
 
         public KeyboardLayoutDialog KeyboardLayoutDialog;
         public NoticeDialog NoticeDialog;
+        public DuelDialog DuelDialog;
 
         public TimerDialog TimerControl;
 
         public static List<ItemInfo> ItemInfoList = new List<ItemInfo>();
+        public static List<ClientMagicInfo> MagicInfoList = new List<ClientMagicInfo>();
         public static List<UserId> UserIdList = new List<UserId>();
         public static List<UserItem> ChatItemList = new List<UserItem>();
         public static List<ClientQuestInfo> QuestInfoList = new List<ClientQuestInfo>();
         public static List<GameShopItem> GameShopInfoList = new List<GameShopItem>();
         public static List<ClientRecipeInfo> RecipeInfoList = new List<ClientRecipeInfo>();
         public static List<ClientMapInfo> MapInfoList = new List<ClientMapInfo>();
+        public static List<ClientMonsterData> MonsterInfoList = new List<ClientMonsterData>();
+
+        public static DateTime DuelBeginTime;
+        public bool DuelNeedGo;
 
         public List<Buff> Buffs = new List<Buff>();
 
@@ -135,7 +142,7 @@ namespace Client.MirScenes
         public static MirItemCell SelectedCell;
 
         public static bool PickedUpGold;
-        public MirControl ItemLabel, MailLabel, MemoLabel, GuildBuffLabel;
+        public MirControl ItemLabel, MailLabel, MemoLabel, GuildBuffLabel, MonsterLabel;
         public static long UseItemTime, PickUpTime, DropViewTime, TargetDeadTime;
         public static uint Gold, Credit;
         public static long InspectTime;
@@ -205,10 +212,12 @@ namespace Client.MirScenes
             HelpDialog = new HelpDialog { Parent = this, Visible = false };
             KeyboardLayoutDialog = new KeyboardLayoutDialog { Parent = this, Visible = false };
             NoticeDialog = new NoticeDialog { Parent = this, Visible = false };
+            DuelDialog = new DuelDialog { Parent = this, Visible = false };
 
             MountDialog = new MountDialog { Parent = this, Visible = false };
             FishingDialog = new FishingDialog { Parent = this, Visible = false };
             FishingStatusDialog = new FishingStatusDialog { Parent = this, Visible = false };
+            SkillSlotDialog = new SkillSlotDialog { Parent = this, Visible = false };
 
             GroupDialog = new GroupDialog { Parent = this, Visible = false };
             GuildDialog = new GuildDialog { Parent = this, Visible = false };
@@ -485,10 +494,13 @@ namespace Client.MirScenes
                         MailReadParcelDialog.Hide();
                         ItemRentalDialog.Hide();
                         NoticeDialog.Hide();
+                        SkillSlotDialog.Hide();
+                        DuelDialog.Hide();
 
 
 
-                        GameScene.Scene.DisposeItemLabel();
+                        Scene.DisposeItemLabel();
+                        Scene.DisposeMonsterLabel();
                         break;
                     case KeybindOptions.Options:
                     case KeybindOptions.Options2:
@@ -674,6 +686,9 @@ namespace Client.MirScenes
                     Network.Enqueue(new C.ChangePMode { Mode = PetMode.AttackOnly });
                     return;
                 case PetMode.AttackOnly:
+                    Network.Enqueue(new C.ChangePMode { Mode = PetMode.FocusTarget });
+                    return;
+                case PetMode.FocusTarget:
                     Network.Enqueue(new C.ChangePMode { Mode = PetMode.None });
                     return;
                 case PetMode.None:
@@ -941,7 +956,7 @@ namespace Client.MirScenes
                 if (y + ItemLabel.Size.Height > Settings.ScreenHeight)
                     y = Settings.ScreenHeight - ItemLabel.Size.Height;
                 ItemLabel.Location = new Point(x, y);
-            }
+            }            
 
             if (MailLabel != null && !MailLabel.IsDisposed)
             {
@@ -1010,6 +1025,19 @@ namespace Client.MirScenes
             CustomPanel1.Process();
             GameShopDialog.Process();
             MiniMapDialog.Process();
+
+            if (MonsterLabel != null && !MonsterLabel.IsDisposed)
+            {
+                MonsterLabel.BringToFront();
+
+                int x = CMain.MPoint.X + 15, y = CMain.MPoint.Y;
+                if (x + MonsterLabel.Size.Width > Settings.ScreenWidth)
+                    x = Settings.ScreenWidth - MonsterLabel.Size.Width;
+
+                if (y + MonsterLabel.Size.Height > Settings.ScreenHeight)
+                    y = Settings.ScreenHeight - MonsterLabel.Size.Height;
+                MonsterLabel.Location = new Point(x, y);
+            }
 
             foreach (SkillBarDialog Bar in Scene.SkillBarDialogs)
                 Bar.Process();
@@ -1178,11 +1206,17 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.ObjectMonster:
                     ObjectMonster((S.ObjectMonster)p);
                     break;
+                case (short)ServerPacketIds.ObjectMonsterData:
+                    ObjectMonsterData((S.ObjectMonsterData)p);
+                    break;
                 case (short)ServerPacketIds.ObjectAttack:
                     ObjectAttack((S.ObjectAttack)p);
                     break;
                 case (short)ServerPacketIds.Struck:
                     Struck((S.Struck)p);
+                    break;
+                case (short)ServerPacketIds.FasterAttacksSupport:
+                    FasterAttacksSupport((S.FasterAttacksSupport)p);
                     break;
                 case (short)ServerPacketIds.DamageIndicator:
                     DamageIndicator((S.DamageIndicator)p);
@@ -1351,6 +1385,15 @@ namespace Client.MirScenes
                     break;
                 case (short)ServerPacketIds.AddMember:
                     AddMember((S.AddMember)p);
+                    break;
+                case (short)ServerPacketIds.GroupLootMode:
+                    SetGroupLootMode((S.SetGroupLootMode)p);
+                    break;
+                case (short)ServerPacketIds.GroupConnect:
+                    GroupConnect((S.GroupConnect)p);
+                    break;
+                case (short)ServerPacketIds.GroupDisconnect:
+                    GroupDisconnect((S.GroupDisconnect)p);
                     break;
                 case (short)ServerPacketIds.Revived:
                     Revived();
@@ -1720,6 +1763,33 @@ namespace Client.MirScenes
                 case (short)ServerPacketIds.UpdateNotice:
                     ShowNotice((S.UpdateNotice)p);
                     break;
+                case (short)ServerPacketIds.OpenDuelDialog:
+                    OpenDuelDialog((S.OpenDuelDialog)p);
+                    break;
+                case (short)ServerPacketIds.DuelRuleChanged:
+                    DuelRuleChanged((S.DuelRuleChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelStakeChanged:
+                    DuelStakeChanged((S.DuelStakeChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelOpponentStakeChanged:
+                    DuelOpponentStakeChanged((S.DuelOpponentStakeChanged)p);
+                    break;
+                case (short)ServerPacketIds.DuelInvitation:
+                    DuelInvitation((S.DuelInvitation)p);
+                    break;
+                case (short)ServerPacketIds.DuelConfirmed:
+                    DuelConfirmed((S.DuelConfirmed)p);
+                    break;
+                case (short)ServerPacketIds.DuelOpponentConfirmed:
+                    DuelOpponentConfirmed((S.DuelOpponentConfirmed)p);
+                    break;
+                case (short)ServerPacketIds.DuelCancelled:
+                    DuelCancelled((S.DuelCancelled)p);
+                    break;
+                case (short)ServerPacketIds.DuelStartTime:
+                    DuelStartTime((S.DuelStartTime)p);
+                    break;
                 default:
                     base.ProcessPacket(p);
                     break;
@@ -1955,6 +2025,9 @@ namespace Client.MirScenes
                 case MirGridType.Fishing:
                     toCell = FishingDialog.Grid[p.To];
                     break;
+                case MirGridType.SkillSlot:
+                    toCell = SkillSlotDialog.Grid[p.To];
+                    break;
                 default:
                     return;
             }
@@ -2127,6 +2200,9 @@ namespace Client.MirScenes
                     break;
                 case MirGridType.Fishing:
                     fromCell = FishingDialog.GetCell(p.UniqueID);
+                    break;
+                case MirGridType.SkillSlot:
+                    fromCell = SkillSlotDialog.GetCell(p.UniqueID);
                     break;
                 default:
                     return;
@@ -2644,6 +2720,9 @@ namespace Client.MirScenes
                 case PetMode.None:
                     ChatDialog.ReceiveChat(GameLanguage.PetMode_None, ChatType.Hint);
                     break;
+                case PetMode.FocusTarget:
+                    ChatDialog.ReceiveChat(GameLanguage.PetMode_FocusTarget, ChatType.Hint);
+                    break;
             }
         }
 
@@ -2719,6 +2798,20 @@ namespace Client.MirScenes
             }
             mob = new MonsterObject(p.ObjectID);
             mob.Load(p);
+        }
+        private void ObjectMonsterData(S.ObjectMonsterData p)
+        {
+            MonsterObject mob;
+            for (int i = MapControl.Objects.Count - 1; i >= 0; i--)
+            {
+                MapObject ob = MapControl.Objects[i];
+                if (ob.ObjectID == p.ObjectID)
+                {
+                    mob = (MonsterObject)ob;
+                    mob.Data = p.Data;
+                    return;
+                }
+            }
         }
         private void ObjectAttack(S.ObjectAttack p)
         {
@@ -2865,6 +2958,11 @@ namespace Client.MirScenes
 
                 return;
             }
+        }
+
+        private void FasterAttacksSupport(S.FasterAttacksSupport p)
+        {
+            AttackTime -= p.Change;
         }
 
         private void DamageIndicator(S.DamageIndicator p)
@@ -3263,7 +3361,7 @@ namespace Client.MirScenes
             User.ClearMagic();
             User.SetAction();
 
-            GameScene.CanRun = false;
+            CanRun = false;
 
             MapControl.FloorValid = false;
             MapControl.InputDelay = CMain.Time + 400;
@@ -3621,7 +3719,11 @@ namespace Client.MirScenes
         {
             ClientMagic magic = p.Magic;
 
-            User.Magics.Add(magic);
+            if (User.Magics.Any(x => x.Spell == magic.Spell))
+                User.Magics[User.Magics.FindIndex(x => x.Spell == magic.Spell)] = magic;
+            else
+                User.Magics.Add(magic);
+
             User.RefreshStats();
             foreach (SkillBarDialog Bar in SkillBarDialogs)
                 Bar.Update();
@@ -3652,7 +3754,24 @@ namespace Client.MirScenes
                 break;
             }
 
+            if (p.ItemID == 0) return;
+            for (int i = 0; i < User.Equipment.Length; i++)
+            {
+                UserItem item = User.Equipment[i];
+                if (item == null) continue;
+                if (item.Slots.Length == 0) continue;
 
+                for (int j = 0; j < item.Slots.Length; j++)
+                {
+                    UserItem slotItem = item.Slots[j];
+                    if (slotItem == null) continue;
+                    if (slotItem.UniqueID != p.ItemID) continue;
+
+                    slotItem.MaxDura = p.Level;
+                    slotItem.CurrentDura = p.Experience;
+                    return;
+                }
+            }
         }
         private void Magic(S.Magic p)
         {
@@ -3671,6 +3790,7 @@ namespace Client.MirScenes
         private void MagicDelay(S.MagicDelay p)
         {
             ClientMagic magic = User.GetMagic(p.Spell);
+            if (magic == null) return;
             magic.Delay = p.Delay;
         }
 
@@ -3960,7 +4080,7 @@ namespace Client.MirScenes
         }
         private void DeleteMember(S.DeleteMember p)
         {
-            GroupDialog.GroupList.Remove(p.Name);
+            GroupDialog.GroupList.RemoveAll(x => x.Name == p.Name);
             ChatDialog.ReceiveChat(string.Format("-{0} has left the group.", p.Name), ChatType.Group);
         }
         private void GroupInvite(S.GroupInvite p)
@@ -3974,9 +4094,30 @@ namespace Client.MirScenes
         }
         private void AddMember(S.AddMember p)
         {
-            GroupDialog.GroupList.Add(p.Name);
+            GroupDialog.GroupList.Add(new GroupMember() {Name = p.Name, Online = p.Online });
             ChatDialog.ReceiveChat(string.Format("-{0} has joined the group.", p.Name), ChatType.Group);
         }
+        private void SetGroupLootMode(S.SetGroupLootMode p)
+        {
+            GroupDialog.SetLootMode(p.Mode);
+            ChatDialog.ReceiveChat($"Group looting mode changed to: {(p.Mode == GroupLootMode.FreeForAll ? "Free for all" : "Leader only")}", ChatType.Group);
+        }
+        private void GroupConnect(S.GroupConnect p)
+        {
+            GroupMember member = GroupDialog.GroupList.FirstOrDefault(x => x.Name == p.Name);
+            if (member == null) return;
+            member.Online = true;
+        }
+        private void GroupDisconnect(S.GroupDisconnect p)
+        {
+            GroupMember member = GroupDialog.GroupList.FirstOrDefault(x => x.Name == p.Name);
+            if (member == null) return;
+            member.Online = false;
+
+            GroupDialog.GroupList.Remove(member);
+            GroupDialog.GroupList.Add(member);
+        }
+
         private void Revived()
         {
             User.SetAction();
@@ -4634,6 +4775,9 @@ namespace Client.MirScenes
                     break;
                 case 8:
                     MirMessageBox.Show("You cannot hold enough gold to get your sale");
+                    break;
+                case 9:
+                    MirMessageBox.Show("This item is no longer for sale.");
                     break;
             }
 
@@ -5568,6 +5712,12 @@ namespace Client.MirScenes
                 ItemLabel.Dispose();
             ItemLabel = null;
         }
+        public void DisposeMonsterLabel()
+        {
+            if (MonsterLabel != null && !MonsterLabel.IsDisposed)
+                MonsterLabel.Dispose();
+            MonsterLabel = null;
+        }
         public void DisposeMailLabel()
         {
             if (MailLabel != null && !MailLabel.IsDisposed)
@@ -6228,6 +6378,31 @@ namespace Client.MirScenes
 
                 ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, CRITICALDAMAGELabel.DisplayRectangle.Right + 4),
                     Math.Max(ItemLabel.Size.Height, CRITICALDAMAGELabel.DisplayRectangle.Bottom));
+            }
+
+            #endregion
+
+            #region DARKRESIST
+
+            minValue = realItem.DarkResist;
+            maxValue = 0;
+            addValue = 0;//(!hideAdded && (!HoverItem.Info.NeedIdentify || HoverItem.Identified)) ? HoverItem.CriticalDamage : 0;
+
+            if ((minValue > 0 || maxValue > 0 || addValue > 0) && (realItem.Type != ItemType.Gem))
+            {
+                count++;
+                MirLabel DARKRESISTLabel = new MirLabel
+                {
+                    AutoSize = true,
+                    ForeColour = addValue > 0 ? Color.Cyan : Color.White,
+                    Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                    OutLine = true,
+                    Parent = ItemLabel,
+                    Text = string.Format("Darkness Resistance + {0}", minValue + addValue)
+                };
+
+                ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, DARKRESISTLabel.DisplayRectangle.Right + 4),
+                    Math.Max(ItemLabel.Size.Height, DARKRESISTLabel.DisplayRectangle.Bottom));
             }
 
             #endregion
@@ -7087,30 +7262,64 @@ namespace Client.MirScenes
             ushort level = Inspect ? InspectDialog.Level : MapObject.User.Level;
             MirClass job = Inspect ? InspectDialog.Class : MapObject.User.Class;
             HoverItem = item;
-            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);
-
-            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
-
+            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);            
 
             int count = 0;
 
+            if (item.Info.Type == ItemType.ActiveGem || item.Info.Type == ItemType.SupportGem)
+            {
+                MirControl ol = SlotInfoLabel(item, Inspect);
+                return ol;
+            }
+
             #region SOCKET
+
+            bool skillDescriptions = false;
+            switch (item.Info.Type)
+            {
+                case ItemType.Weapon:
+                    if (!Globals.FishingRodShapes.Contains(item.Info.Shape))
+                        skillDescriptions = true;
+                    break;
+                case ItemType.Armour:
+                case ItemType.Helmet:
+                case ItemType.Boots:
+                case ItemType.Ring:
+                case ItemType.Bracelet:
+                case ItemType.Necklace:
+                    skillDescriptions = true;
+                    break;
+            }
 
             for (int i = 0; i < item.Slots.Length; i++)
             {
-                count++;
-                MirLabel SOCKETLabel = new MirLabel
-                {
-                    AutoSize = true,
-                    ForeColour = (count > realItem.Slots && !realItem.IsFishingRod && realItem.Type != ItemType.Mount) ? Color.Cyan : Color.White,
-                    Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
-                    OutLine = true,
-                    Parent = ItemLabel,
-                    Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName)
-                };
+                count++;                
 
-                ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, SOCKETLabel.DisplayRectangle.Right + 4),
-                    Math.Max(ItemLabel.Size.Height, SOCKETLabel.DisplayRectangle.Bottom));
+                if (skillDescriptions)
+                {
+                    if (item.Slots[i] == null) continue;
+                    MirControl slotControl = SlotInfoLabel(item.Slots[i], Inspect);
+                    if (slotControl != null)
+                    {
+                        skillOutlines.Add(slotControl);
+                        ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, slotControl.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, slotControl.DisplayRectangle.Bottom));
+                    }
+                }
+                else
+                {
+                    ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+                    MirLabel SOCKETLabel = new MirLabel
+                    {
+                        AutoSize = true,
+                        ForeColour = (count > realItem.Slots && !realItem.IsFishingRod && realItem.Type != ItemType.Mount) ? Color.Cyan : Color.White,
+                        Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                        OutLine = true,
+                        Parent = ItemLabel,
+                    };
+
+                    SOCKETLabel.Text = string.Format("Socket : {0}", item.Slots[i] == null ? "Empty" : item.Slots[i].FriendlyName);
+                    ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, SOCKETLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, SOCKETLabel.DisplayRectangle.Bottom));
+                }
             }
 
             #endregion
@@ -7158,6 +7367,105 @@ namespace Client.MirScenes
                 ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height - 4);
             }
             return null;
+        }
+        public MirControl SlotInfoLabel(UserItem item, bool Inspect = false)
+        {
+            ushort level = Inspect ? InspectDialog.Level : MapObject.User.Level;
+            MirClass job = Inspect ? InspectDialog.Class : MapObject.User.Class;
+            ItemInfo realItem = Functions.GetRealItem(item.Info, level, job, ItemInfoList);
+
+            if (item.Info.Shape == 0) return null;
+
+            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+
+            #region SOCKET             
+
+            ClientMagicInfo magic = MagicInfoList.First(x => x.Spell == (Spell)item.Info.Shape);
+            ClientMagic usermagic = User.Magics.FirstOrDefault(x => x.Spell == (Spell)item.Info.Shape);
+
+            byte mlevel = (byte)item.MaxDura;
+            if (usermagic != null)
+                mlevel = usermagic.Level;
+
+            MirImageControl icon = new MirImageControl
+            {
+                Index = magic.Icon * 2,
+                Library = Libraries.MagIcon2,
+                Parent = ItemLabel,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+            };      
+           
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, icon.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, icon.DisplayRectangle.Bottom + 4));
+
+            MirLabel GemNameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.Yellow,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                OutLine = true,
+                Parent = ItemLabel,
+                Text = magic.Name,
+            };
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, GemNameLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, GemNameLabel.DisplayRectangle.Bottom));
+
+            MirLabel GemLevelLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(4, ItemLabel.DisplayRectangle.Bottom),
+                OutLine = true,
+                Parent = ItemLabel,
+            };
+
+            string currentexp = "-";
+            switch (mlevel)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    currentexp = item.CurrentDura.ToString();
+                    break;
+            }
+
+            string needexp = "-";
+            switch (mlevel)
+            {
+                case 0:
+                    needexp = magic.Need1.ToString();
+                    break;
+                case 1:
+                    needexp = magic.Need2.ToString();
+                    break;
+                case 2:
+                    needexp = magic.Need3.ToString();
+                    break;
+            }
+
+            GemLevelLabel.Text = $"Level: {mlevel}\nExperience: {currentexp}/{needexp}";
+
+            ItemLabel.Size = new Size(Math.Max(ItemLabel.Size.Width, GemLevelLabel.DisplayRectangle.Right + 4), Math.Max(ItemLabel.Size.Height, GemLevelLabel.DisplayRectangle.Bottom));
+
+            #endregion
+
+            ItemLabel.Size = new Size(ItemLabel.Size.Width, ItemLabel.Size.Height + 4);
+
+            #region OUTLINE
+            MirControl outLine = new MirControl
+            {
+                BackColour = Color.FromArgb(255, 50, 50, 50),
+                Border = true,
+                BorderColour = Color.Gray,
+                NotControl = true,
+                Parent = ItemLabel,
+                Opacity = 0.4F,
+                Location = new Point(0, 0)
+            };
+            outLine.Size = ItemLabel.Size;
+            #endregion
+
+            return outLine;
         }
         public MirControl NeedInfoLabel(UserItem item, bool Inspect = false)
         {
@@ -8184,6 +8492,155 @@ namespace Client.MirScenes
             return null;
         }
 
+        public void CreateMonsterLabel(MonsterObject monster)
+        {
+            if (monster == null || monster.Data == null)
+            {
+                DisposeMonsterLabel();
+                return;
+            }
+
+            MonsterLabel = new MirImageControl
+            {
+                Index = 7,
+                Library = Libraries.PrguseCustom,
+                Parent = this,
+                NotControl = true
+            };
+
+            MirLabel nameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(70, 35),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Name
+            };
+
+            decimal gainEXP = monster.Data.Experience / (decimal)User.MaxExperience * 100M;
+            MirLabel experienceLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(98, 48),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.Experience} ({string.Format("{0:0.00}", gainEXP)}%)"
+            };
+
+            MirLabel levelLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(68, 62),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Level.ToString()
+            };
+
+            MirLabel acLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(57, 83),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinAC}-{monster.Data.MaxAC}"
+            };
+
+            MirLabel macLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(137, 83),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinMAC}-{monster.Data.MaxMAC}"
+            };
+
+            MirLabel dcLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(200, 83),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinDC}-{monster.Data.MaxDC}"
+            };
+
+            MirLabel mcLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(59, 107),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinMC}-{monster.Data.MaxMC}"
+            };
+
+            MirLabel scLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(125, 107),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = $"{monster.Data.MinSC}-{monster.Data.MaxSC}"
+            };
+
+            MirLabel agilityLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(208, 107),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Agility.ToString()
+            };
+
+            MirLabel accuracyLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(89, 129),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Accuracy.ToString()
+            };
+
+            MirLabel tameLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(178, 129),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.IsTameable.ToString()
+            };
+
+            MirLabel healthLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(160, 62),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.HP.ToString()
+            };
+
+            MirLabel tuLabel = new MirLabel
+            {
+                AutoSize = true,
+                ForeColour = Color.White,
+                Location = new Point(188, 148),
+                Font = new Font(Settings.FontName, 7F),
+                Parent = MonsterLabel,
+                Text = monster.Data.Undead.ToString()
+            };
+        }
+
+        private List<MirControl> skillOutlines = new List<MirControl>();
         public void CreateItemLabel(UserItem item, bool inspect = false, bool hideDura = false, bool hideAdded = false)
         {
             if (item == null)
@@ -8212,6 +8669,7 @@ namespace Client.MirScenes
 
             //Name Info Label
             MirControl[] outlines = new MirControl[10];
+            skillOutlines.Clear();
             outlines[0] = NameInfoLabel(item, inspect, hideDura);
             //Attribute Info1 Label - Attack Info
             outlines[1] = AttackInfoLabel(item, inspect, hideAdded);
@@ -8235,9 +8693,13 @@ namespace Client.MirScenes
             foreach (var outline in outlines)
             {
                 if (outline != null)
-                {
                     outline.Size = new Size(ItemLabel.Size.Width, outline.Size.Height);
-                }
+            }
+
+            foreach (var outline in skillOutlines)
+            {
+                if (outline != null)
+                    outline.Size = new Size(ItemLabel.Size.Width, outline.Size.Height);
             }
 
             //ItemLabel.Visible = true;
@@ -8553,6 +9015,59 @@ namespace Client.MirScenes
             NoticeDialog.Update(p.Notice);
         }
 
+        public void OpenDuelDialog(S.OpenDuelDialog p)
+        {
+            DuelDialog.Show();
+        }
+
+        public void DuelRuleChanged(S.DuelRuleChanged p)
+        {
+            DuelDialog.SetRule(p.Rule, p.Active, p.Opponent);
+        }
+
+        public void DuelStakeChanged(S.DuelStakeChanged p)
+        {
+            DuelDialog.SetStake(p.Amount);
+        }
+
+        public void DuelOpponentStakeChanged(S.DuelOpponentStakeChanged p)
+        {
+            DuelDialog.SetOpponentStake(p.Amount);
+        }
+
+        public void DuelInvitation(S.DuelInvitation p)
+        {
+            MirMessageBox messageBox = new MirMessageBox(string.Format("Do you want to duel with {0}?", p.Name), MirMessageBoxButtons.YesNo);
+
+            messageBox.YesButton.Click += (o, e) => Network.Enqueue(new C.DuelReply { AcceptInvite = true });
+            messageBox.NoButton.Click += (o, e) => Network.Enqueue(new C.DuelReply { AcceptInvite = false });
+
+            messageBox.Show();
+        }
+
+        public void DuelConfirmed(S.DuelConfirmed p)
+        {
+            DuelDialog.Confirmed();
+        }
+
+        public void DuelOpponentConfirmed(S.DuelOpponentConfirmed p)
+        {
+            DuelDialog.OpponentConfirmed();
+        }
+
+        public void DuelCancelled(S.DuelCancelled p)
+        {
+            DuelDialog.Visible = false;
+            ChatDialog.ReceiveChat("Duel cancelled.", ChatType.Hint);
+        }
+
+        public void DuelStartTime(S.DuelStartTime p)
+        {
+            DuelBeginTime = CMain.Now.AddSeconds(p.Seconds);
+            DuelNeedGo = true;
+            DuelDialog.Visible = false;
+        }
+
         #region Disposable
 
         protected override void Dispose(bool disposing)
@@ -8602,6 +9117,7 @@ namespace Client.MirScenes
                 InspectTime = 0;
 
                 DisposeItemLabel();
+                DisposeMonsterLabel();
 
                 AMode = 0;
                 PMode = 0;
@@ -8674,6 +9190,8 @@ namespace Client.MirScenes
 
         public long OutputDelay;
 
+        public MirImageControl ThreeImage, TwoImage, OneImage, GoImage;
+
         private static bool _awakeningAction;
         public static bool AwakeningAction
         {
@@ -8721,6 +9239,33 @@ namespace Client.MirScenes
             MouseDown += OnMouseDown;
             MouseMove += (o, e) => MouseLocation = e.Location;
             Click += OnMouseClick;
+
+            ThreeImage = new MirImageControl
+            {
+                Index = 16,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene, 
+                Visible = false,
+            };
+            ThreeImage.Location = new Point(Settings.ScreenWidth / 2 - ThreeImage.Size.Width / 2, 10);
+
+            TwoImage = new MirImageControl
+            {
+                Index = 15,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene,
+                Visible = false,
+            };
+            TwoImage.Location = new Point(Settings.ScreenWidth / 2 - TwoImage.Size.Width / 2, 10);
+
+            OneImage = new MirImageControl
+            {
+                Index = 14,
+                Library = Libraries.PrguseCustom,
+                Parent = GameScene.Scene,
+                Visible = false,
+            };
+            OneImage.Location = new Point(Settings.ScreenWidth / 2 - OneImage.Size.Width / 2, 10);
         }
 
         public void LoadMap()
@@ -8787,7 +9332,6 @@ namespace Client.MirScenes
 
             CheckInput();
 
-
             MapObject bestmouseobject = null;
             for (int y = MapLocation.Y + 2; y >= MapLocation.Y - 2; y--)
             {
@@ -8822,16 +9366,26 @@ namespace Client.MirScenes
                             MapObject.MouseObject = bestmouseobject;
                             Redraw();
                         }
+                        if (CMain.Alt && MapObject.MouseObject != null)
+                        {
+                            if (MapObject.MouseObject.Race == ObjectType.Monster)
+                            {
+                                if (GameScene.Scene.MonsterLabel == null)
+                                    GameScene.Scene.CreateMonsterLabel((MonsterObject)MapObject.MouseObject);
+                            }
+                        }
+                        else
+                            GameScene.Scene.DisposeMonsterLabel();
                         return;
                     }
                 }
             }
 
-
             if (MapObject.MouseObject != null)
             {
+                GameScene.Scene.DisposeMonsterLabel();
                 MapObject.MouseObject = null;
-                Redraw();
+                Redraw();                
             }
         }
 
@@ -8916,7 +9470,41 @@ namespace Client.MirScenes
             if (MapObject.User.MouseOver(MouseLocation))
                 MapObject.User.DrawName();
 
+            if (GameScene.DuelBeginTime > CMain.Now)
+            {
+                TimeSpan ts = GameScene.DuelBeginTime - CMain.Now;
 
+                ThreeImage.Visible = false;
+                TwoImage.Visible = false;
+                OneImage.Visible = false;
+
+                if (ts < TimeSpan.FromSeconds(3))
+                {
+                    if (ts > TimeSpan.FromSeconds(2))
+                        ThreeImage.Visible = true;
+                    else if (ts > TimeSpan.FromSeconds(1) && ts < TimeSpan.FromSeconds(2))
+                        TwoImage.Visible = true;
+                    else
+                        OneImage.Visible = true;
+                }
+            }
+            else if (GameScene.Scene.DuelNeedGo)
+            {
+                GameScene.Scene.DuelNeedGo = false;
+                ThreeImage.Visible = false;
+                TwoImage.Visible = false;
+                OneImage.Visible = false;
+
+                GoImage = new MirImageControl
+                {
+                    Index = 17,
+                    Library = Libraries.PrguseCustom,
+                    Parent = GameScene.Scene,
+                    Visible = true,
+                    DestroyTime = CMain.Now.AddSeconds(1)
+                };
+                GoImage.Location = new Point(Settings.ScreenWidth / 2 - GoImage.Size.Width / 2, 10);
+            }
 
 
             DXManager.SetSurface(oldSurface);
@@ -9318,7 +9906,7 @@ namespace Client.MirScenes
                 {
 
                     light = ob.Light;
-                    int LightRange = light % 15;
+                    int LightRange = light;
                     if (LightRange >= DXManager.Lights.Count)
                         LightRange = DXManager.Lights.Count - 1;
 
@@ -9328,7 +9916,8 @@ namespace Client.MirScenes
 
                     if (ob.Race == ObjectType.Player)
                     {
-                        switch (light / 15)
+                        lightColour = Color.FromArgb(255, 255, 255, 255);
+                        /*switch (light / 16)
                         {
                             case 0://no light source
                                 lightColour = Color.FromArgb(255, 60, 60, 60);
@@ -9345,7 +9934,7 @@ namespace Client.MirScenes
                             default://Peddler Torch
                                 lightColour = Color.FromArgb(255, 255, 255, 255);
                                 break;
-                        }
+                        }*/
                     }
                     else if (ob.Race == ObjectType.Merchant)
                     {
@@ -9397,7 +9986,7 @@ namespace Client.MirScenes
                     if (DXManager.Lights[light] != null && !DXManager.Lights[light].Disposed)
                     {
                         p.Offset(-(DXManager.LightSizes[light].X / 2) - (CellWidth / 2), -(DXManager.LightSizes[light].Y / 2) - (CellHeight / 2) - 5);
-                        DXManager.Sprite.Draw(DXManager.Lights[light], new Rectangle(0, 0, DXManager.LightSizes[light].X, DXManager.LightSizes[light].Y), Vector3.Zero, new Vector3((float)p.X, (float)p.Y, 0.0F), Color.White);
+                        DXManager.Sprite.Draw(DXManager.Lights[light], null, Vector3.Zero, new Vector3((float)p.X, (float)p.Y, 0.0F), Color.White);
                     }
                 }
             }
@@ -9636,7 +10225,7 @@ namespace Client.MirScenes
                     {
                         if (Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, Globals.MaxAttackRange))
                         {
-                            if (CMain.Time > GameScene.AttackTime)
+                            if (CMain.Time > GameScene.AttackTime && CMain.Now > GameScene.DuelBeginTime)
                             {
                                 User.QueuedAction = new QueuedAction { Action = MirAction.AttackRange1, Direction = Functions.DirectionFromPoint(User.CurrentLocation, MapObject.TargetObject.CurrentLocation), Location = User.CurrentLocation, Params = new List<object>() };
                                 User.QueuedAction.Params.Add(MapObject.TargetObject != null ? MapObject.TargetObject.ObjectID : (uint)0);
@@ -9658,7 +10247,7 @@ namespace Client.MirScenes
 
                     else if (Functions.InRange(MapObject.TargetObject.CurrentLocation, User.CurrentLocation, 1))
                     {
-                        if (CMain.Time > GameScene.AttackTime && CanRideAttack())
+                        if (CMain.Time > GameScene.AttackTime && CanRideAttack() && CMain.Now > GameScene.DuelBeginTime)
                         {
                             User.QueuedAction = new QueuedAction { Action = MirAction.Attack1, Direction = Functions.DirectionFromPoint(User.CurrentLocation, MapObject.TargetObject.CurrentLocation), Location = User.CurrentLocation };
                             return;
@@ -9723,7 +10312,7 @@ namespace Client.MirScenes
                         }
                         if (CMain.Shift)
                         {
-                            if (CMain.Time > GameScene.AttackTime && CanRideAttack()) //ArcherTest - shift click
+                            if (CMain.Time > GameScene.AttackTime && CanRideAttack() && CMain.Now > GameScene.DuelBeginTime) //ArcherTest - shift click
                             {
                                 MapObject target = null;
                                 if (MapObject.MouseObject is MonsterObject || MapObject.MouseObject is PlayerObject) target = MapObject.MouseObject;
@@ -9761,7 +10350,7 @@ namespace Client.MirScenes
                         {
                             if (Functions.InRange(MapObject.MouseObject.CurrentLocation, User.CurrentLocation, Globals.MaxAttackRange))
                             {
-                                if (CMain.Time > GameScene.AttackTime)
+                                if (CMain.Time > GameScene.AttackTime && CMain.Now > GameScene.DuelBeginTime)
                                 {
                                     User.QueuedAction = new QueuedAction { Action = MirAction.AttackRange1, Direction = direction, Location = User.CurrentLocation, Params = new List<object>() };
                                     User.QueuedAction.Params.Add(MapObject.TargetObject.ObjectID);
@@ -9880,7 +10469,7 @@ namespace Client.MirScenes
 
         private void UseMagic(ClientMagic magic)
         {
-            if (CMain.Time < GameScene.SpellTime || User.Poison.HasFlag(PoisonType.Stun))
+            if (CMain.Time < GameScene.SpellTime || User.Poison.HasFlag(PoisonType.Stun) || CMain.Now <= GameScene.DuelBeginTime)
             {
                 User.ClearMagic();
                 return;
@@ -10161,7 +10750,7 @@ namespace Client.MirScenes
 
         private bool CanWalk(MirDirection dir)
         {
-            return EmptyCell(Functions.PointMove(User.CurrentLocation, dir, 1)) && !User.InTrapRock;
+            return EmptyCell(Functions.PointMove(User.CurrentLocation, dir, 1)) && !User.InTrapRock && CMain.Now > GameScene.DuelBeginTime;
         }
 
         private bool CheckDoorOpen(Point p)
@@ -10429,6 +11018,9 @@ namespace Client.MirScenes
                 case BuffType.ProtectionField:
                     text = string.Format("Protection Field\nIncreases AC by: 0-{0}.\n", Values[0]);
                     break;
+                case BuffType.Fortify:
+                    text = string.Format("Fortify\nIncreases AC by: {0}-{0}.\n", Values[0]);
+                    break;
                 case BuffType.Rage:
                     text = string.Format("Rage\nIncreases DC by: 0-{0}.\n", Values[0]);
                     break;
@@ -10612,6 +11204,9 @@ namespace Client.MirScenes
                     break;
                 case BuffType.Knapsack:
                     text = string.Format("Knapsack\nIncreases BagWeight by: {0}.\n", Values[0]);
+                    break;
+                case BuffType.Darkness:
+                    text = string.Format("Darkness\nDecreases Health: {0}% per second.\n", Values[0]);
                     break;
             }
 

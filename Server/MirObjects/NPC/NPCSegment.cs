@@ -1058,6 +1058,9 @@ namespace Server.MirObjects
 
                     acts.Add(new NPCActions(ActionType.ExpireTimer, parts[1]));
                     break;
+                case "OPENDUELDIALOG":
+                    acts.Add(new NPCActions(ActionType.OpenDuelDialog));
+                    break;
             }
         }
 
@@ -2163,7 +2166,7 @@ namespace Server.MirObjects
                         break;
 
                     case CheckType.Groupleader:
-                        failed = (player.GroupMembers == null || player.GroupMembers[0] != player);
+                        failed = (player.Group == null || player.GroupMembers[0] != player);
                         break;
 
                     case CheckType.GroupCount:
@@ -2173,7 +2176,7 @@ namespace Server.MirObjects
                             break;
                         }
 
-                        failed = (player.GroupMembers == null || !Compare(param[0], player.GroupMembers.Count, tempInt));
+                        failed = (player.Group == null || !Compare(param[0], player.Group.GroupMembers.Count, tempInt));
                         break;
                     case CheckType.GroupCheckNearby:
                         target = new Point(-1,-1);
@@ -2862,6 +2865,7 @@ namespace Server.MirObjects
                             break;
                         }
                         player.RefreshStats();
+                        player.CheckMapDarkness();
                         break;
 
                     case ActionType.GiveExp:
@@ -3672,6 +3676,9 @@ namespace Server.MirObjects
                         break;
                     case ActionType.ExpireTimer:
                         player.ExpireTimer(param[0]);
+                        break;
+                    case ActionType.OpenDuelDialog:
+                        player.OpenDuelDialog();
                         break;
                 }
             }

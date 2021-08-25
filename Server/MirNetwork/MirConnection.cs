@@ -56,10 +56,12 @@ namespace Server.MirNetwork
         public AccountInfo Account;
         public PlayerObject Player;
         public List<ItemInfo> SentItemInfo = new List<ItemInfo>();
+        public List<MagicInfo> SentMagicInfo = new List<MagicInfo>();
         public List<QuestInfo> SentQuestInfo = new List<QuestInfo>();
         public List<RecipeInfo> SentRecipeInfo = new List<RecipeInfo>();
         public List<UserItem> SentChatItem = new List<UserItem>(); //TODO - Add Expiry time
         public List<int> SentMapInfo = new List<int>();
+        public List<MonsterInfo> SentMonsterInfo = new List<MonsterInfo>();
 
         public bool StorageSent;
 
@@ -390,6 +392,9 @@ namespace Server.MirNetwork
                 case (short)ClientPacketIds.GroupInvite:
                     GroupInvite((C.GroupInvite)p);
                     return;
+                case (short)ClientPacketIds.SetGroupLootMode:
+                    SetGroupLootMode((C.SetGroupLootMode)p);
+                    return;
                 case (short)ClientPacketIds.TownRevive:
                     TownRevive();
                     return;
@@ -443,6 +448,9 @@ namespace Server.MirNetwork
                     return;
                 case (short)ClientPacketIds.GuildWarReturn:
                     GuildWarReturn((C.GuildWarReturn)p);
+                    return;
+                case (short)ClientPacketIds.SetGroupPassword:
+                    SetGroupPassword((C.SetGroupPassword)p);
                     return;
                 case (short)ClientPacketIds.MarriageRequest:
                     MarriageRequest((C.MarriageRequest)p);
@@ -566,6 +574,21 @@ namespace Server.MirNetwork
                     break;
                 case (short)ClientPacketIds.IntelligentCreaturePickup://IntelligentCreature
                     IntelligentCreaturePickup((C.IntelligentCreaturePickup)p);
+                    break;
+                case (short)ClientPacketIds.DuelRule:
+                    ChangeDuelRule((C.DuelRule)p);
+                    break;
+                case (short)ClientPacketIds.DuelStake:
+                    ChangeDuelStake((C.DuelStake)p);
+                    break;
+                case (short)ClientPacketIds.DuelReply:
+                    DuelReply((C.DuelReply)p);
+                    break;
+                case (short)ClientPacketIds.DuelConfirm:
+                    DuelConfirm((C.DuelConfirm)p);
+                    break;
+                case (short)ClientPacketIds.DuelCancel:
+                    DuelCancel((C.DuelCancel)p);
                     break;
                 case (short)ClientPacketIds.AddFriend:
                     AddFriend((C.AddFriend)p);
@@ -1220,6 +1243,17 @@ namespace Server.MirNetwork
 
             Player.GroupInvite(p.AcceptInvite);
         }
+        private void SetGroupLootMode(C.SetGroupLootMode p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.SetGroupLootMode(p.Mode);
+        }
+        private void SetGroupPassword(C.SetGroupPassword p)
+        {
+            if (Stage != GameStage.Game) return;
+            Player.SetGroupPassword(p.Password);
+        }
 
         private void TownRevive()
         {
@@ -1671,6 +1705,41 @@ namespace Server.MirNetwork
             if (Stage != GameStage.Game) return;
 
             Player.IntelligentCreaturePickup(p.MouseMode, p.Location);
+        }
+
+        private void ChangeDuelRule(C.DuelRule p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.ChangeDuelRule(p.Rule);
+        }
+
+        private void ChangeDuelStake(C.DuelStake p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.ChangeDuelStake(p.Amount);
+        }
+
+        private void DuelReply(C.DuelReply p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.DuelReply(p.AcceptInvite);
+        }
+
+        private void DuelConfirm(C.DuelConfirm p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.DuelConfirm();
+        }
+
+        private void DuelCancel(C.DuelCancel p)
+        {
+            if (Stage != GameStage.Game) return;
+
+            Player.DuelCancel();
         }
 
         private void AddFriend(C.AddFriend p)

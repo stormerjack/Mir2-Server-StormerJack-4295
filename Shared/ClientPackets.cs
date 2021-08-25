@@ -976,6 +976,39 @@ namespace ClientPackets
             writer.Write(AcceptInvite);
         }
     }
+    public sealed class SetGroupLootMode : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.SetGroupLootMode; } }
+
+        public GroupLootMode Mode;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Mode = (GroupLootMode)reader.ReadByte();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Mode);
+        }
+    }
+    public sealed class SetGroupPassword : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ClientPacketIds.SetGroupPassword; }
+        }
+
+        public string Password;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Password = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Password);
+        }
+    }
 
     public sealed class MarriageRequest : Packet
     {
@@ -1992,6 +2025,81 @@ public sealed class AwakeningNeedMaterials : Packet
             writer.Write(MouseMode);
             writer.Write(Location.X);
             writer.Write(Location.Y);
+        }
+    }
+
+    public sealed class DuelRule : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelRule; } }
+
+        public DuelRules Rule;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Rule = (DuelRules)reader.ReadByte();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Rule);
+        }
+    }
+
+    public sealed class DuelStake : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelStake; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
+        }
+    }
+
+    public sealed class DuelConfirm : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelConfirm; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelCancel : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelCancel; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelReply : Packet
+    {
+        public override short Index { get { return (short)ClientPacketIds.DuelReply; } }
+
+        public bool AcceptInvite;
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            AcceptInvite = reader.ReadBoolean();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(AcceptInvite);
         }
     }
 

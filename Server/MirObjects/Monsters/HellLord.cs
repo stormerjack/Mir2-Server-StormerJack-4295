@@ -44,7 +44,7 @@ namespace Server.MirObjects.Monsters
         public override bool Walk(MirDirection dir) { return false; }
 
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (_stage >= 4)
             {
@@ -53,7 +53,7 @@ namespace Server.MirObjects.Monsters
 
             return 0;
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (_stage >= 4)
             {
@@ -266,6 +266,7 @@ namespace Server.MirObjects.Monsters
         {
             return new S.ObjectMonster
             {
+                MonsterIndex = Info.Index,
                 ObjectID = ObjectID,
                 Name = Name,
                 NameColour = NameColour,
@@ -280,6 +281,7 @@ namespace Server.MirObjects.Monsters
                 Poison = CurrentPoison,
                 Hidden = Hidden,
                 ExtraByte = _stage,
+                Data = ClientData
             };
         }
     }

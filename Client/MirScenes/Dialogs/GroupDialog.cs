@@ -14,14 +14,22 @@ using C = ClientPackets;
 
 namespace Client.MirScenes.Dialogs
 {
+    public class GroupMember
+    {
+        public string Name;
+        public bool Online;
+    }
+
     public sealed class GroupDialog : MirImageControl
     {
         public static bool AllowGroup;
-        public static List<string> GroupList = new List<string>();
+        public static List<GroupMember> GroupList = new List<GroupMember>();
+        public GroupLootMode LootMode;
 
         public MirImageControl TitleLabel;
-        public MirButton SwitchButton, CloseButton, AddButton, DelButton;
+        public MirButton SwitchButton, CloseButton, AddButton, DelButton, PasswordButton;
         public MirLabel[] GroupMembers;
+        public MirDropDownBox LootModeDropDown;
 
         public GroupDialog()
         {
@@ -51,8 +59,6 @@ namespace Client.MirScenes.Dialogs
                     NotControl = true,
                 };
             }
-
-
 
             TitleLabel = new MirImageControl
             {
@@ -87,11 +93,24 @@ namespace Client.MirScenes.Dialogs
             };
             SwitchButton.Click += (o, e) => Network.Enqueue(new C.SwitchGroup { AllowGroup = !AllowGroup });
 
+            PasswordButton = new MirButton
+            {
+                HoverIndex = 2449,
+                Index = 2448,
+                PressedIndex = 2450,
+                Location = new Point(180, 219),
+                Library = Libraries.Prguse,
+                Parent = this,
+                Sound = SoundList.ButtonA,
+                Hint = "Auto-Invite"
+            };
+            PasswordButton.Click += (o, e) => SetAutoInvitePassword();
+
             AddButton = new MirButton
             {
                 HoverIndex = 134,
                 Index = 133,
-                Location = new Point(70, 219),
+                Location = new Point(54, 219),
                 Library = Libraries.Title,
                 Parent = this,
                 PressedIndex = 135,
@@ -104,7 +123,7 @@ namespace Client.MirScenes.Dialogs
             {
                 HoverIndex = 137,
                 Index = 136,
-                Location = new Point(140, 219),
+                Location = new Point(117, 219),
                 Library = Libraries.Title,
                 Parent = this,
                 PressedIndex = 138,
@@ -115,7 +134,33 @@ namespace Client.MirScenes.Dialogs
 
             BeforeDraw += GroupPanel_BeforeDraw;
 
+            LootModeDropDown = new MirDropDownBox()
+            {
+                ForeColour = Color.White,
+                Parent = this,
+                Size = new Size(100, 14),
+                Location = new Point(80, Size.Height - 50),
+                Visible = true,
+                Enabled = true
+            };
+            LootModeDropDown.Items.Add("Free for all");
+            LootModeDropDown.Items.Add("Leader only");
+            LootModeDropDown.SelectedIndex = 0;
+
+            LootModeDropDown.ValueChanged += (o, e) => OnLootModeSelect(LootModeDropDown._WantedIndex);
+
             GroupList.Clear();
+        }
+
+        private void SetAutoInvitePassword()
+        {
+            MirInputBox inputBox = new MirInputBox("Please enter password");
+            inputBox.OKButton.Click += (o, e) =>
+            {
+                Network.Enqueue(new C.SetGroupPassword { Password = inputBox.InputTextBox.Text });
+                inputBox.Dispose();
+            };
+            inputBox.Show();
         }
 
         private void GroupPanel_BeforeDraw(object sender, EventArgs e)
@@ -132,15 +177,17 @@ namespace Client.MirScenes.Dialogs
                 AddButton.HoverIndex = 134;
                 AddButton.PressedIndex = 135;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
                 AddButton.Visible = false;
                 DelButton.Visible = false;
+                LootModeDropDown.Enabled = false;
             }
             else
             {
                 AddButton.Visible = true;
                 DelButton.Visible = true;
+                LootModeDropDown.Enabled = true;
             }
 
             if (AllowGroup)
@@ -157,7 +204,11 @@ namespace Client.MirScenes.Dialogs
             }
 
             for (int i = 0; i < GroupMembers.Length; i++)
-                GroupMembers[i].Text = i >= GroupList.Count ? string.Empty : GroupList[i];
+            {
+                GroupMembers[i].Text = i >= GroupList.Count ? string.Empty : GroupList[i].Name;
+                if (i >= GroupList.Count) continue;
+                GroupMembers[i].ForeColour = GroupList[i].Online ? Color.White : Color.Gray;
+            }
         }
 
         public void AddMember(string name)
@@ -167,7 +218,7 @@ namespace Client.MirScenes.Dialogs
                 GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                 return;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
                 return;
@@ -183,9 +234,8 @@ namespace Client.MirScenes.Dialogs
                 GameScene.Scene.ChatDialog.ReceiveChat("Your group already has the maximum number of members.", ChatType.System);
                 return;
             }
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
-
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
                 return;
             }
@@ -201,7 +251,7 @@ namespace Client.MirScenes.Dialogs
         }
         private void DelMember()
         {
-            if (GroupList.Count > 0 && GroupList[0] != MapObject.User.Name)
+            if (GroupList.Count > 0 && GroupList[0].Name != MapObject.User.Name)
             {
 
                 GameScene.Scene.ChatDialog.ReceiveChat("You are not the leader of your group.", ChatType.System);
@@ -216,6 +266,25 @@ namespace Client.MirScenes.Dialogs
                 inputBox.Dispose();
             };
             inputBox.Show();
+        }
+        public void SetLootMode(GroupLootMode mode)
+        {
+            LootMode = mode;
+
+            switch (mode)
+            {
+                case GroupLootMode.FreeForAll:
+                    LootModeDropDown.SelectedIndex = 0;
+                    break;
+                case GroupLootMode.MasterLoot:
+                    LootModeDropDown.SelectedIndex = 1;
+                    break;
+            }
+        }
+        public void OnLootModeSelect(int Index)
+        {
+            GroupLootMode mode = Index == 0 ? GroupLootMode.FreeForAll : GroupLootMode.MasterLoot;
+            Network.Enqueue(new C.SetGroupLootMode { Mode = mode });
         }
     }
 }

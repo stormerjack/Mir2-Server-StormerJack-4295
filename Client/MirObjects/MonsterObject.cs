@@ -11,7 +11,7 @@ using Client.MirControls;
 
 namespace Client.MirObjects
 {
-    class MonsterObject : MapObject
+    public class MonsterObject : MapObject
     {
         public override ObjectType Race
         {
@@ -48,6 +48,7 @@ namespace Client.MirObjects
             }
         }
 
+        public ClientMonsterData Data;
         public Monster BaseImage;
         public byte Effect;
         public bool Skeleton;
@@ -75,6 +76,11 @@ namespace Client.MirObjects
             Name = info.Name;
             NameColour = info.NameColour;
             BaseImage = info.Image;
+
+            if (info.Data != null)
+                Data = info.Data;
+            else
+                Data = GameScene.MonsterInfoList.FirstOrDefault(x => x.Index == info.MonsterIndex);
 
             OldNameColor = NameColour;
 

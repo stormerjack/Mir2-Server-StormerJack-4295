@@ -64,13 +64,13 @@ namespace Server.MirObjects.Monsters
             Target.Attacked(this, damage, DefenceType.MAC);
         }
 
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (type != DefenceType.Repulsion) return 0;
 
             return base.Attacked(attacker, damage, type);
         }
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (type != DefenceType.Repulsion) return 0;
 
@@ -88,7 +88,7 @@ namespace Server.MirObjects.Monsters
             return result;
         }
 
-        public override void PoisonDamage(int amount, MapObject Attacker)
+        public override void PoisonDamage(Poison poison)
         {
             return;
         }

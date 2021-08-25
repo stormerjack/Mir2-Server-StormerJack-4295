@@ -54,7 +54,7 @@ namespace Server.MirEnvir
         public static object LoadLock = new object();
 
         public const int MinVersion = 60;
-        public const int Version = 86;
+        public const int Version = 93;
         public const int CustomVersion = 0;
         public static readonly string DatabasePath = Path.Combine(".", "Server.MirDB");
         public static readonly string AccountPath = Path.Combine(".", "Server.MirADB");
@@ -156,6 +156,7 @@ namespace Server.MirEnvir
 
         public List<GuildAtWar> GuildsAtWar = new List<GuildAtWar>();
         public List<MapRespawn> SavedSpawns = new List<MapRespawn>();
+        public List<GroupObject> Groups = new List<GroupObject>();
 
         public List<RankCharacterInfo> RankTop = new List<RankCharacterInfo>();
         public List<RankCharacterInfo>[] RankClass = new List<RankCharacterInfo>[5];
@@ -388,6 +389,28 @@ namespace Server.MirEnvir
             //Custom
             if (!MagicExists(Spell.Portal)) MagicInfoList.Add(new MagicInfo { Name = "Portal", Spell = Spell.Portal, Icon = 1, Level1 = 7, Level2 = 11, Level3 = 14, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
             if (!MagicExists(Spell.BattleCry)) MagicInfoList.Add(new MagicInfo {  Name = "BattleCry", Spell = Spell.BattleCry, Icon = 42, Level1 = 48, Level2 = 51, Level3 = 55, Need1 = 8000, Need2 = 11000, Need3 = 15000, BaseCost = 22, LevelCost = 10, Range = 0 });
+
+            //Support Gems
+            if (!MagicExists(Spell.IncreasedDuration)) MagicInfoList.Add(new MagicInfo { Name = "Increased Duration", Spell = Spell.IncreasedDuration, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.AddedPhysicalDamage)) MagicInfoList.Add(new MagicInfo { Name = "Added Physical Damage", Spell = Spell.AddedPhysicalDamage, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.AddedSpiritualDamage)) MagicInfoList.Add(new MagicInfo { Name = "Added Spiritual Damage", Spell = Spell.AddedSpiritualDamage, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.AddedMagicalDamage)) MagicInfoList.Add(new MagicInfo { Name = "Added Magical Damage", Spell = Spell.AddedMagicalDamage, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.AdditionalAccuracy)) MagicInfoList.Add(new MagicInfo { Name = "Additional Accuracy", Spell = Spell.AdditionalAccuracy, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.CullingStrike)) MagicInfoList.Add(new MagicInfo { Name = "Culling Strike", Spell = Spell.CullingStrike, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.FasterAttacks)) MagicInfoList.Add(new MagicInfo { Name = "Faster Attacks", Spell = Spell.FasterAttacks, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.VileToxins)) MagicInfoList.Add(new MagicInfo { Name = "Vile Toxins", Spell = Spell.VileToxins, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.ChanceToBleed)) MagicInfoList.Add(new MagicInfo { Name = "Chance To Bleed", Spell = Spell.ChanceToBleed, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.Empower)) MagicInfoList.Add(new MagicInfo { Name = "Empower", Spell = Spell.Empower, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.Fortify)) MagicInfoList.Add(new MagicInfo { Name = "Fortify", Spell = Spell.Fortify, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.IncreasedAuraEffect)) MagicInfoList.Add(new MagicInfo { Name = "Increased Aura Effect", Spell = Spell.IncreasedAuraEffect, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.MinionDamage)) MagicInfoList.Add(new MagicInfo { Name = "Minion Damage", Spell = Spell.MinionDamage, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.MinionLife)) MagicInfoList.Add(new MagicInfo { Name = "Minion Life", Spell = Spell.MinionLife, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.MinionDefence)) MagicInfoList.Add(new MagicInfo { Name = "Minion Defence", Spell = Spell.MinionDefence, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.FeedingFrenzy)) MagicInfoList.Add(new MagicInfo { Name = "Feeding Frenzy", Spell = Spell.FeedingFrenzy, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.IncreasedCriticalDamage)) MagicInfoList.Add(new MagicInfo { Name = "Increased Critical Damage", Spell = Spell.IncreasedCriticalDamage, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.IncreasedCriticalStrikeChance)) MagicInfoList.Add(new MagicInfo { Name = "Increased Critical Strike Chance", Spell = Spell.IncreasedCriticalStrikeChance, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.DropRate)) MagicInfoList.Add(new MagicInfo { Name = "Drop Rate", Spell = Spell.DropRate, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
+            if (!MagicExists(Spell.FasterCasting)) MagicInfoList.Add(new MagicInfo { Name = "Faster Casting", Spell = Spell.FasterCasting, Icon = 1, Level1 = 1, Level2 = 1, Level3 = 1, Need1 = 150, Need2 = 350, Need3 = 700, BaseCost = 3, LevelCost = 2, Range = 9 });
         }
 
         private string CanStartEnvir()
@@ -651,7 +674,6 @@ namespace Server.MirEnvir
                 SaveAccounts();
                 SaveGuilds(true);
                 SaveConquests(true);
-
             }
             catch (Exception ex)
             {
@@ -984,6 +1006,10 @@ namespace Server.MirEnvir
                     var Save = new RespawnSave { RespawnIndex = Spawn.Info.RespawnIndex, NextSpawnTick = Spawn.NextSpawnTick, Spawned = Spawn.Count >= Spawn.Info.Count * SpawnMultiplier };
                     Save.Save(writer);
                 }
+
+                writer.Write(Groups.Count);
+                foreach (GroupObject group in Groups)
+                    group.Save(writer);
             }
         }
 
@@ -1404,6 +1430,13 @@ namespace Server.MirEnvir
                                 }
                             }
                         }
+                    }
+
+                    if (LoadVersion > 90)
+                    {
+                        int groupCount = reader.ReadInt32();
+                        for (int i = 0; i < groupCount; i++)
+                            Groups.Add(new GroupObject(reader));
                     }
                 }
             }
@@ -1887,6 +1920,7 @@ namespace Server.MirEnvir
             StartPoints.Clear();
             StartItems.Clear();
             MapList.Clear();
+            Groups.Clear();
             GameshopLog.Clear();
             CustomCommands.Clear();
             MonsterCount = 0;
@@ -3076,6 +3110,7 @@ namespace Server.MirEnvir
                         rentingPlayer.Player.ReceiveChat($"{item.Info.FriendlyName} has just expired from your inventory.", ChatType.Hint);
                         rentingPlayer.Player.Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
                         rentingPlayer.Player.RefreshStats();
+                        rentingPlayer.Player.CheckMapDarkness();
                     }
 
                     for (var i = 0; i < rentingPlayer.Equipment.Length; i++)
@@ -3098,6 +3133,7 @@ namespace Server.MirEnvir
                         rentingPlayer.Player.ReceiveChat($"{item.Info.FriendlyName} has just expired from your inventory.", ChatType.Hint);
                         rentingPlayer.Player.Enqueue(new S.DeleteItem { UniqueID = item.UniqueID, Count = item.Count });
                         rentingPlayer.Player.RefreshStats();
+                        rentingPlayer.Player.CheckMapDarkness();
                     }
                 }
             }

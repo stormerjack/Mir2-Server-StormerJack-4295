@@ -183,6 +183,9 @@ namespace Client.MirControls
                 case (short)ServerPacketIds.NewItemInfo:
                     NewItemInfo((S.NewItemInfo) p);
                     break;
+                case (short)ServerPacketIds.NewMagicInfo:
+                    NewMagicInfo((S.NewMagicInfo)p);
+                    break;
                 case (short)ServerPacketIds.NewChatItem:
                     NewChatItem((S.NewChatItem)p);
                     break;
@@ -195,12 +198,20 @@ namespace Client.MirControls
                 case (short)ServerPacketIds.NewMapInfo:
                     NewMapInfo((S.NewMapInfo)p);
                     break;
+                case (short)ServerPacketIds.NewMonsterInfo:
+                    NewMonsterInfo((S.NewMonsterInfo)p);
+                    break;
             }
         }
 
         private void NewItemInfo(S.NewItemInfo info)
         {
             GameScene.ItemInfoList.Add(info.Info);
+        }
+
+        private void NewMagicInfo(S.NewMagicInfo info)
+        {
+            GameScene.MagicInfoList.Add(info.Info);
         }
 
         private void NewChatItem(S.NewChatItem p)
@@ -214,6 +225,11 @@ namespace Client.MirControls
         private void NewQuestInfo(S.NewQuestInfo info)
         {
             GameScene.QuestInfoList.Add(info.Info);
+        }
+
+        private void NewMonsterInfo(S.NewMonsterInfo info)
+        {
+            GameScene.MonsterInfoList.Add(info.Info);
         }
 
         private void NewMapInfo(S.NewMapInfo info)

@@ -177,6 +177,7 @@ namespace Client.MirObjects
             //Mounts
             Player.Add(MirAction.MountStanding, new Frame(416, 4, 0, 500, 448, 4, 0, 500));
             Player.Add(MirAction.MountWalking, new Frame(448, 8, 0, 100, 480, 8, 0, 500));
+            Player.Add(MirAction.MountWalking2, new Frame(448, 6, 2, 100, 480, 6, 2, 500));
             Player.Add(MirAction.MountRunning, new Frame(512, 6, 0, 100, 544, 6, 0, 100));
             Player.Add(MirAction.MountStruck, new Frame(560, 3, 0, 100, 592, 3, 0, 100));
             Player.Add(MirAction.MountAttack, new Frame(584, 6, 0, 100, 616, 6, 0, 100));

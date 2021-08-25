@@ -77,6 +77,12 @@ namespace Client.MirScenes.Dialogs
 
             var buffLibrary = Libraries.BuffIcon;
 
+            if (buffImage >= 40000)
+            {
+                buffImage -= 40000;
+                buffLibrary = Libraries.MagIcon2;
+            }
+
             if (buffImage >= 20000)
             {
                 buffImage -= 20000;
@@ -339,6 +345,10 @@ namespace Client.MirScenes.Dialogs
                         buffAc += buff.Values[0];
                         break;
 
+                    case BuffType.Fortify:
+                        buffAc += buff.Values[0];
+                        break;
+
                     case BuffType.Rage:
                         buffDc += buff.Values[0];
                         break;
@@ -550,6 +560,8 @@ namespace Client.MirScenes.Dialogs
                     return 45;
                 case BuffType.EnergyShield:
                     return 57;
+                case BuffType.Fortify:
+                    return 50;
 
                 case BuffType.SwiftFeet:
                     return 67;
@@ -597,6 +609,8 @@ namespace Client.MirScenes.Dialogs
                     return 240;
                 case BuffType.TemporalFlux:
                     return 261;
+                case BuffType.Darkness:
+                    return 40160;
 
                 //Stats
                 case BuffType.Impact:

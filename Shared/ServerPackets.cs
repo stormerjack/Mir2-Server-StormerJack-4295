@@ -951,6 +951,25 @@ namespace ServerPackets
             Info.Save(writer);
         }
     }
+    public sealed class NewMagicInfo : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.NewMagicInfo; }
+        }
+
+        public ClientMagicInfo Info;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Info = new ClientMagicInfo(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            Info.Save(writer);
+        }
+    }
     public sealed class NewChatItem : Packet
     {
         public override short Index
@@ -1916,6 +1935,7 @@ namespace ServerPackets
             get { return (short)ServerPacketIds.ObjectMonster; }
         }
 
+        public int MonsterIndex;
         public uint ObjectID;
         public string Name = string.Empty;
         public Color NameColour;
@@ -1931,9 +1951,11 @@ namespace ServerPackets
         public bool BindingShotCenter;
 
         public List<BuffType> Buffs = new List<BuffType>();
+        public ClientMonsterData Data;
 
         protected override void ReadPacket(BinaryReader reader)
         {
+            MonsterIndex = reader.ReadInt32();
             ObjectID = reader.ReadUInt32();
             Name = reader.ReadString();
             NameColour = Color.FromArgb(reader.ReadInt32());
@@ -1957,10 +1979,14 @@ namespace ServerPackets
             {
                 Buffs.Add((BuffType)reader.ReadByte());
             }
+
+            if (reader.ReadBoolean())
+                Data = new ClientMonsterData(reader);
         }
 
         protected override void WritePacket(BinaryWriter writer)
         {
+            writer.Write(MonsterIndex);
             writer.Write(ObjectID);
             writer.Write(Name);
             writer.Write(NameColour.ToArgb());
@@ -1985,8 +2011,33 @@ namespace ServerPackets
             {
                 writer.Write((byte)Buffs[i]);
             }
+
+            writer.Write(Data != null);
+            if (Data != null)
+                Data.Save(writer);
+        }
+    }
+    public sealed class ObjectMonsterData : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.ObjectMonsterData; }
         }
 
+        public uint ObjectID;
+        public ClientMonsterData Data;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            ObjectID = reader.ReadUInt32();
+            Data = new ClientMonsterData(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(ObjectID);
+            Data.Save(writer);
+        }
     }
     public sealed class ObjectAttack : Packet
     {
@@ -2069,6 +2120,26 @@ namespace ServerPackets
             writer.Write(Location.X);
             writer.Write(Location.Y);
             writer.Write((byte)Direction);
+        }
+    }
+
+    public sealed class FasterAttacksSupport : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.FasterAttacksSupport; }
+        }
+
+        public int Change;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Change = reader.ReadInt32();
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Change);
         }
     }
 
@@ -2875,12 +2946,14 @@ namespace ServerPackets
         public Spell Spell;
         public byte Level;
         public ushort Experience;
+        public ulong ItemID;
 
         protected override void ReadPacket(BinaryReader reader)
         {
             Spell = (Spell)reader.ReadByte();
             Level = reader.ReadByte();
             Experience = reader.ReadUInt16();
+            ItemID = reader.ReadUInt64();
         }
 
         protected override void WritePacket(BinaryWriter writer)
@@ -2888,6 +2961,7 @@ namespace ServerPackets
             writer.Write((byte)Spell);
             writer.Write(Level);
             writer.Write(Experience);
+            writer.Write(ItemID);
         }
     }
 
@@ -3208,6 +3282,55 @@ namespace ServerPackets
         public override short Index { get { return (short)ServerPacketIds.AddMember; } }
 
         public string Name = string.Empty;
+        public bool Online;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+            Online = reader.ReadBoolean();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
+            writer.Write(Online);
+        }
+    }
+    public sealed class SetGroupLootMode : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupLootMode; } }
+
+        public GroupLootMode Mode;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Mode = (GroupLootMode)reader.ReadByte();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Mode);
+        }
+    }
+    public sealed class GroupConnect : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupConnect; } }
+
+        public string Name;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
+        }
+    }
+    public sealed class GroupDisconnect : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.GroupDisconnect; } }
+
+        public string Name;
+
         protected override void ReadPacket(BinaryReader reader)
         {
             Name = reader.ReadString();
@@ -4321,6 +4444,26 @@ namespace ServerPackets
         protected override void ReadPacket(BinaryReader reader)
         {
             Info = new ClientQuestInfo(reader);
+        }
+
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            Info.Save(writer);
+        }
+    }
+
+    public sealed class NewMonsterInfo : Packet
+    {
+        public override short Index
+        {
+            get { return (short)ServerPacketIds.NewMonsterInfo; }
+        }
+
+        public ClientMonsterData Info;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Info = new ClientMonsterData(reader);
         }
 
         protected override void WritePacket(BinaryWriter writer)
@@ -5792,6 +5935,140 @@ namespace ServerPackets
         protected override void WritePacket(BinaryWriter writer)
         {
             writer.Write(Key);
+        }
+    }
+
+    public sealed class OpenDuelDialog : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.OpenDuelDialog; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelRuleChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelRuleChanged; } }
+
+        public DuelRules Rule;
+        public bool Active;
+        public bool Opponent;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Rule = (DuelRules)reader.ReadByte();
+            Active = reader.ReadBoolean();
+            Opponent = reader.ReadBoolean();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write((byte)Rule);
+            writer.Write(Active);
+            writer.Write(Opponent);
+        }
+    }
+
+    public sealed class DuelInvitation : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelInvitation; } }
+
+        public string Name;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Name = reader.ReadString();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Name);
+        }
+    }
+
+    public sealed class DuelStakeChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelStakeChanged; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
+        }
+    }
+
+    public sealed class DuelOpponentStakeChanged : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelOpponentStakeChanged; } }
+
+        public uint Amount;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Amount = reader.ReadUInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Amount);
+        }
+    }
+
+    public sealed class DuelConfirmed : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelConfirmed; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelOpponentConfirmed : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelOpponentConfirmed; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelCancelled : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelCancelled; } }
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+        }
+    }
+
+    public sealed class DuelStartTime : Packet
+    {
+        public override short Index { get { return (short)ServerPacketIds.DuelStartTime; } }
+
+        public int Seconds;
+
+        protected override void ReadPacket(BinaryReader reader)
+        {
+            Seconds = reader.ReadInt32();
+        }
+        protected override void WritePacket(BinaryWriter writer)
+        {
+            writer.Write(Seconds);
         }
     }
 

@@ -234,6 +234,8 @@ namespace Server.MirObjects
 
         public MonsterInfo Info;
         public MapRespawn Respawn;
+
+        public ClientMonsterData ClientData;
         
         public override string Name
         {
@@ -316,6 +318,15 @@ namespace Server.MirObjects
         public byte MaxPetLevel;
         public long TameTime;
 
+        public ushort BonusMinAC;
+        public ushort BonusMaxAC;
+        public ushort BonusMinMAC;
+        public ushort BonusMaxMAC;
+        public ushort BonusMinDC;
+        public ushort BonusMaxDC;
+        public uint BonusHealth;
+        public int BonusAttackSpeed;
+
         public int RoutePoint;
         public bool Waiting;
 
@@ -338,7 +349,7 @@ namespace Server.MirObjects
             get
             {
                 return !Dead && Envir.Time > MoveTime && Envir.Time > ActionTime && Envir.Time > ShockTime &&
-                       (Master == null || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.Both) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
+                       (Master == null || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.Both || Master.PMode == PetMode.FocusTarget) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
                        && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Stun) && !CurrentPoison.HasFlag(PoisonType.Frozen);
             }
         }
@@ -347,7 +358,7 @@ namespace Server.MirObjects
             get
             {
                 return !Dead && Envir.Time > AttackTime && Envir.Time > ActionTime &&
-                     (Master == null || Master.PMode == PetMode.AttackOnly || Master.PMode == PetMode.Both || !CurrentMap.Info.NoFight) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
+                     (Master == null || Master.PMode == PetMode.AttackOnly || Master.PMode == PetMode.Both || Master.PMode == PetMode.FocusTarget || !CurrentMap.Info.NoFight) && !CurrentPoison.HasFlag(PoisonType.Paralysis)
                        && !CurrentPoison.HasFlag(PoisonType.LRParalysis) && !CurrentPoison.HasFlag(PoisonType.Stun) && !CurrentPoison.HasFlag(PoisonType.Frozen);
             }
         }
@@ -445,30 +456,59 @@ namespace Server.MirObjects
             Agility = Info.Agility;
 
             MoveSpeed = Info.MoveSpeed;
-            AttackSpeed = Info.AttackSpeed;
+            AttackSpeed = Info.AttackSpeed;            
         }
         public virtual void RefreshAll()
         {
             RefreshBase();
-            
-                MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20);
-                MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2);
-                MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2);
-                MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2);
-                MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2);
-                MinDC = (ushort)Math.Min(ushort.MaxValue, MinDC + PetLevel);
-                MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + PetLevel);
 
-            if (Info.Name == Settings.SkeletonName ||Info.Name == Settings.ShinsuName ||Info.Name == Settings.AngelName) 
+            MaxHP = (uint)Math.Min(uint.MaxValue, MaxHP + PetLevel * 20 + BonusHealth);
+            MinAC = (ushort)Math.Min(ushort.MaxValue, MinAC + PetLevel * 2 + BonusMinAC);
+            MaxAC = (ushort)Math.Min(ushort.MaxValue, MaxAC + PetLevel * 2 + BonusMaxMAC);
+            MinMAC = (ushort)Math.Min(ushort.MaxValue, MinMAC + PetLevel * 2 + BonusMinMAC);
+            MaxMAC = (ushort)Math.Min(ushort.MaxValue, MaxMAC + PetLevel * 2 + BonusMaxMAC);
+            MinDC = (ushort)Math.Min(ushort.MaxValue, MinDC + PetLevel + BonusMinDC);
+            MaxDC = (ushort)Math.Min(ushort.MaxValue, MaxDC + PetLevel + BonusMaxDC);
+
+            if (Info.Name == Settings.SkeletonName || Info.Name == Settings.ShinsuName || Info.Name == Settings.AngelName)
             {
                 MoveSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, MoveSpeed - MaxPetLevel * 130)));
                 AttackSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, AttackSpeed - MaxPetLevel * 70)));
             }
+            AttackSpeed = (ushort)Math.Min(ushort.MaxValue, (Math.Max(ushort.MinValue, AttackSpeed - BonusAttackSpeed * 70)));
 
             if (MoveSpeed < 400) MoveSpeed = 400;
             if (AttackSpeed < 400) AttackSpeed = 400;
 
             RefreshBuffs();
+
+            uint total = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility + HP;
+            if (total != Info.StatTotal)
+            {
+                ClientData = new ClientMonsterData()
+                {
+                    Level = Level,
+                    Experience = Experience,
+                    MinAC = MinAC,
+                    MaxAC = MaxAC,
+                    MinMAC = MinMAC,
+                    MaxMAC = MaxMAC,
+                    MinDC = MinDC,
+                    MaxDC = MaxDC,
+                    MinMC = MinMC,
+                    MaxMC = MaxMC,
+                    MinSC = MinSC,
+                    MaxSC = MaxSC,
+                    Accuracy = Accuracy,
+                    Agility = Agility,
+                    IsTameable = Info.CanTame,
+                    Undead = Info.Undead,
+                    HP = Info.HP,
+                };
+                Broadcast(new S.ObjectMonsterData { ObjectID = ObjectID, Data = ClientData });
+            }
+            else
+                ClientData = null;
         }
         protected virtual void RefreshBuffs()
         {
@@ -585,7 +625,6 @@ namespace Server.MirObjects
         }
         public virtual void ChangeHP(int amount)
         {
-
             uint value = (uint)Math.Max(uint.MinValue, Math.Min(MaxHP, HP + amount));
 
             if (value == HP) return;
@@ -599,15 +638,77 @@ namespace Server.MirObjects
         }
 
         //use this so you can have mobs take no/reduced poison damage
-        public virtual void PoisonDamage(int amount, MapObject Attacker)
+        public virtual void PoisonDamage(Poison poison)
         {
-            ChangeHP(amount);
+            int amount = poison.Value;
+            MapObject attacker = poison.Owner;
+            var oldItemDropRateOffset = attacker.ItemDropRateOffset;
+            UserMagic dropSupport = null;
+            PlayerObject player = null;
+
+            if (poison.Magic != null && attacker != null && attacker.Race == ObjectType.Player)
+            {
+                player = (PlayerObject)attacker;
+                if (PlayerObject.IncreasedCriticalStrikeChanceSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        if (Envir.Random.Next(10) < support.Level + 1)
+                        {
+                            player.LevelMagic(support);
+                            byte crit = attacker.CriticalDamage;
+
+                            support = poison.Magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                            if (support != null)
+                            {
+                                crit = support.IncreasedCriticalDamageCalculation(crit);
+                                player.LevelMagic(support);
+                            }
+
+                            amount = Math.Min(int.MaxValue, amount + (int)Math.Floor(amount * (((double)crit / (double)Settings.CriticalDamageWeight) * 10)));
+                        }
+                    }
+                }
+                
+
+                if (PlayerObject.DropRateSpells.Contains(poison.Magic.Spell))
+                {
+                    dropSupport = poison.Magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                        attacker.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                }
+
+                if (PlayerObject.CullingStrikeSpells.Contains(poison.Magic.Spell))
+                {
+                    UserMagic support = poison.Magic.GetSupportMagic(Spell.CullingStrike);
+                    if (support != null)
+                    {
+                        int cullingStrike = support.Level;
+                        if (cullingStrike >= 0 && Info.CanCullingStrike)
+                        {
+                            if (PercentHealth <= 6 + cullingStrike * 2)
+                            {
+                                amount = (int)Health;
+                                player.LevelMagic(support);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ChangeHP(-amount);
+            attacker.ItemDropRateOffset = oldItemDropRateOffset;
+
+            if (Dead && dropSupport != null)
+                player.LevelMagic(dropSupport);
         }
 
 
         public override bool Teleport(Map temp, Point location, bool effects = true, byte effectnumber = 0)
         {
             if (temp == null || !temp.ValidPoint(location)) return false;
+            if (temp.ActiveDuelRules[(int)DuelRules.NoPets]) return false;
 
             CurrentMap.RemoveObject(this);
             if (effects) Broadcast(new S.ObjectTeleportOut { ObjectID = ObjectID, Type = effectnumber });
@@ -1116,7 +1217,7 @@ namespace Server.MirObjects
                         }
 
                         //ChangeHP(-poison.Value);
-                        PoisonDamage(-poison.Value, poison.Owner);
+                        PoisonDamage(poison);
                         if (PoisonStopRegen)
                             RegenTime = Envir.Time + RegenDelay;
                     }
@@ -1291,7 +1392,7 @@ namespace Server.MirObjects
 
             if (Master != null)
             {
-                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly))
+                if ((Master.PMode == PetMode.Both || Master.PMode == PetMode.MoveOnly || Master.PMode == PetMode.FocusTarget))
                 {
                     if (!Functions.InRange(CurrentLocation, Master.CurrentLocation, Globals.DataRange) || CurrentMap != Master.CurrentMap)
                         PetRecall();
@@ -1870,7 +1971,7 @@ namespace Server.MirObjects
             switch (attacker.AMode)
             {
                 case AttackMode.Group:
-                    return Master.GroupMembers == null || !Master.GroupMembers.Contains(attacker);
+                    return Master is PlayerObject player && (player.Group == null || !player.Group.GroupMembers.Contains(attacker));
                 case AttackMode.Guild:
                     {
                         if (!(Master is PlayerObject)) return false;
@@ -1922,7 +2023,7 @@ namespace Server.MirObjects
                 switch (attacker.Master.AMode)
                 {
                     case AttackMode.Group:
-                        if (Master.GroupMembers != null && Master.GroupMembers.Contains((PlayerObject)attacker.Master)) return false;
+                        if (Master is PlayerObject player && (player.GroupMembers != null && player.GroupMembers.Contains((PlayerObject)attacker.Master))) return false;
                         break;
                     case AttackMode.Guild:
                         break;
@@ -1973,7 +2074,7 @@ namespace Server.MirObjects
             switch (ally.AMode)
             {
                 case AttackMode.Group:
-                    return Master.GroupMembers != null && Master.GroupMembers.Contains(ally);
+                    return Master is PlayerObject player && player.GroupMembers != null && player.GroupMembers.Contains(ally);
                 case AttackMode.Guild:
                     return false;
                 case AttackMode.EnemyGuild:
@@ -1993,7 +2094,7 @@ namespace Server.MirObjects
             return true;
         }
 
-        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true)
+        public override int Attacked(PlayerObject attacker, int damage, DefenceType type = DefenceType.ACAgility, bool damageWeapon = true, int cullingStrike = -1, UserMagic magic = null)
         {
             if (Target == null && attacker.IsAttackTarget(this))
             {
@@ -2017,6 +2118,41 @@ namespace Server.MirObjects
                 return 0;
             }
 
+            byte oldCriticalDamage = attacker.CriticalDamage;
+            byte oldCriticalRate = attacker.CriticalRate;
+            float oldItemDropRateOffset = attacker.ItemDropRateOffset;
+            UserMagic dropSupport = null;
+
+            if (magic != null)
+            {
+                if (PlayerObject.IncreasedCriticalDamageSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalDamage);
+                    if (support != null)
+                    {
+                        attacker.CriticalDamage = support.IncreasedCriticalDamageCalculation(attacker.CriticalDamage);
+                        attacker.LevelMagic(support);
+                    }
+                }
+                if (PlayerObject.IncreasedCriticalStrikeChanceSpells.Contains(magic.Spell))
+                {
+                    UserMagic support = magic.GetSupportMagic(Spell.IncreasedCriticalStrikeChance);
+                    if (support != null)
+                    {
+                        attacker.CriticalRate += support.IncreasedCriticalStrikeChanceCalculation;
+                        attacker.LevelMagic(support);
+                    }
+                }
+                if (PlayerObject.DropRateSpells.Contains(magic.Spell))
+                {
+                    dropSupport = magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                    {
+                        attacker.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                    }
+                }
+            }
+
             if ((attacker.CriticalRate * Settings.CriticalRateWeight) > Envir.Random.Next(100))
             {
                 Broadcast(new S.ObjectEffect { ObjectID = ObjectID, Effect = SpellEffect.Critical });
@@ -2024,10 +2160,22 @@ namespace Server.MirObjects
                 BroadcastDamageIndicator(DamageType.Critical);
             }
 
+            attacker.CriticalDamage = oldCriticalDamage;
+            attacker.CriticalRate = oldCriticalRate;            
+
+            if (cullingStrike >= 0 && Info.CanCullingStrike)
+            {
+                if (PercentHealth <= 6 + cullingStrike * 2)
+                {
+                    armour = 0;
+                    damage = (int)Health;
+                }
+            }
+
             if (attacker.LifeOnHit > 0)
                 attacker.ChangeHP(attacker.LifeOnHit);
 
-            if (Target != this && attacker.IsAttackTarget(this))
+            if (Target != this && attacker.IsAttackTarget(this) && !((Master != null) && (Master.PMode == PetMode.FocusTarget)))
             {
                 if (attacker.Info.MentalState == 2)
                 {
@@ -2040,6 +2188,12 @@ namespace Server.MirObjects
 
             if (BindingShotCenter) ReleaseBindingShot();
             ShockTime = 0;
+
+            if (attacker.PMode == PetMode.FocusTarget)
+            {
+                for (int i = 0; i < attacker.Pets.Count; i++)
+                    attacker.Pets[i].Target = this;
+            }
 
             for (int i = PoisonList.Count - 1; i >= 0; i--)
             {
@@ -2061,7 +2215,7 @@ namespace Server.MirObjects
 
             ushort LevelOffset = (ushort)(Level > attacker.Level ? 0 : Math.Min(10, attacker.Level - Level));
 
-            ApplyNegativeEffects(attacker, type, LevelOffset);
+            ApplyNegativeEffects(attacker, type, LevelOffset, magic);
 
             Broadcast(new S.ObjectStruck { ObjectID = ObjectID, AttackerID = attacker.ObjectID, Direction = Direction, Location = CurrentLocation });
 
@@ -2108,13 +2262,15 @@ namespace Server.MirObjects
             BroadcastDamageIndicator(DamageType.Hit, armour - damage);
 
             ChangeHP(armour - damage);
+            if (Dead && dropSupport != null)
+                attacker.LevelMagic(dropSupport);
+            attacker.ItemDropRateOffset = oldItemDropRateOffset;
             return damage - armour;
         }
-        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility)
+        public override int Attacked(MonsterObject attacker, int damage, DefenceType type = DefenceType.ACAgility, int cullingStrike = -1, UserMagic magic = null)
         {
             if (Target == null && attacker.IsAttackTarget(this))
-                Target = attacker;
-
+                Target = attacker;           
             
             var armour = GetArmour(type, attacker, out bool hit);
             if (!hit)
@@ -2123,14 +2279,24 @@ namespace Server.MirObjects
             armour = (int)Math.Max(int.MinValue, (Math.Min(int.MaxValue, (decimal)(armour * ArmourRate))));
             damage = (int)Math.Max(int.MinValue, (Math.Min(int.MaxValue, (decimal)(damage * DamageRate))));
 
+            if (cullingStrike >= 0 && Info.CanCullingStrike)
+            {
+                if (PercentHealth <= 6 + cullingStrike * 2)
+                {
+                    damage = (int)Health;
+                    armour = 0;
+                }
+            }
+
             if (armour >= damage)
             {
                 BroadcastDamageIndicator(DamageType.Miss);
                 return 0;
             }
 
-            if (Target != this && attacker.IsAttackTarget(this))
+            if (Target != this && attacker.IsAttackTarget(this) && !((Master != null) && (Master.PMode == PetMode.FocusTarget)))
                 Target = attacker;
+
 
             if (BindingShotCenter) ReleaseBindingShot();
             ShockTime = 0;
@@ -2159,7 +2325,27 @@ namespace Server.MirObjects
                     if (EXPOwner == attacker.Master)
                         EXPOwnerTime = Envir.Time + EXPOwnerDelay;
                 }
+            }
 
+            PlayerObject player = null;
+            float oldDropRateOffset = 0;
+            if (EXPOwner != null && EXPOwner.Race == ObjectType.Player)
+            {
+                player = EXPOwner as PlayerObject;
+                oldDropRateOffset = player.ItemDropRateOffset;
+            }
+
+            if (magic != null && player != null)
+            {
+                if (PlayerObject.DropRateSpells.Contains(magic.Spell))
+                {
+                    var dropSupport = magic.GetSupportMagic(Spell.DropRate);
+                    if (dropSupport != null)
+                    {
+                        player.ItemDropRateOffset += dropSupport.DropRateCalculation;
+                        player.LevelMagic(dropSupport);
+                    }
+                }
             }
 
             Broadcast(new S.ObjectStruck { ObjectID = ObjectID, AttackerID = attacker.ObjectID, Direction = Direction, Location = CurrentLocation });
@@ -2167,6 +2353,10 @@ namespace Server.MirObjects
             BroadcastDamageIndicator(DamageType.Hit, armour - damage);
 
             ChangeHP(armour - damage);
+
+            if (player != null)
+                player.ItemDropRateOffset = oldDropRateOffset;
+
             return damage - armour;
         }
 
@@ -2259,27 +2449,29 @@ namespace Server.MirObjects
             base.AddBuff(b);
             RefreshAll();
         }
-        
+
         public override Packet GetInfo()
-        {
+        {            
             return new S.ObjectMonster
-                {
-                    ObjectID = ObjectID,
-                    Name = Name,
-                    NameColour = NameColour,
-                    Location = CurrentLocation,
-                    Image = Info.Image,
-                    Direction = Direction,
-                    Effect = Info.Effect,
-                    AI = Info.AI,
-                    Light = Info.Light,
-                    Dead = Dead,
-                    Skeleton = Harvested,
-                    Poison = CurrentPoison,
-                    Hidden = Hidden,
-                    ShockTime = (ShockTime > 0 ? ShockTime - Envir.Time : 0),
-                    BindingShotCenter = BindingShotCenter,
-                    Buffs = Buffs.Where(d => d.Visible).Select(e => e.Type).ToList()
+            {
+                MonsterIndex = Info.Index,
+                ObjectID = ObjectID,
+                Name = Name,
+                NameColour = NameColour,
+                Location = CurrentLocation,
+                Image = Info.Image,
+                Direction = Direction,
+                Effect = Info.Effect,
+                AI = Info.AI,
+                Light = Info.Light,
+                Dead = Dead,
+                Skeleton = Harvested,
+                Poison = CurrentPoison,
+                Hidden = Hidden,
+                ShockTime = (ShockTime > 0 ? ShockTime - Envir.Time : 0),
+                BindingShotCenter = BindingShotCenter,
+                Buffs = Buffs.Where(d => d.Visible).Select(e => e.Type).ToList(),
+                Data = ClientData
             };
         }
 
@@ -2892,6 +3084,7 @@ namespace Server.MirObjects
 
         public override void Add(PlayerObject player)
         {
+            player.CheckMonsterInfo(Info);
             player.Enqueue(GetInfo());
             SendHealth(player);
         }
@@ -2924,6 +3117,22 @@ namespace Server.MirObjects
         {
             SlaveList.Clear();
             base.Despawn();
+        }
+
+        public override void BroadcastInfo()
+        {
+            if (CurrentMap == null) return;
+
+            for (int i = CurrentMap.Players.Count - 1; i >= 0; i--)
+            {
+                PlayerObject player = CurrentMap.Players[i];
+
+                if (Functions.InRange(CurrentLocation, player.CurrentLocation, Globals.DataRange))
+                    player.CheckMonsterInfo(Info);
+            }
+
+            Broadcast(GetInfo());
+            return;
         }
 
     }

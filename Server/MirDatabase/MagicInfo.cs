@@ -88,6 +88,22 @@ namespace Server.MirDatabase
             writer.Write(MultiplierBase);
             writer.Write(MultiplierBonus);
         }
+
+        public ClientMagicInfo ToClientInfo()
+        {
+            return new ClientMagicInfo()
+            {
+                Name = Name,
+                Spell = Spell,
+                Icon = Icon,
+                Level1 = Level1,
+                Level2 = Level2,
+                Level3 = Level3,
+                Need1 = Need1,
+                Need2 = Need2,
+                Need3 = Need3
+            };
+        }
     }
 
     public class UserMagic
@@ -98,12 +114,77 @@ namespace Server.MirDatabase
         }
 
         public Spell Spell;
-        public MagicInfo Info;
+        public MagicInfo Info;        
 
-        public byte Level, Key;
-        public ushort Experience;
+        private byte level;
+        public byte Level
+        {
+            get
+            {
+                byte value = 0;
+
+                if (Item != null)
+                    value = (byte)Item.MaxDura;
+                else
+                    value = level;
+
+                UserMagic support = GetSupportMagic(Spell.Empower);
+                if (support != null && support.Level > 2)
+                    value++;
+
+                return value;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.MaxDura = value;
+                else
+                    level = value;
+            }
+        }
+        public byte RealLevel
+        {
+            get
+            {
+                if (Item != null)
+                    return (byte)Item.MaxDura;
+                else
+                    return level;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.MaxDura = value;
+                else
+                    level = value;
+            }
+        }
+
+        private ushort experience;
+        public ushort Experience
+        {
+            get
+            {
+                if (Item != null)
+                    return Item.CurrentDura;
+                else
+                    return experience;
+            }
+            set
+            {
+                if (Item != null)
+                    Item.CurrentDura = value;
+                else
+                    experience = value;
+            }
+        }
+        public byte Key;
         public bool IsTempSpell;
         public long CastTime;
+
+        public UserMagic[] SupportMagics = new UserMagic[3];
+
+        public UserItem Item;
 
         private MagicInfo GetMagicInfo(Spell spell)
         {
@@ -224,5 +305,78 @@ namespace Server.MirDatabase
         {
             return Info.DelayBase - (Level * Info.DelayReduction);
         }
+
+        public UserMagic GetSupportMagic(Spell spell)
+        {
+            for (int i = 0; i < SupportMagics.Length; i++)
+                if (SupportMagics[i] != null && SupportMagics[i].Spell == spell)
+                    return SupportMagics[i];
+
+            return null;
+        }
+
+        public long IncreaseDurationCalculation(long value)
+        {
+            return value += (long)(value / 100F * ((Level + 1) * 5));
+        }
+
+        public int AddedPhysicalDamageCalculation(int value)
+        {
+            return value + 2 * Level + 1;
+        }
+
+        public int AddedSpiritualDamageCalculation(int value)
+        {
+            return value + Level + 1;
+        }
+
+        public int AddedMagicalDamageCalculation(int value)
+        {
+            return value + Level + 1;
+        }
+
+        public byte AdditionalAccuracyCalculation(byte value)
+        {
+            return (byte)(value + Level + 1);
+        }
+
+        public int FasterAttacksCalculation => (Level + 1) * 60; //60ms = 1 attack speed
+
+        public int VileToxinsCalculation(int value)
+        {
+            return value + (int)(value / 100F * (10 + (Level * 5)));
+        }
+
+        public int ChanceToBleedCalculation => 2 + Level;
+
+        public int FortifyCalculation => 5 + 5 * Level;
+
+        public int IncreasedAuraCalculation(int value)
+        {
+            return value + (int)(value / 100F * (5 + (Level * 5)));
+        }
+
+        public ushort MinionDamageCalculation(ushort value)
+        {
+            return (ushort)(value / 100F * (10 + 10 * Level));
+        }
+
+        public uint MinionLifeCalculation(uint value)
+        {
+            return (ushort)(value / 100F * (10 + 10 * Level));
+        }
+
+        public ushort MinionDefenceCalculation => (ushort)(5 + 5 * Level);
+
+        public int FeedingFrenzyCalculation => Level + 1;
+
+        public byte IncreasedCriticalDamageCalculation(byte value)
+        {
+            return (byte)(value / 100F * (2 + 2 * Level));
+        }
+
+        public byte IncreasedCriticalStrikeChanceCalculation => (byte)(Level + 1);
+
+        public float DropRateCalculation => (Level + 1) * 3;
     }
 }

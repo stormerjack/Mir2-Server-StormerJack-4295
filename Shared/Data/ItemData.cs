@@ -29,6 +29,7 @@ public class ItemInfo
 
     public bool StartItem;
     public byte Effect;
+    public bool DuelItem;
 
     public byte Strong;
     public byte MagicResist, PoisonResist, HealthRecovery, SpellRecovery, PoisonRecovery, HPrate, MPrate;
@@ -40,6 +41,7 @@ public class ItemInfo
     public bool CanFastRun;
     public bool CanAwakening;
     public byte MaxAcRate, MaxMacRate, Holy, Freezing, PoisonAttack, HpDrainRate;
+    public byte DarkResist;
 
     public BindMode Bind = BindMode.None;
     public byte Reflect;
@@ -171,6 +173,12 @@ public class ItemInfo
             if ((Type == ItemType.Ring) && (Unique != SpecialItemMode.None))
                 Bind |= BindMode.NoWeddingRing;
         }
+
+        if (version > 88)
+            DarkResist = reader.ReadByte();
+
+        if (version > 92)
+            DuelItem = reader.ReadBoolean();
     }
 
 
@@ -257,6 +265,9 @@ public class ItemInfo
         writer.Write(ToolTip != null);
         if (ToolTip != null)
             writer.Write(ToolTip);
+
+        writer.Write(DarkResist);
+        writer.Write(DuelItem);
     }
 
     public static ItemInfo FromText(string text)
@@ -694,10 +705,26 @@ public class UserItem
                         size = 4;
                     else if (Info.Shape < 12)
                         size = 5;
+                    else
+                        size = 4;
                     break;
                 case ItemType.Weapon:
                     if (Info.Shape == 49 || Info.Shape == 50)
                         size = 5;
+                    else
+                        size = 4;
+                    break;
+                case ItemType.Armour:
+                    size = 4;
+                    break;
+                case ItemType.Helmet:
+                case ItemType.Boots:
+                    size = 2;
+                    break;
+                case ItemType.Ring:
+                case ItemType.Bracelet:
+                case ItemType.Necklace:
+                    size = 1;
                     break;
             }
         }
