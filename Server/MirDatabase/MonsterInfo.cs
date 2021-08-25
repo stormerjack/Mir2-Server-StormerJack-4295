@@ -121,7 +121,7 @@ namespace Server.MirDatabase
 
 
             //After loading
-            StatTotal = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility;
+            StatTotal = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility + HP;
             ClientData = new ClientMonsterData()
             {
                 Index = Index,
@@ -139,7 +139,9 @@ namespace Server.MirDatabase
                 MaxSC = MaxSC,
                 Accuracy = Accuracy,
                 Agility = Agility,
-                IsTameable = CanTame
+                IsTameable = CanTame,
+                HP = HP,
+                Undead = Undead,
             };
         }
 

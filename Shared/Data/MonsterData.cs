@@ -8,7 +8,8 @@ public class ClientMonsterData
     public ushort MinAC, MaxAC, MinMAC, MaxMAC;
     public ushort MinDC, MaxDC, MinMC, MaxMC, MinSC, MaxSC;
     public byte Accuracy, Agility;
-    public bool IsTameable;
+    public bool IsTameable, Undead;
+    public uint HP;
 
     public ClientMonsterData()
     {
@@ -31,6 +32,8 @@ public class ClientMonsterData
         Accuracy = reader.ReadByte();
         Agility = reader.ReadByte();
         IsTameable = reader.ReadBoolean();
+        Undead = reader.ReadBoolean();
+        HP = reader.ReadUInt16();
     }
 
     public void Save(BinaryWriter writer)
@@ -51,5 +54,7 @@ public class ClientMonsterData
         writer.Write(Accuracy);
         writer.Write(Agility);
         writer.Write(IsTameable);
+        writer.Write(Undead);
+        writer.Write(HP);
     }
 }
