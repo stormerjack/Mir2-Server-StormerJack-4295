@@ -8512,7 +8512,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(70, 35),
+                Location = new Point(70, 33),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = monster.Name
@@ -8523,7 +8523,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(98, 48),
+                Location = new Point(98, 45),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.Experience} ({string.Format("{0:0.00}", gainEXP)}%)"
@@ -8533,7 +8533,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(68, 62),
+                Location = new Point(68, 56),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = monster.Data.Level.ToString()
@@ -8543,7 +8543,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(57, 83),
+                Location = new Point(57, 77),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.MinAC}-{monster.Data.MaxAC}"
@@ -8553,7 +8553,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(137, 83),
+                Location = new Point(132, 77),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.MinMAC}-{monster.Data.MaxMAC}"
@@ -8563,7 +8563,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(200, 83),
+                Location = new Point(200, 77),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.MinDC}-{monster.Data.MaxDC}"
@@ -8573,7 +8573,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(59, 107),
+                Location = new Point(57, 101),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.MinMC}-{monster.Data.MaxMC}"
@@ -8583,7 +8583,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(125, 107),
+                Location = new Point(121, 101),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = $"{monster.Data.MinSC}-{monster.Data.MaxSC}"
@@ -8593,7 +8593,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(208, 107),
+                Location = new Point(208, 101),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = monster.Data.Agility.ToString()
@@ -8603,7 +8603,7 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(89, 129),
+                Location = new Point(88, 123),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = monster.Data.Accuracy.ToString()
@@ -8613,30 +8613,10 @@ namespace Client.MirScenes
             {
                 AutoSize = true,
                 ForeColour = Color.White,
-                Location = new Point(178, 129),
+                Location = new Point(200, 123),
                 Font = new Font(Settings.FontName, 7F),
                 Parent = MonsterLabel,
                 Text = monster.Data.IsTameable.ToString()
-            };
-
-            MirLabel healthLabel = new MirLabel
-            {
-                AutoSize = true,
-                ForeColour = Color.White,
-                Location = new Point(160, 62),
-                Font = new Font(Settings.FontName, 7F),
-                Parent = MonsterLabel,
-                Text = monster.Data.HP.ToString()
-            };
-
-            MirLabel tuLabel = new MirLabel
-            {
-                AutoSize = true,
-                ForeColour = Color.White,
-                Location = new Point(188, 148),
-                Font = new Font(Settings.FontName, 7F),
-                Parent = MonsterLabel,
-                Text = monster.Data.Undead.ToString()
             };
         }
 

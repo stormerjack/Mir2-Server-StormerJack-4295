@@ -482,7 +482,7 @@ namespace Server.MirObjects
 
             RefreshBuffs();
 
-            uint total = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility + HP;
+            uint total = Level + Experience + MinAC + MaxAC + MinMAC + MaxMAC + MinDC + MaxDC + MinMC + MaxMC + MinSC + MaxSC + Accuracy + Agility;
             if (total != Info.StatTotal)
             {
                 ClientData = new ClientMonsterData()
@@ -501,9 +501,7 @@ namespace Server.MirObjects
                     MaxSC = MaxSC,
                     Accuracy = Accuracy,
                     Agility = Agility,
-                    IsTameable = Info.CanTame,
-                    Undead = Info.Undead,
-                    HP = Info.HP,
+                    IsTameable = Info.CanTame
                 };
                 Broadcast(new S.ObjectMonsterData { ObjectID = ObjectID, Data = ClientData });
             }
