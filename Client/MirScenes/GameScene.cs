@@ -865,7 +865,7 @@ namespace Client.MirScenes
             }
             else
             {
-                ChatDialog.ReceiveChat(string.Format(GameLanguage.CannotLeaveGame, (LogTime - CMain.Time) / 1000), ChatType.System);
+                ChatDialog.ReceiveChat(string.Format(GameLanguage.CannotLeaveGame, (LogTime - CMain.Time) / 2000), ChatType.System);
             }
         }
         public void LogOut()
@@ -883,7 +883,7 @@ namespace Client.MirScenes
             }
             else
             {
-                ChatDialog.ReceiveChat(string.Format(GameLanguage.CannotLeaveGame, (LogTime - CMain.Time) / 1000), ChatType.System);
+                ChatDialog.ReceiveChat(string.Format(GameLanguage.CannotLeaveGame, (LogTime - CMain.Time) / 2000), ChatType.System);
             }
         }
 
