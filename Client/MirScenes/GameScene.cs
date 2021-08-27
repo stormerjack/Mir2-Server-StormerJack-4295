@@ -8619,7 +8619,7 @@ namespace Client.MirScenes
                 Text = monster.Data.IsTameable.ToString()
             };
 
-            MirLabel healthLabel = new MirLabel
+            MirLabel healthLabel = new MirLabel // This is only to show the original health as i have no intention of this updating in real time.
             {
                 AutoSize = true,
                 ForeColour = Color.White,

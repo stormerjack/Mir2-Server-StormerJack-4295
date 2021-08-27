@@ -4179,11 +4179,12 @@ namespace Client.MirScenes.Dialogs
                          MentorButton,
                          RelationshipButton,
                          GroupButton,
-                         GuildButton;
+                         GuildButton,
+                         FilterButton;
 
         public MenuDialog()
         {
-            Index = 567;
+            Index = 568;
             Parent = GameScene.Scene;
             Library = Libraries.Title;
             Location = new Point(Settings.ScreenWidth - Size.Width, GameScene.Scene.MainDialog.Location.Y - this.Size.Height + 15);
@@ -4414,6 +4415,23 @@ namespace Client.MirScenes.Dialogs
                 Parent = this,
                 Library = Libraries.Prguse,
                 Location = new Point(3, 259),
+                Hint = string.Format(GameLanguage.Guild, CMain.InputKeys.GetKey(KeybindOptions.Guilds))
+            };
+            GuildButton.Click += (o, e) =>
+            {
+                if (GameScene.Scene.GuildDialog.Visible)
+                    GameScene.Scene.GuildDialog.Hide();
+                else GameScene.Scene.GuildDialog.Show();
+            };
+
+            FilterButton = new MirButton // This is a new button for an upcoming feature called LootFilter to filter out what you see on the ground.
+            {
+                Index = 2451,
+                HoverIndex = 2452,
+                PressedIndex = 2452,
+                Parent = this,
+                Library = Libraries.Prguse,
+                Location = new Point(3, 278),
                 Hint = string.Format(GameLanguage.Guild, CMain.InputKeys.GetKey(KeybindOptions.Guilds))
             };
             GuildButton.Click += (o, e) =>
