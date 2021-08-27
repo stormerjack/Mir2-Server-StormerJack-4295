@@ -4432,13 +4432,13 @@ namespace Client.MirScenes.Dialogs
                 Parent = this,
                 Library = Libraries.Prguse,
                 Location = new Point(3, 278),
-                Hint = string.Format(GameLanguage.Guild, CMain.InputKeys.GetKey(KeybindOptions.Guilds))
+                Hint = string.Format(GameLanguage.LootFilter, CMain.InputKeys.GetKey(KeybindOptions.LootFilter))
             };
-            GuildButton.Click += (o, e) =>
+            FilterButton.Click += (o, e) =>
             {
-                if (GameScene.Scene.GuildDialog.Visible)
-                    GameScene.Scene.GuildDialog.Hide();
-                else GameScene.Scene.GuildDialog.Show();
+                if (GameScene.Scene.LootFilterDialog.Visible)
+                    GameScene.Scene.LootFilterDialog.Hide();
+                else GameScene.Scene.LootFilterDialog.Show();
             };
 
         }

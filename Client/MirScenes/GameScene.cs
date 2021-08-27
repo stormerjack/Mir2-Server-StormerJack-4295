@@ -75,6 +75,7 @@ namespace Client.MirScenes
 
         public CustomPanel1 CustomPanel1;
         public SocketDialog SocketDialog;
+        public LootFilterDialog LootFilterDialog;
 
         //public SkillBarDialog SkillBarDialog;
         public List<SkillBarDialog> SkillBarDialogs = new List<SkillBarDialog>();
@@ -221,6 +222,7 @@ namespace Client.MirScenes
 
             GroupDialog = new GroupDialog { Parent = this, Visible = false };
             GuildDialog = new GuildDialog { Parent = this, Visible = false };
+            LootFilterDialog = new LootFilterDialog { Parent = this, Visible = false };
 
             BigMapDialog = new BigMapDialog { Parent = this, Visible = false };
             TrustMerchantDialog = new TrustMerchantDialog { Parent = this, Visible = false };
@@ -441,6 +443,13 @@ namespace Client.MirScenes
                         else
                         {
                             GuildDialog.Hide();
+                        }
+                        break;
+                    case KeybindOptions.LootFilter:
+                        if (!LootFilterDialog.Visible) LootFilterDialog.Show();
+                        else
+                        {
+                            LootFilterDialog.Hide();
                         }
                         break;
 

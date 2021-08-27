@@ -53,6 +53,7 @@ public class GameLanguage
                          Rotate = "Rotate",
                          Close = "Close ({0})",
                          GameMaster = "GameMaster",
+                         LootFilter = "LootFilter",
 
                          PatchErr = "Could not get Patch Information",
                          LastOnline = "Last Online",
@@ -327,6 +328,7 @@ public class GameLanguage
         GameLanguage.Expire = reader.ReadString("Language", "Expire", GameLanguage.Expire);
         GameLanguage.ExpireNever = reader.ReadString("Language", "ExpireNever", GameLanguage.ExpireNever);
         GameLanguage.Never = reader.ReadString("Language", "Never", GameLanguage.Never);
+        GameLanguage.LootFilter = reader.ReadString("Language", "LootFilter", GameLanguage.LootFilter);
 
         GameLanguage.PatchErr = reader.ReadString("Language", "PatchErr", GameLanguage.PatchErr);
         GameLanguage.LastOnline = reader.ReadString("Language", "LastOnline", GameLanguage.LastOnline);
