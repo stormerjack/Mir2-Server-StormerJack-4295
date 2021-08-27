@@ -18,6 +18,7 @@ namespace Client.MirScenes.Dialogs
     public sealed class LootFilterDialog : MirImageControl
     {
         public MirButton CloseButton;
+        public MirButton RuleButton;
 
         public LootFilterDialog()
         {
@@ -29,7 +30,7 @@ namespace Client.MirScenes.Dialogs
 
             CloseButton = new MirButton
             {
-                Location = new Point(183, 3),
+                Location = new Point(186, 2),
                 HoverIndex = 361,
                 Index = 360,
                 Library = Libraries.Prguse2,
@@ -38,6 +39,18 @@ namespace Client.MirScenes.Dialogs
                 Sound = SoundList.ButtonA,
             };
             CloseButton.Click += (o, e) => Hide();
+
+
+            RuleButton = new MirButton
+            {
+                HoverIndex = 19,
+                Index = 9,
+                Location = new Point(10, 270),
+                Library = Libraries.PrguseCustom,
+                Parent = this,
+                PressedIndex = 19,
+                Sound = SoundList.ButtonA,
+            };
         }
     }
 }
