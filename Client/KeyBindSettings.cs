@@ -223,7 +223,7 @@ namespace Client
             list.Add(InputKey);
             InputKey = new KeyBind { Group = "Dialogs", Description = "Close All Windows", function = KeybindOptions.Closeall, RequireAlt = 2, RequireShift = 2, RequireTilde = 2, RequireCtrl = 2, Key = Keys.Escape };
             list.Add(InputKey);
-            InputKey = new KeyBind { Group = "Dialogs", Description = "LootFilter Open/Close", function = KeybindOptions.LootFilter, RequireAlt = 2, RequireShift = 2, RequireTilde = 2, RequireCtrl = 2, Key = Keys.X };
+            InputKey = new KeyBind { Group = "Dialogs", Description = "LootFilter Open/Close", function = KeybindOptions.LootFilter, RequireAlt = 2, RequireShift = 2, RequireTilde = 2, RequireCtrl = 2, Key = Keys.W };
             list.Add(InputKey);
 
             InputKey = new KeyBind { Group = "Skillbar", Description = "Skillbar Slot 1", function = KeybindOptions.Bar1Skill1, RequireAlt = 2, RequireShift = 2, RequireTilde = 0, RequireCtrl = 0, Key = Keys.F1 };

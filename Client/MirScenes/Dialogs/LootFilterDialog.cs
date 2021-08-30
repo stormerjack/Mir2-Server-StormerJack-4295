@@ -17,8 +17,13 @@ namespace Client.MirScenes.Dialogs
 {
     public sealed class LootFilterDialog : MirImageControl
     {
-        public MirButton CloseButton;
+        public MirButton CloseButton, UpButton, DownButton, PositionBar;
         public MirButton RuleButton;
+        private static InIReader Reader = new InIReader(@".\LootFilter.ini");
+
+        public List<string> CurrentLines = new List<string>();
+        private int _index = 0;
+        public int MaximumLines = 8;
 
         public LootFilterDialog()
         {
@@ -39,7 +44,6 @@ namespace Client.MirScenes.Dialogs
                 Sound = SoundList.ButtonA,
             };
             CloseButton.Click += (o, e) => Hide();
-
 
             RuleButton = new MirButton
             {
