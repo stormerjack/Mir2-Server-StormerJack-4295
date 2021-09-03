@@ -31,7 +31,7 @@ namespace Client.MirScenes.Dialogs
             set { MapObject.User = value; }
         }
 
-        public MirImageControl ExperienceBar, WeightBar, LeftCap, RightCap;
+        public MirImageControl ExperienceBar, WeightBar, GoldBar, LeftCap, RightCap;
         public MirButton GameShopButton, MenuButton, InventoryButton, CharacterButton, SkillButton, QuestButton, OptionButton;
         public MirControl HealthOrb;
         public MirLabel HealthLabel, ManaLabel, TopLabel, BottomLabel, LevelLabel, CharacterName, ExperienceLabel, GoldLabel, WeightLabel, SpaceLabel, AModeLabel, PModeLabel, SModeLabel, PingLabel;
@@ -1522,7 +1522,7 @@ namespace Client.MirScenes.Dialogs
     }
     public sealed class InventoryDialog : MirImageControl
     {
-        public MirImageControl WeightBar;
+        public MirImageControl WeightBar, GoldBar;
         public MirImageControl[] LockBar = new MirImageControl[10];
         public MirItemCell[] Grid;
         public MirItemCell[] QuestGrid;
@@ -1532,51 +1532,54 @@ namespace Client.MirScenes.Dialogs
 
         public InventoryDialog()
         {
-            Index = 196;
-            Library = Libraries.Title;
+            Index = 73;
+            Library = Libraries.PrguseCustom;
             Movable = true;
             Sort = true;
             Visible = false;
 
             WeightBar = new MirImageControl
             {
-                Index = 24,
-                Library = Libraries.Prguse,
-                Location = new Point(182, 217),
+                Index = 88,
+                Library = Libraries.PrguseCustom,
+                Location = new Point(215, 234),
                 Parent = this,
-                DrawImage = false,
+                DrawImage = true,
+                NotControl = true,
+            };
+
+            GoldBar = new MirImageControl
+            {
+                Index = 93,
+                Library = Libraries.PrguseCustom,
+                Location = new Point(25, 234),
+                Parent = this,
+                DrawImage = true,
                 NotControl = true,
             };
 
             ItemButton = new MirButton
             {
-                Index = 197,
-                Library = Libraries.Title,
-                Location = new Point(6, 7),
+                Index = 95,
+                HoverIndex = 96,
+                PressedIndex = 97,
+                Library = Libraries.PrguseCustom,
+                Location = new Point(23, 25),
                 Parent = this,
-                Size = new Size(72, 23),
+                Size = new Size(90, 28),
                 Sound = SoundList.ButtonA,
             };
             ItemButton.Click += Button_Click;
 
-            ItemButton2 = new MirButton
-            {
-                Index = 738,
-                Library = Libraries.Title,
-                Location = new Point(76, 7),
-                Parent = this,
-                Size = new Size(72, 23),
-                Sound = SoundList.ButtonA,
-            };
-            ItemButton2.Click += Button_Click;
-
             QuestButton = new MirButton
             {
-                Index = 739,
-                Library = Libraries.Title,
-                Location = new Point(146, 7),
+                Index = 98,
+                HoverIndex = 99,
+                PressedIndex = 100,
+                Library = Libraries.PrguseCustom,
+                Location = new Point(203, 25),
                 Parent = this,
-                Size = new Size(72, 23),
+                Size = new Size(180, 28),
                 Sound = SoundList.ButtonA,
             };
             QuestButton.Click += Button_Click;
@@ -1608,12 +1611,12 @@ namespace Client.MirScenes.Dialogs
 
             CloseButton = new MirButton
             {
-                HoverIndex = 361,
-                Index = 360,
-                Location = new Point(289, 3),
-                Library = Libraries.Prguse2,
+                HoverIndex = 89,
+                Index = 90,
+                Location = new Point(365, 7),
+                Library = Libraries.PrguseCustom,
                 Parent = this,
-                PressedIndex = 362,
+                PressedIndex = 90,
                 Sound = SoundList.ButtonA,
             };
             CloseButton.Click += (o, e) => Hide();
@@ -1621,7 +1624,7 @@ namespace Client.MirScenes.Dialogs
             GoldLabel = new MirLabel
             {
                 Parent = this,
-                Location = new Point(40, 212),
+                Location = new Point(77, 249),
                 Size = new Size(111, 14),
                 Sound = SoundList.Gold,
             };
@@ -1632,28 +1635,28 @@ namespace Client.MirScenes.Dialogs
             };
 
 
-            Grid = new MirItemCell[8 * 10];
+            Grid = new MirItemCell[10 * 10];
 
-            for (int x = 0; x < 8; x++)
+            for (int x = 0; x < 10; x++)
             {
                 for (int y = 0; y < 10; y++)
                 {
-                    int idx = 8 * y + x;
+                    int idx = 10 * y + x;
                     Grid[idx] = new MirItemCell
                     {
                         ItemSlot = 6 + idx,
                         GridType = MirGridType.Inventory,
                         Library = Libraries.Items,
                         Parent = this,
-                        Location = new Point(x * 36 + 9 + x, y % 5 * 32 + 37 + y % 5),
+                        Location = new Point(x * 36 + 30 + x, y % 5 * 32 + 67 + y % 5),
                     };
 
-                    if (idx >= 40)
+                    if (idx >= 50)
                         Grid[idx].Visible = false;
                 }
             }
 
-            QuestGrid = new MirItemCell[8 * 5];
+            QuestGrid = new MirItemCell[10 * 5];
 
             for (int x = 0; x < 8; x++)
             {
@@ -1674,7 +1677,7 @@ namespace Client.MirScenes.Dialogs
             WeightLabel = new MirLabel
             {
                 Parent = this,
-                Location = new Point(268, 212),
+                Location = new Point(265, 249),
                 Size = new Size(26, 14)
             };
             WeightBar.BeforeDraw += WeightBar_BeforeDraw;
